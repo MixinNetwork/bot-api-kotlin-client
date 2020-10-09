@@ -1,5 +1,5 @@
 
-package one.mixin.library.util;
+package one.mixin.bot.util;
 
 import java.nio.charset.StandardCharsets;
 

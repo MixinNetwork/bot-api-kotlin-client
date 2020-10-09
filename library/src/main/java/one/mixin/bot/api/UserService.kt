@@ -1,9 +1,9 @@
-package one.mixin.library.api
+package one.mixin.bot.api
 
-import one.mixin.library.vo.Account
-import one.mixin.library.vo.AccountRequest
-import one.mixin.library.vo.PinRequest
-import one.mixin.library.vo.User
+import one.mixin.bot.vo.Account
+import one.mixin.bot.vo.AccountRequest
+import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.User
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET

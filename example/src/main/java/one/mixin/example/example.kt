@@ -3,16 +3,12 @@ package one.mixin.example
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import one.mixin.library.HttpClient
-import one.mixin.library.util.getRSAPrivateKeyFromString
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-
-import java.security.Security
+import one.mixin.bot.HttpClient
+import one.mixin.bot.util.getRSAPrivateKeyFromString
 
 fun main() =
     runBlocking {
 
-        Security.addProvider(BouncyCastleProvider())
         val pin = "232546"
         val userId = "d066f2d2-1a91-416b-9241-f3547d99a753"
         val sessionId = "5de5ff95-8d29-4ce7-b544-817bd59f64ad"

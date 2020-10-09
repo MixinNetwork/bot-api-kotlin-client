@@ -12,6 +12,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
+    implementation "com.squareup.okhttp3:okhttp-tls:$okhttpVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"
     implementation "com.github.MixinNetwork.jjwt:jjwt-api:$jjwtVersion"
     runtimeOnly "com.github.MixinNetwork.jjwt:jjwt-impl:$jjwtVersion"
@@ -19,5 +20,4 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${coroutineAdapterVersion}"
-    implementation "org.bouncycastle:bcprov-jdk15on:${bouncycastleVersion}"
 }

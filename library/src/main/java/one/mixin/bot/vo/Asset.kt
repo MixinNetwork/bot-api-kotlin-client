@@ -1,4 +1,4 @@
-package one.mixin.library.vo
+package one.mixin.bot.vo
 
 import com.google.gson.annotations.SerializedName
 

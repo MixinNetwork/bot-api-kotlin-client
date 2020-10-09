@@ -1,4 +1,4 @@
-package one.mixin.library.api
+package one.mixin.bot.api
 
 import java.io.Serializable
 

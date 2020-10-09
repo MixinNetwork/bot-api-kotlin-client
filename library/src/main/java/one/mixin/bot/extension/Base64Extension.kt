@@ -1,6 +1,6 @@
-package one.mixin.library.extension
+package one.mixin.bot.extension
 
-import one.mixin.library.util.Base64
+import one.mixin.bot.util.Base64
 
 fun String.base64Encode() = toByteArray().base64Encode()
 

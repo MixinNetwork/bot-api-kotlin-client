@@ -1,14 +1,13 @@
-package one.mixin.library
+package one.mixin.bot
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import okhttp3.Request
-import one.mixin.library.extension.bodyToString
-import one.mixin.library.extension.cutOut
-import one.mixin.library.extension.sha256
-import one.mixin.library.util.aesEncrypt
-import one.mixin.library.extension.toHex
+import one.mixin.bot.extension.bodyToString
+import one.mixin.bot.extension.cutOut
+import one.mixin.bot.extension.sha256
+import one.mixin.bot.util.aesEncrypt
+import one.mixin.bot.extension.toHex
 import java.security.Key
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -36,7 +35,7 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
                 put("scp", "FULL")
             }
         )
-        .signWith( key)
+        .signWith(key)
         .compact()
 }
 

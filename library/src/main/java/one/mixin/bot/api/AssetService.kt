@@ -1,10 +1,10 @@
-package one.mixin.library.api
+package one.mixin.bot.api
 
-import one.mixin.library.vo.Address
-import one.mixin.library.vo.AddressesRequest
-import one.mixin.library.vo.Asset
-import one.mixin.library.vo.Snapshot
-import one.mixin.library.vo.WithdrawalRequest
+import one.mixin.bot.vo.Address
+import one.mixin.bot.vo.AddressesRequest
+import one.mixin.bot.vo.Asset
+import one.mixin.bot.vo.Snapshot
+import one.mixin.bot.vo.WithdrawalRequest
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET

@@ -1,14 +1,14 @@
-package one.mixin.library
+package one.mixin.bot
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import one.mixin.library.api.exception.ClientErrorException
-import one.mixin.library.api.exception.ServerErrorException
-import one.mixin.library.Constants.API.URL
-import one.mixin.library.api.AssetService
-import one.mixin.library.api.UserService
+import one.mixin.bot.api.exception.ClientErrorException
+import one.mixin.bot.api.exception.ServerErrorException
+import one.mixin.bot.Constants.API.URL
+import one.mixin.bot.api.AssetService
+import one.mixin.bot.api.UserService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.Key
@@ -16,6 +16,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class HttpClient(userId: String, sessionId: String, privateKey: Key, debug: Boolean = false) {
+
     private val okHttpClient: OkHttpClient by lazy {
         val builder = OkHttpClient.Builder()
         if (debug) {

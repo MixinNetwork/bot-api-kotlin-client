@@ -1,6 +1,9 @@
-package one.mixin.library.extension
+package one.mixin.bot.extension
+
+import java.security.MessageDigest
 
 private val HEX_CHARS = "0123456789abcdef"
+
 fun ByteArray.toHex(): String {
     val hex = HEX_CHARS.toCharArray()
     val result = StringBuffer()
@@ -12,6 +15,10 @@ fun ByteArray.toHex(): String {
         result.append(hex[firstIndex])
         result.append(hex[secondIndex])
     }
-
     return result.toString()
+}
+
+fun String.sha256(): ByteArray {
+    val md = MessageDigest.getInstance("SHA256")
+    return md.digest(toByteArray())
 }
