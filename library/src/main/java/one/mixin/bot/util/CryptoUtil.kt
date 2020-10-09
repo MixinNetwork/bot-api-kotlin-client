@@ -3,11 +3,13 @@ package one.mixin.bot.util
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.toLeByteArray
 import okhttp3.tls.HeldCertificate
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.PrivateKey
 import java.security.SecureRandom
+import java.security.Security
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
 import javax.crypto.Cipher
@@ -56,6 +58,7 @@ fun rsaDecrypt(privateKey: PrivateKey, iv: String, pinToken: String): String {
 }
 
 fun getRSAPrivateKeyFromString(privateKeyPEM: String): PrivateKey {
+    Security.addProvider(BouncyCastleProvider())
     val striped = stripRsaPrivateKeyHeaders(privateKeyPEM)
     val keySpec = PKCS8EncodedKeySpec(Base64.decode(striped))
     val kf = KeyFactory.getInstance("RSA")
