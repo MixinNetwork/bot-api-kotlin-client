@@ -2,7 +2,6 @@ package one.mixin.bot.util
 
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.toLeByteArray
-import okhttp3.tls.HeldCertificate
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.KeyFactory
 import java.security.KeyPair
@@ -22,15 +21,6 @@ fun generateRSAKeyPair(keyLength: Int = 2048): KeyPair {
     val kpg = KeyPairGenerator.getInstance("RSA")
     kpg.initialize(keyLength)
     return kpg.genKeyPair()
-}
-
-inline fun KeyPair.getPublicKey(): ByteArray {
-    return public.encoded
-}
-
-inline fun KeyPair.getPrivateKeyPem(): String {
-    val heldCertificate = HeldCertificate.Builder().keyPair(this).build()
-    return heldCertificate.privateKeyPkcs1Pem()
 }
 
 fun aesEncrypt(key: String, iterator: Long, code: String): String? {

@@ -12,13 +12,12 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AssetService {
-  @GET("assets/{id}")
-  fun getDeposit(@Path("id") id: String): Call<MixinResponse<Asset>>
+    @GET("assets/{id}")
+    suspend fun getDeposit(@Path("id") id: String): MixinResponse<Asset>
 
-  @POST("withdrawals")
-  fun withdrawals(@Body request: WithdrawalRequest): Call<MixinResponse<Snapshot>>
+    @POST("withdrawals")
+    suspend fun withdrawals(@Body request: WithdrawalRequest): MixinResponse<Snapshot>
 
-  @POST("addresses")
-  fun createAddresses(@Body request: AddressesRequest):Call<MixinResponse<Address>>
-
+    @POST("addresses")
+    suspend fun createAddresses(@Body request: AddressesRequest): MixinResponse<Address>
 }

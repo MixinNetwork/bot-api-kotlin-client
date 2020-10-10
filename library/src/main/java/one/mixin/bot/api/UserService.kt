@@ -11,13 +11,13 @@ import retrofit2.http.POST
 
 interface UserService {
     @POST("users")
-    fun createUsers(@Body request: AccountRequest): Call<MixinResponse<User>>
+    suspend fun createUsers(@Body request: AccountRequest): MixinResponse<User>
 
     @POST("pin/update")
-    fun createPin(@Body request: PinRequest): Call<MixinResponse<User>>
+    suspend fun createPin(@Body request: PinRequest): MixinResponse<User>
 
     @POST("pin/verify")
-    fun pinVerify(@Body request: PinRequest): Call<MixinResponse<User>>
+    suspend fun pinVerify(@Body request: PinRequest): MixinResponse<User>
 
     @GET("me")
     suspend fun getMe(): MixinResponse<Account>
