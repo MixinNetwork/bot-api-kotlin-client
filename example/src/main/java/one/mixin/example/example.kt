@@ -1,10 +1,7 @@
 package one.mixin.example
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import one.mixin.bot.HttpClient
-import one.mixin.bot.util.getRSAPrivateKeyFromString
 import one.mixin.example.Config.privateKey
 import one.mixin.example.Config.sessionId
 import one.mixin.example.Config.userId
