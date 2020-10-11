@@ -13,10 +13,9 @@ import one.mixin.example.Config.userId
 fun main() = runBlocking {
     val client = HttpClient(userId, sessionId, privateKey)
     val response = client.userService.getMe()
-    print(response.data?.avatarUrl)
-    val c = encryptPin(SecretPinIterator(), pinToken, pin)
-    if (c != null) {
-        val verifyResponse = client.userService.pinVerify(PinRequest(c))
-        print(verifyResponse.data?.avatarURL)
-    }
+    println(response.data?.avatarUrl)
+
+    val secretPin = encryptPin(SecretPinIterator(), pinToken, pin) ?: return@runBlocking
+    val verifyResponse = client.userService.pinVerify(PinRequest(secretPin))
+    println(verifyResponse.isSuccess)
 }
