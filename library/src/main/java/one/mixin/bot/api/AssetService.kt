@@ -12,6 +12,9 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AssetService {
+    @GET("assets")
+    suspend fun assets(): MixinResponse<List<Asset>>
+
     @GET("assets/{id}")
     suspend fun getDeposit(@Path("id") id: String): MixinResponse<Asset>
 

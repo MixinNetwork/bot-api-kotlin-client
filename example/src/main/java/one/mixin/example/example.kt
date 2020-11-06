@@ -49,6 +49,6 @@ fun main() = runBlocking {
     )
     println(pinResponse.isSuccess)
 
-    val assetResponse = client.assetService.getDeposit("965e5c6e-434c-3fa9-b780-c50f43cd955c")
-    println(assetResponse.data?.symbol)
+    val assetResponse = client.assetService.assets()
+    println(assetResponse.data)
 }
