@@ -1,2 +1,2 @@
 rootProject.name = "bot-api-kotlin-client"
-include ':example', ':library'
+include ':library', ':example'

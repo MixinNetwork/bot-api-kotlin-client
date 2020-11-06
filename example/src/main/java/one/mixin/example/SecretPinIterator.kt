@@ -7,7 +7,7 @@ import one.mixin.bot.PinIterator
  * not decrease. Be sure to keep this data safe.
  */
 class SecretPinIterator : PinIterator {
-    private var currentCount = 0L
+    private var currentCount = 200L
     override fun getValue(): Long {
         return currentCount
     }

@@ -17,6 +17,13 @@ import java.util.concurrent.TimeUnit
 
 class HttpClient(userId: String, sessionId: String, privateKey: Key, debug: Boolean = false) {
 
+    private var clientToken = TokenInfo(userId, sessionId, privateKey)
+    private var userToken: TokenInfo? = null
+
+    fun setUserToken(userToken: TokenInfo?) {
+        this.userToken = userToken
+    }
+
     private val okHttpClient: OkHttpClient by lazy {
         val builder = OkHttpClient.Builder()
         if (debug) {
@@ -36,7 +43,14 @@ class HttpClient(userId: String, sessionId: String, privateKey: Key, debug: Bool
                 .addHeader("Accept-Language", Locale.getDefault().language)
                 .addHeader(
                     "Authorization", "Bearer " +
-                        signToken(userId, sessionId, chain.request(), privateKey)
+                        (userToken ?: clientToken).let { token ->
+                            signToken(
+                                token.userId,
+                                token.sessionId,
+                                chain.request(),
+                                token.privateKey
+                            )
+                        }
                 ).build()
 
             val response = try {

@@ -10,9 +10,6 @@ class Account(
     val type: String,
     @SerializedName("identity_number")
     val identityNumber: String,
-    /**
-     * @see UserRelationship
-     */
     val relationship: String,
     @SerializedName("full_name")
     val fullName: String?,
