@@ -1,8 +1,8 @@
 # bot-api-kotlin-client
-The [Mixin Network](https://mixin.one/)-based wallet allows for the rapid construction of decentralized wallets, decentralized on-chain exchanges, and other products.
+基于[Mixin Network](https://mixin.one/) 的钱包可快速构建去中心化钱包、去中心化链上交易所等产品。
 
 # Description
-This project is based on the [Mixin Network](https://mixin.one/) bot sdk of [Kotlin](https://kotlinlang.org/)
+本项目是基于[Kotlin](https://kotlinlang.org/)的[Mixin Network](https://mixin.one/) bot sdk
 
 # Usage
 ```kotlin 
@@ -11,7 +11,7 @@ fun main() = runBlocking {
     val response = client.userService.getMe()
     println(response.data?.avatarUrl)
 
-    // Create user, registering users to the Mixin network
+    // create user 将用户注册到 Mixin 网络
     val sessionKey = generateRSAKeyPair()
     val sessionSecret = Base64.encodeBytes(sessionKey.public.encoded)
     val userResponse = client.userService.createUsers(
@@ -23,7 +23,7 @@ fun main() = runBlocking {
     println("${userResponse.data?.fullName} ${userResponse.data?.userId}")
     val user = userResponse.data ?: return@runBlocking
     client.setUserToken(TokenInfo(user.userId, user.sessionId, sessionKey.private))
-    // Decrypt AES Key
+    // decrypt pin token
     val userAesKey: String =
         rsaDecrypt(sessionKey.private, user.sessionId, user.pinToken)
     val pinResponse = client.userService.createPin(
@@ -37,7 +37,6 @@ fun main() = runBlocking {
     )
     println(pinResponse.isSuccess)
 
-    // Get asset list
     val assetResponse = client.assetService.assets()
     println(assetResponse.data)
 }
