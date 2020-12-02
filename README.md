@@ -1,5 +1,5 @@
 # bot-api-kotlin-client
-The [Mixin Network](https://mixin.one/)-based wallet allows for the rapid construction of decentralized wallets, decentralized on-chain exchanges, and other products.
+The [Mixin Network](https://mixin.one/) based wallet allows for the rapid construction of decentralized wallets, decentralized on-chain exchanges, and other products.
 
 # Description
 This project is based on the [Mixin Network](https://mixin.one/) bot sdk of [Kotlin](https://kotlinlang.org/)
