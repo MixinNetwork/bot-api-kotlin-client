@@ -8,11 +8,17 @@ import one.mixin.bot.util.Base64
 import one.mixin.bot.util.generateRSAKeyPair
 import one.mixin.bot.util.rsaDecrypt
 import one.mixin.bot.vo.AccountRequest
+import one.mixin.bot.vo.AddressesRequest
 import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.TransferRequest
+import one.mixin.bot.vo.WithdrawalRequest
+import one.mixin.example.Config.pin
+import one.mixin.example.Config.pinToken
 import one.mixin.example.Config.privateKey
 import one.mixin.example.Config.sessionId
 import one.mixin.example.Config.userId
 import java.util.Random
+import java.util.UUID
 
 fun main() = runBlocking {
     val client = HttpClient(userId, sessionId, privateKey, true)
@@ -49,6 +55,47 @@ fun main() = runBlocking {
     )
     println(pinResponse.isSuccess)
 
-    val assetResponse = client.assetService.assets()
-    println(assetResponse.data)
+    // bot transfer to user
+    client.setUserToken(null)
+    val transferResponse = client.assetService.transfer(
+        TransferRequest(
+            "965e5c6e-434c-3fa9-b780-c50f43cd955c", user.userId, "1", encryptPin(
+                SecretPinIterator(),
+                pinToken,
+                pin
+            )!!
+        )
+    )
+    print(transferResponse.data)
+    client.setUserToken(TokenInfo(user.userId, user.sessionId, sessionKey.private))
+
+    // CNB
+    val assetResponse = client.assetService.getAsset("965e5c6e-434c-3fa9-b780-c50f43cd955c")
+    println(assetResponse.data?.balance)
+
+    // create address
+    val addressResponse = client.assetService.createAddresses(
+        AddressesRequest(
+            "965e5c6e-434c-3fa9-b780-c50f43cd955c",
+            "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
+            "label",
+            encryptPin(
+                SecretPinIterator(),
+                userAesKey,
+                "131416"
+            )!!
+        )
+    )
+    println(addressResponse.data)
+
+    // withdrawal
+    val addressId = requireNotNull(addressResponse.data).addressId
+    val withdrawalsResponse = client.assetService.withdrawals(
+        WithdrawalRequest(addressId,"1", encryptPin(
+            SecretPinIterator(),
+            userAesKey,
+            "131416"
+        )!!,UUID.randomUUID().toString(),"withdrawal test")
+    )
+    println(withdrawalsResponse.data)
 }
