@@ -6,6 +6,8 @@ fun String.base64Encode() = toByteArray().base64Encode()
 
 fun ByteArray.base64Encode(): String = Base64.encodeBytes(this)
 
+fun String.base64Decode(): ByteArray = Base64.decode(this)
+
 fun Long.toLeByteArray(): ByteArray {
     var num = this
     val result = ByteArray(8)
