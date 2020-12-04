@@ -1,6 +1,9 @@
 package one.mixin.bot
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import net.i2p.crypto.eddsa.EdDSAPrivateKey
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
+import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -9,6 +12,7 @@ import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.AssetService
 import one.mixin.bot.api.UserService
+import one.mixin.bot.extension.base64Decode
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.Key
@@ -17,8 +21,10 @@ import java.util.concurrent.TimeUnit
 
 class HttpClient(userId: String, sessionId: String, privateKey: Key, debug: Boolean = false) {
 
-    private var clientToken = TokenInfo(userId, sessionId, privateKey)
+    private var clientToken = TokenInfo.RSA(userId, sessionId, privateKey)
     private var userToken: TokenInfo? = null
+
+    private val ed25519 by lazy { EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519) }
 
     fun setUserToken(userToken: TokenInfo?) {
         this.userToken = userToken
@@ -48,7 +54,13 @@ class HttpClient(userId: String, sessionId: String, privateKey: Key, debug: Bool
                                 token.userId,
                                 token.sessionId,
                                 chain.request(),
-                                token.privateKey
+                                if (token is TokenInfo.RSA) {
+                                    token.privateKey
+                                } else {
+                                    val seed = (token as TokenInfo.EdDSA).seed
+                                    val privateSpec = EdDSAPrivateKeySpec(seed.base64Decode(), ed25519)
+                                    EdDSAPrivateKey(privateSpec)
+                                }
                             )
                         }
                 ).build()

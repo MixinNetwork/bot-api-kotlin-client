@@ -1,11 +1,14 @@
 package one.mixin.bot.util
 
+import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.toLeByteArray
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.whispersystems.curve25519.Curve25519
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.KeyPairGenerator
+import java.security.MessageDigest
 import java.security.PrivateKey
 import java.security.SecureRandom
 import java.security.Security
@@ -16,11 +19,31 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.OAEPParameterSpec
 import javax.crypto.spec.PSource
 import javax.crypto.spec.SecretKeySpec
+import kotlin.experimental.and
+import kotlin.experimental.or
+import kotlin.jvm.Throws
 
 fun generateRSAKeyPair(keyLength: Int = 2048): KeyPair {
     val kpg = KeyPairGenerator.getInstance("RSA")
     kpg.initialize(keyLength)
     return kpg.genKeyPair()
+}
+
+fun generateEd25519KeyPair(): KeyPair {
+    return net.i2p.crypto.eddsa.KeyPairGenerator().generateKeyPair()
+}
+
+@Throws(IllegalArgumentException::class)
+fun calculateAgreement(publicKey: ByteArray, privateKey: EdDSAPrivateKey): ByteArray =
+    Curve25519.getInstance(Curve25519.BEST).calculateAgreement(publicKey, privateKeyToCurve25519(privateKey.seed))
+
+fun privateKeyToCurve25519(edSeed: ByteArray): ByteArray {
+    val md = MessageDigest.getInstance("SHA-512")
+    val h = md.digest(edSeed).sliceArray(IntRange(0, 31))
+    h[0] = h[0] and 248.toByte()
+    h[31] = h[31] and 127
+    h[31] = h[31] or 64
+    return h
 }
 
 fun aesEncrypt(key: String, iterator: Long, code: String): String? {
