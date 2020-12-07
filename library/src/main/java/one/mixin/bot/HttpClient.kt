@@ -14,24 +14,26 @@ import one.mixin.bot.api.AssetService
 import one.mixin.bot.api.UserService
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.util.signToken
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.Key
+import java.security.Security
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class HttpClient(
-    userId: String,
-    sessionId: String,
-    privateKey: Key,
+    private val clientToken: SessionToken,
     debug: Boolean = false
 ) {
 
-    private var clientToken = SessionToken.RSA(userId, sessionId, privateKey)
+    init {
+        Security.addProvider(BouncyCastleProvider())
+    }
+
     private var userSessionToken: SessionToken? = null
 
     private val ed25519 by lazy { EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519) }
-
     fun setUserToken(userSessionToken: SessionToken?) {
         this.userSessionToken = userSessionToken
     }

@@ -1,8 +1,11 @@
 package one.mixin.bot.util
 
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
+import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.toLeByteArray
+import one.mixin.bot.util.Base64.URL_SAFE
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.whispersystems.curve25519.Curve25519
 import java.security.KeyFactory
@@ -44,6 +47,13 @@ fun privateKeyToCurve25519(edSeed: ByteArray): ByteArray {
     h[31] = h[31] and 127
     h[31] = h[31] or 64
     return h
+}
+
+internal val ed25519 = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
+
+fun getEdDSAPrivateKeyFromString(base64: String): EdDSAPrivateKey {
+    val privateSpec = EdDSAPrivateKeySpec(Base64.decode(base64, URL_SAFE).copyOfRange(0,32), ed25519)
+    return EdDSAPrivateKey(privateSpec)
 }
 
 fun aesEncrypt(key: String, iterator: Long, code: String): String? {

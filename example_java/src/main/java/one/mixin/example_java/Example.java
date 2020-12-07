@@ -3,7 +3,7 @@ package one.mixin.example_java;
 import net.i2p.crypto.eddsa.EdDSAPrivateKey;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import one.mixin.bot.HttpClient;
-import one.mixin.bot.TokenInfo;
+import one.mixin.bot.SessionToken;
 import one.mixin.bot.api.MixinResponse;
 import one.mixin.bot.util.Base64;
 import one.mixin.bot.vo.*;
@@ -21,7 +21,8 @@ import static one.mixin.example_java.Config.*;
 public class Example {
 
     public static void main(String[] args) {
-        HttpClient client = new HttpClient(userId, sessionId, privateKey, false);
+        HttpClient client = new HttpClient(new SessionToken.EdDSA(userId, sessionId,
+                Base64.encodeBytes(privateKey.getSeed())), true);
         try {
             boolean isRsa = false; // 是否使用RSA Key 推荐false 使用EdDSA
 
@@ -58,11 +59,11 @@ public class Example {
             client.setUserToken(getUserToken(user, sessionKey, isRsa));
             // decrypt pin token
             String userAesKey;
-             if (isRsa) {
-                 userAesKey= rsaDecrypt(sessionKey.getPrivate(), user.getSessionId(), user.getPinToken());
+            if (isRsa) {
+                userAesKey = rsaDecrypt(sessionKey.getPrivate(), user.getSessionId(), user.getPinToken());
             } else {
-                 EdDSAPrivateKey privateKey =(EdDSAPrivateKey) sessionKey.getPrivate();
-                 userAesKey = Base64.encodeBytes(calculateAgreement(Base64.decode(user.getPinToken()), privateKey));
+                EdDSAPrivateKey privateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
+                userAesKey = Base64.encodeBytes(calculateAgreement(Base64.decode(user.getPinToken()), privateKey));
             }
 
             MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(pinIterator, userAesKey, "131416")), null)).execute().body();
@@ -76,7 +77,7 @@ public class Example {
             // bot transfer to user
             client.setUserToken(null);
             MixinResponse<Snapshot> transferResponse = client.getAssetService().transferCall(
-                    new TransferRequest("965e5c6e-434c-3fa9-b780-c50f43cd955c", user.getUserId(), "2", encryptPin(
+                    new TransferRequest("965e5c6e-434c-3fa9-b780-c50f43cd955c", user.getUserId(), "1.1", encryptPin(
                             pinIterator,
                             pinToken,
                             pin
@@ -118,7 +119,7 @@ public class Example {
             }
 
             // withdrawal 提现到地址
-            MixinResponse<Snapshot> withdrawalsResponse = client.getAssetService().withdrawalsCall(new WithdrawalRequest(addressId, "2", Objects.requireNonNull(encryptPin(
+            MixinResponse<Snapshot> withdrawalsResponse = client.getAssetService().withdrawalsCall(new WithdrawalRequest(addressId, "1.1", Objects.requireNonNull(encryptPin(
                     pinIterator,
                     userAesKey,
                     "131416"
@@ -127,16 +128,16 @@ public class Example {
                 addressId = Objects.requireNonNull(withdrawalsResponse.getData()).getSnapshotId();
                 System.out.println(addressId);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static TokenInfo getUserToken(User user, KeyPair sessionKey, boolean isRsa) {
+    private static SessionToken getUserToken(User user, KeyPair sessionKey, boolean isRsa) {
         if (isRsa) {
-            return new TokenInfo.RSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivate());
+            return new SessionToken.RSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivate());
         } else {
-            return new TokenInfo.EdDSA(user.getUserId(), user.getSessionId(),
+            return new SessionToken.EdDSA(user.getUserId(), user.getSessionId(),
                     Base64.encodeBytes(((EdDSAPrivateKey) sessionKey.getPrivate()).getSeed()));
         }
     }
