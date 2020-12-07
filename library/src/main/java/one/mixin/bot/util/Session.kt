@@ -39,8 +39,8 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
         .compact()
 }
 
-fun encryptPin(pinIterator: PinIterator, key: String, code: String?): String? {
-    val pinCode = code ?: return null
+fun encryptPin(pinIterator: PinIterator, key: String, pin: String?): String? {
+    val pinCode = pin ?: return null
     val based = aesEncrypt(key, pinIterator.getValue(), pinCode)
     pinIterator.increment()
     return based

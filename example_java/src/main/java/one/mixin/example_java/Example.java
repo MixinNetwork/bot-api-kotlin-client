@@ -21,30 +21,15 @@ import static one.mixin.example_java.Config.*;
 public class Example {
 
     public static void main(String[] args) {
-        HttpClient client = new HttpClient(new SessionToken.EdDSA(userId, sessionId,
-                Base64.encodeBytes(privateKey.getSeed())), true);
+        HttpClient client = new HttpClient(new SessionToken.EdDSA(userId, sessionId, Base64.encodeBytes(privateKey.getSeed())), true);
         try {
-            boolean isRsa = false; // 是否使用RSA Key 推荐false 使用EdDSA
-
-            // create user 将用户注册到 Mixin 网络
-            KeyPair sessionKey;
-            if (isRsa) {
-                sessionKey = generateRSAKeyPair(2048);
-            } else {
-                sessionKey = generateEd25519KeyPair();
-            }
-            String sessionSecret;
-            if (isRsa) {
-                sessionSecret = Base64.encodeBytes(sessionKey.getPublic().getEncoded());
-            } else {
-                EdDSAPublicKey publicKey = (EdDSAPublicKey) (sessionKey.getPublic());
-                sessionSecret = Base64.encodeBytes(publicKey.getAbyte());
-            }
+            KeyPair sessionKey = generateEd25519KeyPair();
+            EdDSAPublicKey publicKey = (EdDSAPublicKey) (sessionKey.getPublic());
+            String sessionSecret = Base64.encodeBytes(publicKey.getAbyte());
             AccountRequest accountRequest = new AccountRequest(
                     new Random().nextInt(10) + "User",
                     sessionSecret
             );
-            // create user 将用户注册到 Mixin 网络
             MixinResponse<User> userResponse = client.getUserService().createUsersCall(accountRequest).execute().body();
             assert userResponse != null;
             User user;
@@ -56,15 +41,11 @@ public class Example {
             }
             assert user != null;
             SecretPinIterator pinIterator = new SecretPinIterator();
-            client.setUserToken(getUserToken(user, sessionKey, isRsa));
+            client.setUserToken(getUserToken(user, sessionKey, false));
             // decrypt pin token
             String userAesKey;
-            if (isRsa) {
-                userAesKey = rsaDecrypt(sessionKey.getPrivate(), user.getSessionId(), user.getPinToken());
-            } else {
-                EdDSAPrivateKey privateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
-                userAesKey = Base64.encodeBytes(calculateAgreement(Base64.decode(user.getPinToken()), privateKey));
-            }
+            EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
+            userAesKey = Base64.encodeBytes(calculateAgreement(Base64.decode(user.getPinToken()), userPrivateKey));
 
             MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(pinIterator, userAesKey, "131416")), null)).execute().body();
             assert pinResponse != null;
@@ -76,6 +57,7 @@ public class Example {
 
             // bot transfer to user
             client.setUserToken(null);
+            pinToken = Base64.encodeBytes(calculateAgreement(Base64.decodeWithoutPadding(pinToken), privateKey));
             MixinResponse<Snapshot> transferResponse = client.getAssetService().transferCall(
                     new TransferRequest("965e5c6e-434c-3fa9-b780-c50f43cd955c", user.getUserId(), "1.1", encryptPin(
                             pinIterator,
@@ -89,9 +71,9 @@ public class Example {
                 return;
             }
             // Use user's token
-            client.setUserToken(getUserToken(user, sessionKey, isRsa));
+            client.setUserToken(getUserToken(user, sessionKey, false));
             Thread.sleep(2000);
-            // Get asset 获取asset
+            // Get asset
             MixinResponse<Asset> assetResponse = client.getAssetService().getAssetCall("965e5c6e-434c-3fa9-b780-c50f43cd955c").execute().body();
             assert assetResponse != null;
             if (assetResponse.isSuccess()) {
@@ -100,7 +82,7 @@ public class Example {
                 return;
             }
 
-            // Create address 创建地址
+            // Create address
             MixinResponse<Address> addressResponse = client.getAssetService().createAddressesCall(new AddressesRequest("965e5c6e-434c-3fa9-b780-c50f43cd955c",
                     "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
                     "label", Objects.requireNonNull(encryptPin(
@@ -118,7 +100,7 @@ public class Example {
                 return;
             }
 
-            // withdrawal 提现到地址
+            // withdrawal
             MixinResponse<Snapshot> withdrawalsResponse = client.getAssetService().withdrawalsCall(new WithdrawalRequest(addressId, "1.1", Objects.requireNonNull(encryptPin(
                     pinIterator,
                     userAesKey,

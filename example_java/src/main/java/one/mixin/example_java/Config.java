@@ -9,21 +9,11 @@ import static one.mixin.bot.util.CryptoUtilKt.calculateAgreement;
 import static one.mixin.bot.util.CryptoUtilKt.getEdDSAPrivateKeyFromString;
 
 class Config {
-    static String pin = "674239";
-    static String userId = "d066f2d2-1a91-416b-9241-f3547d99a753";
-    static String sessionId = "b36e2814-9702-4a30-9bca-361b46541d16";
+    static String pin = "789222";
+    static String userId ="5fa13575-f078-4c92-b913-fdfd1611f573";
+    static String sessionId = "f14c65b0-1972-464f-96d4-bd93e7650c1d";
     static EdDSAPrivateKey privateKey = getEdDSAPrivateKeyFromString(
-            "6-gv2fSIEUjU_LDsr-oghQ4uBkYZ45iKSpUsQW_tVjAbM8COR2d5ByTiJZ_dVhvg-krY9ljcrcO6Xoi_cqs2BQ");
+            "PJyrEh0N9Toe8fXe5OfrxdTSZE2U-636IjigGRANNqBQJ9W1xV251IXQIvVwMWW4zBvqH4A7xhotM2_2X-_aLQ");
+    static String pinToken = "wOv6Epc0TXcQOWYqjhJnNNc1iAfyfXxbauDZ8XSQPzQ";
 
-    static String pinToken;
-
-    static {
-        try {
-            pinToken = Base64.encodeBytes(calculateAgreement(Base64.decodeWithoutPadding("-zz-URVGh0a_appbXrUWmw-6UMfJzfAfkltFbZ23oxs"), privateKey));
-            assert pinToken !=null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 }
