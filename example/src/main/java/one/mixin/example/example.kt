@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
 import one.mixin.bot.HttpClient
-import one.mixin.bot.TokenInfo
+import one.mixin.bot.SessionToken
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.util.encryptPin
@@ -129,8 +129,8 @@ fun main() = runBlocking {
 @Suppress("SameParameterValue")
 private fun getUserToken(user: User, sessionKey: KeyPair, isRsa: Boolean) =
     if (isRsa) {
-        TokenInfo.RSA(user.userId, user.sessionId, sessionKey.private)
+        SessionToken.RSA(user.userId, user.sessionId, sessionKey.private)
     } else {
-        TokenInfo.EdDSA(user.userId, user.sessionId,
+        SessionToken.EdDSA(user.userId, user.sessionId,
             (sessionKey.private as EdDSAPrivateKey).seed.base64Encode())
     }

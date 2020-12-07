@@ -27,13 +27,13 @@ class HttpClient(
     debug: Boolean = false
 ) {
 
-    private var clientToken = TokenInfo.RSA(userId, sessionId, privateKey)
-    private var userToken: TokenInfo? = null
+    private var clientToken = SessionToken.RSA(userId, sessionId, privateKey)
+    private var userSessionToken: SessionToken? = null
 
     private val ed25519 by lazy { EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519) }
 
-    fun setUserToken(userToken: TokenInfo?) {
-        this.userToken = userToken
+    fun setUserToken(userSessionToken: SessionToken?) {
+        this.userSessionToken = userSessionToken
     }
 
     private val okHttpClient: OkHttpClient by lazy {
@@ -55,15 +55,15 @@ class HttpClient(
                 .addHeader("Accept-Language", Locale.getDefault().language)
                 .addHeader(
                     "Authorization", "Bearer " +
-                        (userToken ?: clientToken).let { token ->
+                        (userSessionToken ?: clientToken).let { token ->
                             signToken(
                                 token.userId,
                                 token.sessionId,
                                 chain.request(),
-                                if (token is TokenInfo.RSA) {
+                                if (token is SessionToken.RSA) {
                                     token.privateKey
                                 } else {
-                                    val seed = (token as TokenInfo.EdDSA).seed
+                                    val seed = (token as SessionToken.EdDSA).seed
                                     val privateSpec = EdDSAPrivateKeySpec(seed.base64Decode(), ed25519)
                                     EdDSAPrivateKey(privateSpec)
                                 }
