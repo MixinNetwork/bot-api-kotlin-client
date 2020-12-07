@@ -1,5 +1,7 @@
 package one.mixin.example_java;
 
+import net.i2p.crypto.eddsa.EdDSAPrivateKey;
+import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import one.mixin.bot.HttpClient;
 import one.mixin.bot.TokenInfo;
 import one.mixin.bot.api.MixinResponse;
@@ -12,8 +14,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
-import static one.mixin.bot.util.CryptoUtilKt.generateRSAKeyPair;
-import static one.mixin.bot.util.CryptoUtilKt.rsaDecrypt;
+import static one.mixin.bot.util.CryptoUtilKt.*;
 import static one.mixin.bot.util.SessionKt.encryptPin;
 import static one.mixin.example_java.Config.*;
 
@@ -22,8 +23,22 @@ public class Example {
     public static void main(String[] args) {
         HttpClient client = new HttpClient(userId, sessionId, privateKey, false);
         try {
-            KeyPair sessionKey = generateRSAKeyPair(2048);
-            String sessionSecret = Base64.encodeBytes(sessionKey.getPublic().getEncoded());
+            boolean isRsa = false; // 是否使用RSA Key 推荐false 使用EdDSA
+
+            // create user 将用户注册到 Mixin 网络
+            KeyPair sessionKey;
+            if (isRsa) {
+                sessionKey = generateRSAKeyPair(2048);
+            } else {
+                sessionKey = generateEd25519KeyPair();
+            }
+            String sessionSecret;
+            if (isRsa) {
+                sessionSecret = Base64.encodeBytes(sessionKey.getPublic().getEncoded());
+            } else {
+                EdDSAPublicKey publicKey = (EdDSAPublicKey) (sessionKey.getPublic());
+                sessionSecret = Base64.encodeBytes(publicKey.getAbyte());
+            }
             AccountRequest accountRequest = new AccountRequest(
                     new Random().nextInt(10) + "User",
                     sessionSecret
@@ -40,9 +55,16 @@ public class Example {
             }
             assert user != null;
             SecretPinIterator pinIterator = new SecretPinIterator();
-            client.setUserToken(new TokenInfo.RSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivate()));
+            client.setUserToken(getUserToken(user, sessionKey, isRsa));
             // decrypt pin token
-            String userAesKey = rsaDecrypt(sessionKey.getPrivate(), user.getSessionId(), user.getPinToken());
+            String userAesKey;
+             if (isRsa) {
+                 userAesKey= rsaDecrypt(sessionKey.getPrivate(), user.getSessionId(), user.getPinToken());
+            } else {
+                 EdDSAPrivateKey privateKey =(EdDSAPrivateKey) sessionKey.getPrivate();
+                 userAesKey = Base64.encodeBytes(calculateAgreement(Base64.decode(user.getPinToken()), privateKey));
+            }
+
             MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(pinIterator, userAesKey, "131416")), null)).execute().body();
             assert pinResponse != null;
             if (pinResponse.isSuccess()) {
@@ -66,7 +88,7 @@ public class Example {
                 return;
             }
             // Use user's token
-            client.setUserToken(new TokenInfo.RSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivate()));
+            client.setUserToken(getUserToken(user, sessionKey, isRsa));
             Thread.sleep(2000);
             // Get asset 获取asset
             MixinResponse<Asset> assetResponse = client.getAssetService().getAssetCall("965e5c6e-434c-3fa9-b780-c50f43cd955c").execute().body();
@@ -100,7 +122,7 @@ public class Example {
                     pinIterator,
                     userAesKey,
                     "131416"
-            )), UUID.randomUUID().toString(),"withdrawal test")).execute().body();
+            )), UUID.randomUUID().toString(), "withdrawal test")).execute().body();
             if (withdrawalsResponse.isSuccess()) {
                 addressId = Objects.requireNonNull(withdrawalsResponse.getData()).getSnapshotId();
                 System.out.println(addressId);
@@ -110,4 +132,12 @@ public class Example {
         }
     }
 
+    private static TokenInfo getUserToken(User user, KeyPair sessionKey, boolean isRsa) {
+        if (isRsa) {
+            return new TokenInfo.RSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivate());
+        } else {
+            return new TokenInfo.EdDSA(user.getUserId(), user.getSessionId(),
+                    Base64.encodeBytes(((EdDSAPrivateKey) sessionKey.getPrivate()).getSeed()));
+        }
+    }
 }

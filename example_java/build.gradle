@@ -10,4 +10,5 @@ java {
 dependencies {
     implementation project(':library')
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "net.i2p.crypto:eddsa:$ed25519Version"
 }
