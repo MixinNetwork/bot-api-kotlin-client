@@ -13,13 +13,19 @@ import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.AssetService
 import one.mixin.bot.api.UserService
 import one.mixin.bot.extension.base64Decode
+import one.mixin.bot.util.signToken
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.Key
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-class HttpClient(userId: String, sessionId: String, privateKey: Key, debug: Boolean = false) {
+class HttpClient(
+    userId: String,
+    sessionId: String,
+    privateKey: Key,
+    debug: Boolean = false
+) {
 
     private var clientToken = TokenInfo.RSA(userId, sessionId, privateKey)
     private var userToken: TokenInfo? = null

@@ -13,12 +13,26 @@ interface UserService {
     @POST("users")
     suspend fun createUsers(@Body request: AccountRequest): MixinResponse<User>
 
+
+    @POST("users")
+    fun createUsersCall(@Body request: AccountRequest): Call<MixinResponse<User>>
+
     @POST("pin/update")
     suspend fun createPin(@Body request: PinRequest): MixinResponse<User>
+
+    @POST("pin/update")
+    fun createPinCall(@Body request: PinRequest): Call<MixinResponse<User>>
 
     @POST("pin/verify")
     suspend fun pinVerify(@Body request: PinRequest): MixinResponse<User>
 
+    @POST("pin/verify")
+    fun pinVerifyCall(@Body request: PinRequest): Call<MixinResponse<User>>
+
     @GET("me")
     suspend fun getMe(): MixinResponse<Account>
+
+    @GET("me")
+    fun getMeCall(): Call<MixinResponse<Account>>
 }
+

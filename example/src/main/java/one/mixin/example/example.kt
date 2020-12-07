@@ -1,13 +1,14 @@
 package one.mixin.example
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
 import one.mixin.bot.HttpClient
 import one.mixin.bot.TokenInfo
-import one.mixin.bot.encryptPin
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.util.encryptPin
 import one.mixin.bot.util.Base64
 import one.mixin.bot.util.calculateAgreement
 import one.mixin.bot.util.generateEd25519KeyPair
@@ -29,13 +30,13 @@ import java.util.Random
 import java.util.UUID
 
 fun main() = runBlocking {
-    val client = HttpClient(userId, sessionId, privateKey, true)
+    val client = HttpClient(userId, sessionId, privateKey,true)
     val response = client.userService.getMe()
     println(response.data?.avatarUrl)
 
-    // val secretPin = encryptPin(SecretPinIterator(), pinToken, pin) ?: return@runBlocking
-    // val verifyResponse = client.userService.pinVerify(PinRequest(secretPin))
-    // println(verifyResponse.isSuccess)
+    val secretPin = encryptPin(SecretPinIterator(), pinToken, pin) ?: return@runBlocking
+    val verifyResponse = client.userService.pinVerify(PinRequest(secretPin))
+    println(verifyResponse.isSuccess)
 
     // toggle use RSA or EdDSA
     val isRsa = false
@@ -79,10 +80,11 @@ fun main() = runBlocking {
     println(pinResponse.isSuccess)
 
     // bot transfer to user
+
     client.setUserToken(null)
     val transferResponse = client.assetService.transfer(
         TransferRequest(
-            "965e5c6e-434c-3fa9-b780-c50f43cd955c", user.userId, "1", encryptPin(
+            "965e5c6e-434c-3fa9-b780-c50f43cd955c", user.userId, "100", encryptPin(
                 SecretPinIterator(),
                 pinToken,
                 pin
@@ -93,8 +95,9 @@ fun main() = runBlocking {
     client.setUserToken(getUserToken(user, sessionKey, isRsa))
 
     // CNB
+    delay(5000)
     val assetResponse = client.assetService.getAsset("965e5c6e-434c-3fa9-b780-c50f43cd955c")
-    println(assetResponse.data?.balance)
+    println(assetResponse.data)
 
     // create address
     val addressResponse = client.assetService.createAddresses(
@@ -114,7 +117,7 @@ fun main() = runBlocking {
     // withdrawal
     val addressId = requireNotNull(addressResponse.data).addressId
     val withdrawalsResponse = client.assetService.withdrawals(
-        WithdrawalRequest(addressId,"1", encryptPin(
+        WithdrawalRequest(addressId,"100", encryptPin(
             SecretPinIterator(),
             userAesKey,
             "131416"
