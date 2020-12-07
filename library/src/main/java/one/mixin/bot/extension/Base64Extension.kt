@@ -1,12 +1,19 @@
 package one.mixin.bot.extension
 
-import one.mixin.bot.util.Base64
+import java.lang.Exception
+import java.util.Base64
 
 fun String.base64Encode() = toByteArray().base64Encode()
 
-fun ByteArray.base64Encode(): String = Base64.encodeBytes(this)
+fun ByteArray.base64Encode(): String = Base64.getEncoder().encodeToString(this)
 
-fun String.base64Decode(): ByteArray = Base64.decode(this)
+fun String.base64Decode(): ByteArray {
+    return try {
+        Base64.getUrlDecoder().decode(this)
+    } catch (e: Exception) {
+        Base64.getDecoder().decode(this)
+    }
+}
 
 fun Long.toLeByteArray(): ByteArray {
     var num = this

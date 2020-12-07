@@ -3,9 +3,9 @@ package one.mixin.bot.util
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
+import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.toLeByteArray
-import one.mixin.bot.util.Base64.URL_SAFE
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.whispersystems.curve25519.Curve25519
 import java.security.KeyFactory
@@ -52,12 +52,12 @@ fun privateKeyToCurve25519(edSeed: ByteArray): ByteArray {
 internal val ed25519 = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
 
 fun getEdDSAPrivateKeyFromString(base64: String): EdDSAPrivateKey {
-    val privateSpec = EdDSAPrivateKeySpec(Base64.decode(base64, URL_SAFE).copyOfRange(0,32), ed25519)
+    val privateSpec = EdDSAPrivateKeySpec(base64.base64Decode().copyOfRange(0,32), ed25519)
     return EdDSAPrivateKey(privateSpec)
 }
 
 fun aesEncrypt(key: String, iterator: Long, code: String): String? {
-    val keySpec = SecretKeySpec(Base64.decode(key), "AES")
+    val keySpec = SecretKeySpec(key.base64Decode(), "AES")
     val iv = ByteArray(16)
     SecureRandom().nextBytes(iv)
 
@@ -74,13 +74,14 @@ fun rsaDecrypt(privateKey: PrivateKey, iv: String, pinToken: String): String {
     deCipher.init(Cipher.DECRYPT_MODE, privateKey, OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
         PSource.PSpecified(iv.toByteArray())
     ))
-    return Base64.encodeBytes(deCipher.doFinal(Base64.decode(pinToken)))
+
+    return (deCipher.doFinal(pinToken.base64Decode())).base64Encode()
 }
 
 fun getRSAPrivateKeyFromString(privateKeyPEM: String): PrivateKey {
     Security.addProvider(BouncyCastleProvider())
     val striped = stripRsaPrivateKeyHeaders(privateKeyPEM)
-    val keySpec = PKCS8EncodedKeySpec(Base64.decode(striped))
+    val keySpec = PKCS8EncodedKeySpec(striped.base64Decode())
     val kf = KeyFactory.getInstance("RSA")
     return kf.generatePrivate(keySpec)
 }

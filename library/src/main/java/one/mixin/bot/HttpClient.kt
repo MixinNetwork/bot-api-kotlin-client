@@ -17,7 +17,6 @@ import one.mixin.bot.util.signToken
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.security.Key
 import java.security.Security
 import java.util.Locale
 import java.util.concurrent.TimeUnit
