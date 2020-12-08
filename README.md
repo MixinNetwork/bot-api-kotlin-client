@@ -42,40 +42,26 @@ Add the dependency
 # Usage
 ```kotlin 
 fun main() = runBlocking {
-    val client = HttpClient(userId, sessionId, privateKey, true)
-    val response = client.userService.getMe()
-    println(response.data?.avatarUrl)
+    val key = getEdDSAPrivateKeyFromString(Config.privateKey)
+    val pinToken = decryASEKey(Config.pinTokenPem, key) ?: return@runBlocking
+    val client = HttpClient.Builder().configEdDSA(Config.userId, Config.sessionId, key).build()
+
+    val sessionKey = generateEd25519KeyPair()
+    val publicKey = sessionKey.public as EdDSAPublicKey
+    val sessionSecret = publicKey.abyte.base64Encode()
 
     // Create user, registering users to the Mixin network
-    val sessionKey = generateRSAKeyPair()
-    val sessionSecret = Base64.encodeBytes(sessionKey.public.encoded)
-    val userResponse = client.userService.createUsers(
-        AccountRequest(
-            "User${Random().nextInt(100)}",
-            sessionSecret
-        )
+    val user = createUser(client, sessionSecret)
+    user ?: return@runBlocking
+    client.setUserToken(
+        SessionToken.EdDSA(
+            user.userId, user.sessionId,
+                (sessionKey.private as EdDSAPrivateKey).seed.base64Encode()
+       )
     )
-    println("${userResponse.data?.fullName} ${userResponse.data?.userId}")
-    val user = userResponse.data ?: return@runBlocking
-    client.setUserToken(TokenInfo(user.userId, user.sessionId, sessionKey.private))
-    // Decrypt AES Key
-    val userAesKey: String =
-        rsaDecrypt(sessionKey.private, user.sessionId, user.pinToken)
-    val pinResponse = client.userService.createPin(
-        PinRequest(
-            encryptPin(
-                SecretPinIterator(),
-                userAesKey,
-                "131416"
-            )!!
-        )
-    )
-    println(pinResponse.isSuccess)
-
-    // Get asset list
-    val assetResponse = client.assetService.assets()
-    println(assetResponse.data)
 }
 ```
+[More usage](https://github.com/MixinNetwork/bot-api-kotlin-client/blob/main/samples/src/main/java/jvmMain/kotlin/Sample.kt)
+
 # Licence
 [WTFPL](http://www.wtfpl.net/txt/copying/)
