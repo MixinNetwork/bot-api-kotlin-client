@@ -1,4 +1,4 @@
-package one.mixin.bot.util
+package one.mixin.bot
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -6,6 +6,7 @@ import okhttp3.Request
 import okio.ByteString.Companion.encode
 import one.mixin.bot.extension.bodyToString
 import one.mixin.bot.extension.cutOut
+import one.mixin.bot.util.aesEncrypt
 import java.security.Key
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
