@@ -14,8 +14,8 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
+import static one.mixin.bot.SessionKt.encryptPin;
 import static one.mixin.bot.util.CryptoUtilKt.*;
-import static one.mixin.bot.util.SessionKt.encryptPin;
 import static one.mixin.example_java.Config.*;
 
 public class Example {
