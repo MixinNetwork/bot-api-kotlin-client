@@ -9,8 +9,9 @@ java {
 }
 
 dependencies {
-    implementation project(':library')
-//    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:test'
+    // implementation project(':library')
+    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.1.0'
+
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "net.i2p.crypto:eddsa:$ed25519Version"
 

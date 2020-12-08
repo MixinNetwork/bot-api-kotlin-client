@@ -4,6 +4,44 @@ The [Mixin Network](https://mixin.one/) based wallet allows for the rapid constr
 # Description
 This project is based on the [Mixin Network](https://mixin.one/) bot sdk of [Kotlin](https://kotlinlang.org/)
 
+# Installation
+
+## gradle
+Add it in your root build.gradle at the end of repositories:
+```
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+Add the dependency
+```
+dependencies {
+    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.1.0'
+}
+```
+
+## maven
+Add the JitPack repository to your build file
+```
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+Add the dependency
+```
+<dependency>
+    <groupId>com.github.MixinNetwork</groupId>
+    <artifactId>bot-api-kotlin-client</artifactId>
+    <version>v0.1.0</version>
+</dependency>
+```
+
 # Usage
 ```kotlin 
 fun main() = runBlocking {
