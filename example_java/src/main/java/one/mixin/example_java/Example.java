@@ -50,7 +50,6 @@ public class Example {
                 return;
             }
             assert user != null;
-            SecretPinIterator pinIterator = new SecretPinIterator();
             client.setUserToken(getUserToken(user, sessionKey, false));
             // decrypt pin token
             String userAesKey;
@@ -58,7 +57,7 @@ public class Example {
             EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
             userAesKey = base64Encode(calculateAgreement(base64Encode(user.getPinToken()), userPrivateKey));
 
-            MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(pinIterator, userAesKey, "131416")), null)).execute().body();
+            MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, System.nanoTime(), "131416")), null)).execute().body();
             assert pinResponse != null;
             if (pinResponse.isSuccess()) {
                 System.out.println(Objects.requireNonNull(pinResponse.getData()).getUserId());
@@ -70,8 +69,8 @@ public class Example {
             client.setUserToken(null);
             MixinResponse<Snapshot> transferResponse = client.getAssetService().transferCall(
                     new TransferRequest("965e5c6e-434c-3fa9-b780-c50f43cd955c", user.getUserId(), "2", encryptPin(
-                            pinIterator,
                             pinToken,
+                            System.nanoTime(),
                             pin
                     ), null, null, null)).execute().body();
             assert transferResponse != null;
@@ -96,8 +95,8 @@ public class Example {
             MixinResponse<Address> addressResponse = client.getAssetService().createAddressesCall(new AddressesRequest("965e5c6e-434c-3fa9-b780-c50f43cd955c",
                     "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
                     "label", Objects.requireNonNull(encryptPin(
-                    pinIterator,
                     userAesKey,
+                    System.nanoTime(),
                     "131416"
             )), null, null
             )).execute().body();
@@ -112,8 +111,8 @@ public class Example {
 
             // withdrawal
             MixinResponse<Snapshot> withdrawalsResponse = client.getAssetService().withdrawalsCall(new WithdrawalRequest(addressId, "2", Objects.requireNonNull(encryptPin(
-                    pinIterator,
                     userAesKey,
+                    System.nanoTime(),
                     "131416"
             )), UUID.randomUUID().toString(), "withdrawal test")).execute().body();
             assert withdrawalsResponse != null;

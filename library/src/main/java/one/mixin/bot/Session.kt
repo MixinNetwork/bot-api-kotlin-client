@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import okhttp3.Request
 import okio.ByteString.Companion.encode
-import one.mixin.bot.PinIterator
 import one.mixin.bot.extension.bodyToString
 import one.mixin.bot.extension.cutOut
 import java.security.Key
@@ -38,9 +37,7 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
         .compact()
 }
 
-fun encryptPin(pinIterator: PinIterator, key: String, pin: String?): String? {
+fun encryptPin(key: String, iterator: Long = System.nanoTime(), pin: String?): String? {
     val pinCode = pin ?: return null
-    val based = aesEncrypt(key, pinIterator.getValue(), pinCode)
-    pinIterator.increment()
-    return based
+    return aesEncrypt(key, iterator, pinCode)
 }
