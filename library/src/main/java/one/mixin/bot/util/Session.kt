@@ -3,11 +3,10 @@ package one.mixin.bot.util
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import okhttp3.Request
+import okio.ByteString.Companion.encode
 import one.mixin.bot.PinIterator
 import one.mixin.bot.extension.bodyToString
 import one.mixin.bot.extension.cutOut
-import one.mixin.bot.extension.sha256
-import one.mixin.bot.extension.toHex
 import java.security.Key
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -31,7 +30,7 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
                 put(Claims.ISSUED_AT, iat)
                 put("uid", userId)
                 put("sid", sessionId)
-                put("sig", content.sha256().toHex())
+                put("sig", content.encode().sha256().hex())
                 put("scp", "FULL")
             }
         )
