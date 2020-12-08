@@ -38,7 +38,6 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
         .compact()
 }
 
-fun encryptPin(key: String, iterator: Long = System.nanoTime(), pin: String?): String? {
-    val pinCode = pin ?: return null
-    return aesEncrypt(key, iterator, pinCode)
+fun encryptPin(key: String, pin: String, iterator: Long = System.nanoTime()): String? {
+    return aesEncrypt(key, iterator, pin)
 }

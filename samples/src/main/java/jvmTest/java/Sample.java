@@ -9,24 +9,17 @@ import one.mixin.bot.vo.*;
 
 import java.io.IOException;
 import java.security.KeyPair;
-import java.util.Base64;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
 import static jvmTest.java.Config.*;
 import static one.mixin.bot.SessionKt.encryptPin;
+import static one.mixin.bot.extension.Base64ExtensionKt.base64Decode;
+import static one.mixin.bot.extension.Base64ExtensionKt.base64Encode;
 import static one.mixin.bot.util.CryptoUtilKt.*;
 
 public class Sample {
-
-    private static String base64Encode(byte[] src) {
-        return Base64.getEncoder().encodeToString(src);
-    }
-
-    private static byte[] base64Encode(String src) {
-        return Base64.getDecoder().decode(src);
-    }
 
     final static String userPin = "131416";
     final static String CNB_assetId = "965e5c6e-434c-3fa9-b780-c50f43cd955c";
@@ -48,7 +41,7 @@ public class Sample {
             // decrypt pin token
             String userAesKey;
             EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
-            userAesKey = base64Encode(calculateAgreement(base64Encode(user.getPinToken()), userPrivateKey));
+            userAesKey = base64Encode(calculateAgreement(base64Decode(user.getPinToken()), userPrivateKey));
 
 
             // create user's pin
@@ -80,8 +73,9 @@ public class Sample {
                 "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
                 "label", Objects.requireNonNull(encryptPin(
                 userAesKey,
-                System.nanoTime(),
                 Sample.userPin
+,
+                System.nanoTime()
         )), null, null
         )).execute().body();
         assert addressResponse != null;
@@ -118,7 +112,7 @@ public class Sample {
     }
 
     private static void createPin(HttpClient client, String userAesKey) throws IOException {
-        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, System.nanoTime(), Sample.userPin)), null)).execute().body();
+        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin,System.nanoTime() )), null)).execute().body();
         assert pinResponse != null;
         if (pinResponse.isSuccess()) {
             System.out.printf("Create pin success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
@@ -129,7 +123,7 @@ public class Sample {
 
     private static void transferToUser(HttpClient client, String userId, String aseKey, String pin) throws IOException {
         MixinResponse<Snapshot> transferResponse = client.getAssetService().transferCall(
-                new TransferRequest(Sample.CNB_assetId, userId, Sample.amount, encryptPin(aseKey, System.nanoTime(), pin)
+                new TransferRequest(Sample.CNB_assetId, userId, Sample.amount, encryptPin(aseKey, pin,System.nanoTime() )
                         , null, null, null)).execute().body();
         assert transferResponse != null;
         if (transferResponse.isSuccess()) {
@@ -153,8 +147,8 @@ public class Sample {
     private static void withdrawalToAddress(HttpClient client, String addressId, String userAesKey) throws IOException {
         MixinResponse<Snapshot> withdrawalsResponse = client.getAssetService().withdrawalsCall(new WithdrawalRequest(addressId, Sample.amount, Objects.requireNonNull(encryptPin(
                 userAesKey,
-                System.nanoTime(),
-                Sample.userPin
+                Sample.userPin,
+                System.nanoTime()
         )), UUID.randomUUID().toString(), "withdrawal test")).execute().body();
         assert withdrawalsResponse != null;
         if (withdrawalsResponse.isSuccess()) {
