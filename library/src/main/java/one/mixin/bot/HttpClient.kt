@@ -13,7 +13,6 @@ import one.mixin.bot.api.UserService
 import one.mixin.bot.api.exception.ClientErrorException
 import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.extension.base64Decode
-import one.mixin.bot.util.signToken
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
