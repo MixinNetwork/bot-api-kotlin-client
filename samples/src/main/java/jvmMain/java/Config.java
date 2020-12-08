@@ -1,4 +1,4 @@
-package jvmTest.java;
+package jvmMain.java;
 
 final class Config {
     final static String pin = "053393";

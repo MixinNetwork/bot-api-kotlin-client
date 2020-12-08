@@ -13,4 +13,8 @@ dependencies {
 //    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:test'
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "net.i2p.crypto:eddsa:$ed25519Version"
+
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 }

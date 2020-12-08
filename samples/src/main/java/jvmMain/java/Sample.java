@@ -1,4 +1,4 @@
-package jvmTest.java;
+package jvmMain.java;
 
 import net.i2p.crypto.eddsa.EdDSAPrivateKey;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
-import static jvmTest.java.Config.*;
+import static jvmMain.java.Config.*;
 import static one.mixin.bot.SessionKt.encryptPin;
 import static one.mixin.bot.extension.Base64ExtensionKt.base64Decode;
 import static one.mixin.bot.extension.Base64ExtensionKt.base64Encode;
