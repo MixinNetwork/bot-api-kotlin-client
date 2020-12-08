@@ -24,7 +24,7 @@ dependencies {
     implementation "com.github.MixinNetwork.jjwt:jjwt-api:$jjwtVersion"
     api "com.github.MixinNetwork.jjwt:jjwt-impl:$jjwtVersion"
     api "com.github.MixinNetwork.jjwt:jjwt-gson:$jjwtVersion"
-    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    api "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${coroutineAdapterVersion}"
     implementation "net.i2p.crypto:eddsa:$ed25519Version"
