@@ -17,6 +17,7 @@ import java.security.SecureRandom
 import java.security.Security
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
+import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.OAEPParameterSpec
@@ -24,7 +25,6 @@ import javax.crypto.spec.PSource
 import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.and
 import kotlin.experimental.or
-import kotlin.jvm.Throws
 
 fun generateRSAKeyPair(keyLength: Int = 2048): KeyPair {
     val kpg = KeyPairGenerator.getInstance("RSA")
@@ -54,6 +54,15 @@ internal val ed25519 = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25
 fun getEdDSAPrivateKeyFromString(base64: String): EdDSAPrivateKey {
     val privateSpec = EdDSAPrivateKeySpec(base64.base64Decode().copyOfRange(0, 32), ed25519)
     return EdDSAPrivateKey(privateSpec)
+}
+
+fun decryASEKey(src: String, privateKey: EdDSAPrivateKey): String? {
+    return Base64.getEncoder().encodeToString(
+        calculateAgreement(
+            Base64.getUrlDecoder().decode(src),
+            privateKey
+        )
+    )
 }
 
 fun aesEncrypt(key: String, iterator: Long, code: String): String? {

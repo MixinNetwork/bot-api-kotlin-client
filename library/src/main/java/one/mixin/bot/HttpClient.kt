@@ -13,6 +13,8 @@ import one.mixin.bot.api.UserService
 import one.mixin.bot.api.exception.ClientErrorException
 import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.extension.base64Decode
+import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.util.getRSAPrivateKeyFromString
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,7 +22,7 @@ import java.security.Security
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-class HttpClient(
+class HttpClient private constructor(
     private val clientToken: SessionToken,
     debug: Boolean = false
 ) {
@@ -66,7 +68,10 @@ class HttpClient(
                                         token.privateKey
                                     } else {
                                         val seed = (token as SessionToken.EdDSA).seed
-                                        val privateSpec = EdDSAPrivateKeySpec(seed.base64Decode(), ed25519)
+                                        val privateSpec = EdDSAPrivateKeySpec(
+                                            seed.base64Decode(),
+                                            ed25519
+                                        )
                                         EdDSAPrivateKey(privateSpec)
                                     }
                                 )
@@ -110,5 +115,33 @@ class HttpClient(
 
     val assetService: AssetService by lazy {
         retrofit.create(AssetService::class.java)
+    }
+
+    class Builder {
+        private lateinit var clientToken: SessionToken
+
+        fun configEdDSA(
+            userId: String,
+            sessionId: String,
+            privateKey: EdDSAPrivateKey
+        ): Builder {
+            clientToken = SessionToken.EdDSA(userId, sessionId, privateKey.seed.base64Encode())
+            return this
+        }
+
+        fun configRSA(
+            userId: String,
+            sessionId: String,
+            privateKey: String
+        ): Builder {
+            val key = getRSAPrivateKeyFromString(privateKey)
+            clientToken =
+                SessionToken.RSA(userId, sessionId, key)
+            return this
+        }
+
+        fun build(): HttpClient {
+            return HttpClient(clientToken)
+        }
     }
 }
