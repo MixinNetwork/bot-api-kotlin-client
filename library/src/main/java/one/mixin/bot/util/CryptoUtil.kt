@@ -52,7 +52,7 @@ fun privateKeyToCurve25519(edSeed: ByteArray): ByteArray {
 internal val ed25519 = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
 
 fun getEdDSAPrivateKeyFromString(base64: String): EdDSAPrivateKey {
-    val privateSpec = EdDSAPrivateKeySpec(base64.base64Decode().copyOfRange(0,32), ed25519)
+    val privateSpec = EdDSAPrivateKeySpec(base64.base64Decode().copyOfRange(0, 32), ed25519)
     return EdDSAPrivateKey(privateSpec)
 }
 
@@ -71,9 +71,13 @@ fun aesEncrypt(key: String, iterator: Long, code: String): String? {
 
 fun rsaDecrypt(privateKey: PrivateKey, iv: String, pinToken: String): String {
     val deCipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
-    deCipher.init(Cipher.DECRYPT_MODE, privateKey, OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
-        PSource.PSpecified(iv.toByteArray())
-    ))
+    deCipher.init(
+        Cipher.DECRYPT_MODE, privateKey,
+        OAEPParameterSpec(
+            "SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
+            PSource.PSpecified(iv.toByteArray())
+        )
+    )
 
     return (deCipher.doFinal(pinToken.base64Decode())).base64Encode()
 }

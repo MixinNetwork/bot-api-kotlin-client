@@ -1,4 +1,4 @@
-package one.mixin.bot.api.exception;
+package one.mixin.bot.api.exception
 
 import java.io.IOException
 

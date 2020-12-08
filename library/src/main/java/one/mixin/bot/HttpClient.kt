@@ -7,11 +7,11 @@ import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import one.mixin.bot.api.exception.ClientErrorException
-import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.AssetService
 import one.mixin.bot.api.UserService
+import one.mixin.bot.api.exception.ClientErrorException
+import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.util.signToken
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -50,46 +50,49 @@ class HttpClient(
         builder.pingInterval(15, TimeUnit.SECONDS)
         builder.retryOnConnectionFailure(false)
 
-        builder.addInterceptor(Interceptor { chain ->
-            val request = chain.request().newBuilder()
-                .addHeader("User-Agent", Constants.UA)
-                .addHeader("Accept-Language", Locale.getDefault().language)
-                .addHeader(
-                    "Authorization", "Bearer " +
-                        (userSessionToken ?: clientToken).let { token ->
-                            signToken(
-                                token.userId,
-                                token.sessionId,
-                                chain.request(),
-                                if (token is SessionToken.RSA) {
-                                    token.privateKey
-                                } else {
-                                    val seed = (token as SessionToken.EdDSA).seed
-                                    val privateSpec = EdDSAPrivateKeySpec(seed.base64Decode(), ed25519)
-                                    EdDSAPrivateKey(privateSpec)
-                                }
-                            )
-                        }
-                ).build()
+        builder.addInterceptor(
+            Interceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("User-Agent", Constants.UA)
+                    .addHeader("Accept-Language", Locale.getDefault().language)
+                    .addHeader(
+                        "Authorization",
+                        "Bearer " +
+                            (userSessionToken ?: clientToken).let { token ->
+                                signToken(
+                                    token.userId,
+                                    token.sessionId,
+                                    chain.request(),
+                                    if (token is SessionToken.RSA) {
+                                        token.privateKey
+                                    } else {
+                                        val seed = (token as SessionToken.EdDSA).seed
+                                        val privateSpec = EdDSAPrivateKeySpec(seed.base64Decode(), ed25519)
+                                        EdDSAPrivateKey(privateSpec)
+                                    }
+                                )
+                            }
+                    ).build()
 
-            val response = try {
-                chain.proceed(request)
-            } catch (e: Exception) {
-                if (e.message?.contains("502") == true) {
-                    throw ServerErrorException(502)
-                } else throw e
-            }
-
-            if (!response.isSuccessful) {
-                val code = response.code
-                if (code in 500..599) {
-                    throw ServerErrorException(code)
-                } else if (code in 400..499) {
-                    throw ClientErrorException(code)
+                val response = try {
+                    chain.proceed(request)
+                } catch (e: Exception) {
+                    if (e.message?.contains("502") == true) {
+                        throw ServerErrorException(502)
+                    } else throw e
                 }
+
+                if (!response.isSuccessful) {
+                    val code = response.code
+                    if (code in 500..599) {
+                        throw ServerErrorException(code)
+                    } else if (code in 400..499) {
+                        throw ClientErrorException(code)
+                    }
+                }
+                response
             }
-            response
-        })
+        )
         builder.build()
     }
 

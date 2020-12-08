@@ -13,7 +13,6 @@ interface UserService {
     @POST("users")
     suspend fun createUsers(@Body request: AccountRequest): MixinResponse<User>
 
-
     @POST("users")
     fun createUsersCall(@Body request: AccountRequest): Call<MixinResponse<User>>
 
@@ -35,4 +34,3 @@ interface UserService {
     @GET("me")
     fun getMeCall(): Call<MixinResponse<Account>>
 }
-

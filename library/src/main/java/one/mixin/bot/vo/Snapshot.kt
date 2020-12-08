@@ -2,7 +2,6 @@ package one.mixin.bot.vo
 
 import com.google.gson.annotations.SerializedName
 
-
 data class Snapshot(
     val type: String,
     @SerializedName("snapshot_id")
