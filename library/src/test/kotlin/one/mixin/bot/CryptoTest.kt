@@ -12,8 +12,8 @@ class CryptoTest {
         val key = generateAesKey()
         val cipher = aesGcmEncrypt(plain.toByteArray(), key)
         println(cipher.contentToString())
-        val p = aesGcmDecrypt(cipher!!, key)
-        println(String(p!!))
+        val p = aesGcmDecrypt(cipher, key)
+        println(String(p))
         assertEquals(plain, String(p))
     }
 }

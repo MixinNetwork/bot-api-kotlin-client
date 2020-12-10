@@ -5,7 +5,6 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.extension.toLeByteArray
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.whispersystems.curve25519.Curve25519
 import java.security.KeyFactory
@@ -66,17 +65,49 @@ fun decryASEKey(src: String, privateKey: EdDSAPrivateKey): String? {
     )
 }
 
-fun aesEncrypt(key: String, iterator: Long, code: String): String? {
-    val keySpec = SecretKeySpec(key.base64Decode(), "AES")
-    val iv = ByteArray(16)
-    SecureRandom().nextBytes(iv)
+private val secureRandom: SecureRandom = SecureRandom()
+private val GCM_IV_LENGTH = 12
 
-    val pinByte =
-        code.toByteArray() + (System.currentTimeMillis() / 1000).toLeByteArray() + iterator.toLeByteArray()
+fun generateAesKey(): ByteArray {
+    val key = ByteArray(16)
+    secureRandom.nextBytes(key)
+    return key
+}
+
+fun aesGcmEncrypt(plain: ByteArray, key: ByteArray): ByteArray {
+    val iv = ByteArray(GCM_IV_LENGTH)
+    secureRandom.nextBytes(iv)
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    val parameterSpec = GCMParameterSpec(128, iv) // 128 bit auth tag length
+    val secretKey = SecretKeySpec(key, "AES")
+    cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec)
+    val result = cipher.doFinal(plain)
+    return iv.plus(result)
+}
+
+fun aesGcmDecrypt(cipherMessage: ByteArray, key: ByteArray): ByteArray {
+    val secretKey = SecretKeySpec(key, "AES")
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    val gcmIv = GCMParameterSpec(128, cipherMessage, 0, GCM_IV_LENGTH)
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmIv)
+    return cipher.doFinal(cipherMessage, GCM_IV_LENGTH, cipherMessage.size - GCM_IV_LENGTH)
+}
+
+fun aesEncrypt(key: ByteArray, plain: ByteArray): ByteArray {
+    val keySpec = SecretKeySpec(key, "AES")
+    val iv = ByteArray(16)
+    secureRandom.nextBytes(iv)
     val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
     cipher.init(Cipher.ENCRYPT_MODE, keySpec, IvParameterSpec(iv))
-    val result = cipher.doFinal(pinByte)
-    return iv.plus(result).base64Encode()
+    val result = cipher.doFinal(plain)
+    return iv.plus(result)
+}
+
+fun aesDecrypt(key: ByteArray, iv: ByteArray, ciphertext: ByteArray): ByteArray {
+    val keySpec = SecretKeySpec(key, "AES")
+    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+    cipher.init(Cipher.DECRYPT_MODE, keySpec, IvParameterSpec(iv))
+    return cipher.doFinal(ciphertext)
 }
 
 fun rsaDecrypt(privateKey: PrivateKey, iv: String, pinToken: String): String {
@@ -109,40 +140,4 @@ private fun stripRsaPrivateKeyHeaders(privatePem: String): String {
     }
         .forEach { line -> strippedKey.append(line.trim { it <= ' ' }) }
     return strippedKey.toString().trim { it <= ' ' }
-}
-
-private val secureRandom: SecureRandom = SecureRandom()
-private val GCM_IV_LENGTH = 12
-
-fun generateAesKey(): ByteArray {
-    val key = ByteArray(16)
-    secureRandom.nextBytes(key)
-    return key
-}
-
-fun aesGcmEncrypt(plain: ByteArray, key: ByteArray): ByteArray? {
-    try {
-        val iv = ByteArray(GCM_IV_LENGTH)
-        secureRandom.nextBytes(iv)
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val parameterSpec = GCMParameterSpec(128, iv) // 128 bit auth tag length
-        val secretKey = SecretKeySpec(key, "AES")
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec)
-        return iv.plus(cipher.doFinal(plain))
-    } catch (e: Exception) {
-        return null
-    }
-}
-
-fun aesGcmDecrypt(cipherMessage: ByteArray, key: ByteArray): ByteArray? {
-    val secretKey = SecretKeySpec(key, "AES")
-    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-    val gcmIv = GCMParameterSpec(128, cipherMessage, 0, GCM_IV_LENGTH)
-    cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmIv)
-    try {
-        val plainText = cipher.doFinal(cipherMessage, GCM_IV_LENGTH, cipherMessage.size - GCM_IV_LENGTH)
-        return plainText
-    } catch (e: Exception) {
-        return null
-    }
 }
