@@ -15,12 +15,10 @@ import java.security.MessageDigest
 import java.security.PrivateKey
 import java.security.SecureRandom
 import java.security.Security
-import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
 import java.util.Base64
 import javax.crypto.Cipher
-import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.OAEPParameterSpec
@@ -113,7 +111,6 @@ private fun stripRsaPrivateKeyHeaders(privatePem: String): String {
     return strippedKey.toString().trim { it <= ' ' }
 }
 
-
 private val secureRandom: SecureRandom = SecureRandom()
 private val GCM_IV_LENGTH = 12
 
@@ -128,7 +125,7 @@ fun aesGcmEncrypt(plain: ByteArray, key: ByteArray): ByteArray? {
         val iv = ByteArray(GCM_IV_LENGTH)
         secureRandom.nextBytes(iv)
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val parameterSpec = GCMParameterSpec(128, iv) //128 bit auth tag length
+        val parameterSpec = GCMParameterSpec(128, iv) // 128 bit auth tag length
         val secretKey = SecretKeySpec(key, "AES")
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec)
         return iv.plus(cipher.doFinal(plain))
@@ -149,4 +146,3 @@ fun aesGcmDecrypt(cipherMessage: ByteArray, key: ByteArray): ByteArray? {
         return null
     }
 }
-
