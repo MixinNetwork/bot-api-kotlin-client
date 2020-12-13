@@ -1,7 +1,6 @@
 package one.mixin.bot.util
 
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import net.i2p.crypto.eddsa.math.GroupElement
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import one.mixin.bot.extension.base64Decode
