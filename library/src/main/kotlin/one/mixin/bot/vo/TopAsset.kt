@@ -2,7 +2,7 @@ package one.mixin.bot.vo
 
 import com.google.gson.annotations.SerializedName
 
-data class Asset(
+data class TopAsset(
     @SerializedName("asset_id")
     val assetId: String,
     val symbol: String,
@@ -22,8 +22,5 @@ data class Asset(
     val changeUsd: String,
     @SerializedName("change_btc")
     val changeBtc: String,
-    val confirmations: Int,
-    @SerializedName("asset_key")
-    val assetKey: String?,
-    val reserve: String?
-)
+    val confirmations: Int
+) 

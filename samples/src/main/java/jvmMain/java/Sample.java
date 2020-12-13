@@ -122,7 +122,7 @@ public class Sample {
     }
 
     private static void transferToUser(HttpClient client, String userId, String aseKey, String pin) throws IOException {
-        MixinResponse<Snapshot> transferResponse = client.getAssetService().transferCall(
+        MixinResponse<Snapshot> transferResponse = client.getSnapshotService().transferCall(
                 new TransferRequest(Sample.CNB_assetId, userId, Sample.amount, encryptPin(aseKey, pin,System.nanoTime() )
                         , null, null, null)).execute().body();
         assert transferResponse != null;
@@ -145,7 +145,7 @@ public class Sample {
     }
 
     private static void withdrawalToAddress(HttpClient client, String addressId, String userAesKey) throws IOException {
-        MixinResponse<Snapshot> withdrawalsResponse = client.getAssetService().withdrawalsCall(new WithdrawalRequest(addressId, Sample.amount, Objects.requireNonNull(encryptPin(
+        MixinResponse<Snapshot> withdrawalsResponse = client.getSnapshotService().withdrawalsCall(new WithdrawalRequest(addressId, Sample.amount, Objects.requireNonNull(encryptPin(
                 userAesKey,
                 Sample.userPin,
                 System.nanoTime()

@@ -108,7 +108,7 @@ private suspend fun transferToUser(
     aseKey: String,
     pin: String
 ) {
-    val response = client.assetService.transfer(
+    val response = client.snapshotService.transfer(
         TransferRequest(
             CNB_ID,
             userId,
@@ -165,7 +165,7 @@ private suspend fun withdrawalToAddress(
     userAesKey: String
 ) {
     // Create address
-    val withdrawalsResponse = client.assetService.withdrawals(
+    val withdrawalsResponse = client.snapshotService.withdrawals(
         WithdrawalRequest(
             addressId, DEFAULT_AMOUNT, requireNotNull(
                 encryptPin(
