@@ -15,7 +15,7 @@ import one.mixin.bot.util.decryASEKey
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.getEdDSAPrivateKeyFromString
 import one.mixin.bot.vo.AccountRequest
-import one.mixin.bot.vo.AddressesRequest
+import one.mixin.bot.vo.AddressRequest
 import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.TransferRequest
 import one.mixin.bot.vo.User
@@ -136,9 +136,10 @@ private suspend fun getAsset(client: HttpClient) {
 private suspend fun createAddress(client: HttpClient, userAesKey: String): String? {
     // Create address
     val addressesResponse = client.assetService.createAddresses(
-        AddressesRequest(
+        AddressRequest(
             CNB_ID,
             "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
+            null,
             "label",
             requireNotNull(
                 encryptPin(

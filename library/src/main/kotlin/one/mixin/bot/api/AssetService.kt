@@ -1,7 +1,7 @@
 package one.mixin.bot.api
 
 import one.mixin.bot.vo.Address
-import one.mixin.bot.vo.AddressesRequest
+import one.mixin.bot.vo.AddressRequest
 import one.mixin.bot.vo.Asset
 import one.mixin.bot.vo.Snapshot
 import one.mixin.bot.vo.TransferRequest
@@ -47,10 +47,10 @@ interface AssetService {
     fun withdrawalsCall(@Body request: WithdrawalRequest): Call<MixinResponse<Snapshot>>
 
     @POST("addresses")
-    suspend fun createAddresses(@Body request: AddressesRequest): MixinResponse<Address>
+    suspend fun createAddresses(@Body request: AddressRequest): MixinResponse<Address>
 
     @POST("addresses")
-    fun createAddressesCall(@Body request: AddressesRequest): Call<MixinResponse<Address>>
+    fun createAddressesCall(@Body request: AddressRequest): Call<MixinResponse<Address>>
 
     @POST("transfers")
     suspend fun transfer(@Body request: TransferRequest): MixinResponse<Snapshot>
