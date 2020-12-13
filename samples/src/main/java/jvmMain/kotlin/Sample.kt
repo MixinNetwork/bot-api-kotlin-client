@@ -135,7 +135,7 @@ private suspend fun getAsset(client: HttpClient) {
 
 private suspend fun createAddress(client: HttpClient, userAesKey: String): String? {
     // Create address
-    val addressesResponse = client.assetService.createAddresses(
+    val addressesResponse = client.addressService.createAddresses(
         AddressRequest(
             CNB_ID,
             "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",

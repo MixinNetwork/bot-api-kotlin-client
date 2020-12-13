@@ -47,9 +47,6 @@ interface AssetService {
     fun withdrawalsCall(@Body request: WithdrawalRequest): Call<MixinResponse<Snapshot>>
 
     @POST("addresses")
-    suspend fun createAddresses(@Body request: AddressRequest): MixinResponse<Address>
-
-    @POST("addresses")
     fun createAddressesCall(@Body request: AddressRequest): Call<MixinResponse<Address>>
 
     @POST("transfers")

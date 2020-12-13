@@ -8,6 +8,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import one.mixin.bot.Constants.API.URL
+import one.mixin.bot.api.AddressService
 import one.mixin.bot.api.AssetService
 import one.mixin.bot.api.UserService
 import one.mixin.bot.api.exception.ClientErrorException
@@ -115,6 +116,10 @@ class HttpClient private constructor(
 
     val assetService: AssetService by lazy {
         retrofit.create(AssetService::class.java)
+    }
+
+    val addressService: AddressService by lazy {
+        retrofit.create(AddressService::class.java)
     }
 
     class Builder {
