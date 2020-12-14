@@ -10,7 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-interface AddressCoroutineService{
+interface AddressCoroutineService {
     @POST("addresses")
     suspend fun createAddresses(@Body request: AddressRequest): MixinResponse<Address>
     @POST("addresses/{id}/delete")

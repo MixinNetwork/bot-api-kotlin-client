@@ -29,8 +29,6 @@ interface SnapshotCoroutineService {
     @POST("transfers")
     suspend fun transfer(@Body request: TransferRequest): MixinResponse<Snapshot>
 
-
-
     @GET("assets/{id}/snapshots")
     suspend fun getSnapshotsByAssetId(
         @Path("id") id: String,

@@ -35,5 +35,4 @@ interface AssetCallService {
 
     @GET("network/assets/top")
     fun topAssetsCall(): Call<MixinResponse<List<TopAsset>>>
-
 }
