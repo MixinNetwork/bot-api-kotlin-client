@@ -35,5 +35,4 @@ interface UserCoroutineService {
 
     @POST("multisigs/{id}/unlock")
     suspend fun unlockMultisigs(@Path("id") id: String, @Body pinRequest: PinRequest): MixinResponse<Void>
-
 }

@@ -4,7 +4,6 @@ import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.vo.Address
 import one.mixin.bot.vo.AddressRequest
 import one.mixin.bot.vo.Pin
-import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

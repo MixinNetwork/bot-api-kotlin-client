@@ -73,7 +73,7 @@ public class Sample {
 
 
     private static String createAddress(HttpClient client, String userAesKey) throws IOException {
-        MixinResponse<Address> addressResponse = client.getAssetService().createAddressesCall(new AddressRequest(Sample.CNB_assetId,
+        MixinResponse<Address> addressResponse = client.getAddressService().createAddressesCall(new AddressRequest(Sample.CNB_assetId,
                 "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
                 null,
                 "label",

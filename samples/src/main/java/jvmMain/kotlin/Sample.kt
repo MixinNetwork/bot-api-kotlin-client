@@ -164,7 +164,7 @@ private suspend fun withdrawalToAddress(
     addressId: String,
     userAesKey: String
 ) {
-    // Create address
+    // Withdrawals
     val withdrawalsResponse = client.snapshotService.withdrawals(
         WithdrawalRequest(
             addressId, DEFAULT_AMOUNT, requireNotNull(
