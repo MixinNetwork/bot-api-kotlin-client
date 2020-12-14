@@ -9,6 +9,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface UserCallService {
 
@@ -21,6 +22,24 @@ interface UserCallService {
     @POST("pin/verify")
     fun pinVerifyCall(@Body request: PinRequest): Call<MixinResponse<User>>
 
+    @POST("pin/update")
+    fun updatePin(@Body request: PinRequest): Call<MixinResponse<Account>>
+
     @GET("me")
     fun getMeCall(): Call<MixinResponse<Account>>
+
+    @POST("multisigs/{id}/cancel")
+    fun cancelMultisigs(@Path("id") id: String): Call<MixinResponse<Void>>
+
+    @POST("multisigs/{id}/sign")
+    fun signMultisigs(
+        @Path("id") id: String,
+        @Body pinRequest: PinRequest
+    ): Call<MixinResponse<Void>>
+
+    @POST("multisigs/{id}/unlock")
+    fun unlockMultisigs(
+        @Path("id") id: String,
+        @Body pinRequest: PinRequest
+    ): Call<MixinResponse<Void>>
 }
