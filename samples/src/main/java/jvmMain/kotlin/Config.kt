@@ -1,10 +1,10 @@
 package jvmMain.kotlin
 
 object Config {
-    const val pin = "053393"
+    const val pin = "319693"
     const val userId = "d066f2d2-1a91-416b-9241-f3547d99a753"
-    const val sessionId = "a4cd6d58-300d-407f-be5c-b8aa70dae3b3"
+    const val sessionId = "7a853888-2b28-47e5-9970-8c2117872ca2"
     const val privateKey =
-        "iHCB3cN8TN2Bab4mrurwrfGmHLPvdazRY5hClr2B8OVLOSuLs2cfIc8YGt1zVPU3ProhTahZ2Ic0DSfqtjRbGA"
-    const val pinTokenPem = "iZU97tqQ78wz1JYPLf600RYOHykl7TKgIOQP7qjVqDE"
+        "-0w4L6Ju2h0_feLkemSQ3TBCebmzxWrr1We4kva5zBX0vaEH7z9zjY5oyFkqHwOPg_2QFdZ9-8_55UnsYXbdfA"
+    const val pinTokenPem = "k5V3eL5iI-5pHnSRPJxtgdFNqaE_Vy4aA6u7IPWHz24"
 }

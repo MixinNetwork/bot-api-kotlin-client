@@ -119,7 +119,7 @@ private suspend fun transferToUser(
     if (response.isSuccess) {
         println("Transfer success: ${response.data?.snapshotId}")
     } else {
-        println("Transfer fail")
+        println("Transfer fail ${response.error}")
     }
 }
 
