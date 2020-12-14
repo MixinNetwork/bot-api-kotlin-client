@@ -23,22 +23,22 @@ interface UserCallService {
     fun pinVerifyCall(@Body request: PinRequest): Call<MixinResponse<User>>
 
     @POST("pin/update")
-    fun updatePin(@Body request: PinRequest): Call<MixinResponse<Account>>
+    fun updatePinCall(@Body request: PinRequest): Call<MixinResponse<Account>>
 
     @GET("me")
     fun getMeCall(): Call<MixinResponse<Account>>
 
     @POST("multisigs/{id}/cancel")
-    fun cancelMultisigs(@Path("id") id: String): Call<MixinResponse<Void>>
+    fun cancelMultisigsCall(@Path("id") id: String): Call<MixinResponse<Void>>
 
     @POST("multisigs/{id}/sign")
-    fun signMultisigs(
+    fun signMultisigsCall(
         @Path("id") id: String,
         @Body pinRequest: PinRequest
     ): Call<MixinResponse<Void>>
 
     @POST("multisigs/{id}/unlock")
-    fun unlockMultisigs(
+    fun unlockMultisigsCall(
         @Path("id") id: String,
         @Body pinRequest: PinRequest
     ): Call<MixinResponse<Void>>

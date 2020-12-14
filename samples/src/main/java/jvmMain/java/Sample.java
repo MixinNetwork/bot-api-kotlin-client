@@ -1,5 +1,6 @@
 package jvmMain.java;
 
+import kotlin.Unit;
 import net.i2p.crypto.eddsa.EdDSAPrivateKey;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import one.mixin.bot.HttpClient;
@@ -62,6 +63,9 @@ public class Sample {
 
             // withdrawal
             withdrawalToAddress(client, addressId, userAesKey);
+
+            // Delete address
+            deleteAddress(client, addressId,userAesKey);
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
         }
@@ -74,9 +78,9 @@ public class Sample {
                 null,
                 "label",
                 Objects.requireNonNull(encryptPin(
-                userAesKey,
-                Sample.userPin,
-                System.nanoTime()))
+                        userAesKey,
+                        Sample.userPin,
+                        System.nanoTime()))
         )).execute().body();
         assert addressResponse != null;
 
@@ -112,7 +116,7 @@ public class Sample {
     }
 
     private static void createPin(HttpClient client, String userAesKey) throws IOException {
-        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin,System.nanoTime() )), null)).execute().body();
+        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin, System.nanoTime())), null)).execute().body();
         assert pinResponse != null;
         if (pinResponse.isSuccess()) {
             System.out.printf("Create pin success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
@@ -123,7 +127,7 @@ public class Sample {
 
     private static void transferToUser(HttpClient client, String userId, String aseKey, String pin) throws IOException {
         MixinResponse<Snapshot> transferResponse = client.getSnapshotService().transferCall(
-                new TransferRequest(Sample.CNB_assetId, userId, Sample.amount, encryptPin(aseKey, pin,System.nanoTime() )
+                new TransferRequest(Sample.CNB_assetId, userId, Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
                         , null, null, null)).execute().body();
         assert transferResponse != null;
         if (transferResponse.isSuccess()) {
@@ -159,6 +163,21 @@ public class Sample {
         }
     }
 
+    private static void deleteAddress(HttpClient client, String addressId, String userAesKey) throws IOException {
+        MixinResponse<Unit> deleteResponse = client.getAddressService().deleteCall(addressId, new Pin(Objects.requireNonNull(encryptPin(
+                userAesKey,
+                Sample.userPin,
+                System.nanoTime()
+        )))).execute().body();
+        assert deleteResponse != null;
+        if (deleteResponse.isSuccess()) {
+            System.out.printf("Delete success: %s%n", addressId);
+
+        } else {
+            System.out.println("Delete fail");
+        }
+    }
+
     private static SessionToken getUserToken(User user, KeyPair sessionKey, boolean isRsa) {
         if (isRsa) {
             return new SessionToken.RSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivate());
@@ -167,4 +186,5 @@ public class Sample {
                     base64Encode(((EdDSAPrivateKey) sessionKey.getPrivate()).getSeed()));
         }
     }
+
 }
