@@ -39,12 +39,21 @@ interface AssetService {
     @GET("network/assets/search/{query}")
     suspend fun queryAssets(@Path("query") query: String): MixinResponse<List<Asset>>
 
+    @GET("network/assets/search/{query}")
+    fun queryAssetsCall(@Path("query") query: String): Call<MixinResponse<List<Asset>>>
+
     @GET("network/assets/top")
-    fun topAssets(): Call<MixinResponse<List<TopAsset>>>
+    fun topAssetsCall(): Call<MixinResponse<List<TopAsset>>>
 
     @GET("/ticker")
     suspend fun ticker(
         @Query("asset") assetId: String,
         @Query("offset") offset: String? = null
     ): MixinResponse<Ticker>
+
+    @GET("/ticker")
+    fun tickerCall(
+        @Query("asset") assetId: String,
+        @Query("offset") offset: String? = null
+    ): Call<MixinResponse<Ticker>>
 }

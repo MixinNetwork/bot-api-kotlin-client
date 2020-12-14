@@ -15,7 +15,7 @@ interface AddressService {
     suspend fun createAddresses(@Body request: AddressRequest): MixinResponse<Address>
 
     @POST("addresses")
-    fun createAddressesCal(@Body request: AddressRequest): Call<MixinResponse<Address>>
+    fun createAddressesCall(@Body request: AddressRequest): Call<MixinResponse<Address>>
 
     @POST("addresses/{id}/delete")
     suspend fun delete(@Path("id") id: String, @Body pin: Pin): MixinResponse<Unit>

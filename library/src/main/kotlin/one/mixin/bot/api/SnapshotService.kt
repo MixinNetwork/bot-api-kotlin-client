@@ -21,8 +21,14 @@ interface SnapshotService {
     @GET("snapshots/{id}")
     suspend fun getSnapshotById(@Path("id") id: String): MixinResponse<Snapshot>
 
+    @GET("snapshots/{id}")
+    fun getSnapshotByIdCall(@Path("id") id: String): Call<MixinResponse<Snapshot>>
+
     @GET("/snapshots/trace/{id}")
     suspend fun getTrace(@Path("id") traceId: String): MixinResponse<Snapshot>
+
+    @GET("/snapshots/trace/{id}")
+    fun getTraceCall(@Path("id") traceId: String): Call<MixinResponse<Snapshot>>
 
     @POST("transfers")
     suspend fun transfer(@Body request: TransferRequest): MixinResponse<Snapshot>
@@ -37,12 +43,26 @@ interface SnapshotService {
         @Query("limit") limit: Int = LIMIT
     ): MixinResponse<List<Snapshot>>
 
+    @GET("assets/{id}/snapshots")
+    fun getSnapshotsByAssetIdCall(
+        @Path("id") id: String,
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: Int = LIMIT
+    ): Call<MixinResponse<List<Snapshot>>>
+
     @GET("snapshots")
     suspend fun getAllSnapshots(
         @Query("offset") offset: String? = null,
         @Query("limit") limit: Int = LIMIT,
         @Query("opponent") opponent: String? = null
     ): MixinResponse<List<Snapshot>>
+
+    @GET("snapshots")
+    fun getAllSnapshotsCall(
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: Int = LIMIT,
+        @Query("opponent") opponent: String? = null
+    ): Call<MixinResponse<List<Snapshot>>>
 
     @GET("snapshots")
     suspend fun getSnapshots(
@@ -53,6 +73,16 @@ interface SnapshotService {
         @Query("destination") destination: String? = null,
         @Query("tag") tag: String? = null
     ): MixinResponse<List<Snapshot>>
+
+    @GET("snapshots")
+    fun getSnapshotsCall(
+        @Query("asset") assetId: String,
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: Int = LIMIT,
+        @Query("opponent") opponent: String? = null,
+        @Query("destination") destination: String? = null,
+        @Query("tag") tag: String? = null
+    ): Call<MixinResponse<List<Snapshot>>>
 
     companion object {
         const val LIMIT = 30
