@@ -11,8 +11,10 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AddressCoroutineService {
+
     @POST("addresses")
     suspend fun createAddresses(@Body request: AddressRequest): MixinResponse<Address>
+
     @POST("addresses/{id}/delete")
     suspend fun delete(@Path("id") id: String, @Body pin: Pin): MixinResponse<Unit>
 

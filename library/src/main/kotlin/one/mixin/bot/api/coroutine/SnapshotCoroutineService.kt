@@ -5,7 +5,6 @@ import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.vo.Snapshot
 import one.mixin.bot.vo.TransferRequest
 import one.mixin.bot.vo.WithdrawalRequest
-import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -13,9 +12,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface SnapshotCoroutineService {
-
-    @POST("withdrawals")
-    fun withdrawalsCall(@Body request: WithdrawalRequest): Call<MixinResponse<Snapshot>>
 
     @POST("withdrawals")
     suspend fun withdrawals(@Body request: WithdrawalRequest): MixinResponse<Snapshot>
