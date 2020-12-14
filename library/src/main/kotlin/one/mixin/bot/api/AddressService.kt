@@ -14,12 +14,21 @@ interface AddressService {
     @POST("addresses")
     suspend fun createAddresses(@Body request: AddressRequest): MixinResponse<Address>
 
+    @POST("addresses")
+    fun createAddressesCal(@Body request: AddressRequest): Call<MixinResponse<Address>>
+
     @POST("addresses/{id}/delete")
     suspend fun delete(@Path("id") id: String, @Body pin: Pin): MixinResponse<Unit>
+
+    @POST("addresses/{id}/delete")
+    suspend fun deleteCall(@Path("id") id: String, @Body pin: Pin): Call<MixinResponse<Unit>>
 
     @GET("addresses/{id}")
     suspend fun address(@Path("id") id: String): MixinResponse<Address>
 
+    @GET("addresses/{id}")
+    fun addressCall(@Path("id") id: String): Call<MixinResponse<Address>>
+
     @GET("assets/{id}/addresses")
-    fun addresses(@Path("id") id: String): Call<MixinResponse<List<Address>>>
+    fun addressesCall(@Path("id") id: String): Call<MixinResponse<List<Address>>>
 }
