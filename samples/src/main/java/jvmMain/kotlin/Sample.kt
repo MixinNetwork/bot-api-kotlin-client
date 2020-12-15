@@ -30,7 +30,8 @@ const val DEFAULT_AMOUNT = "2"
 fun main() = runBlocking {
     val key = getEdDSAPrivateKeyFromString(Config.privateKey)
     val pinToken = decryASEKey(Config.pinTokenPem, key) ?: return@runBlocking
-    val client = HttpClient.Builder().configEdDSA(Config.userId, Config.sessionId, key).build()
+    val client =
+        HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, key).build()
 
     val sessionKey = generateEd25519KeyPair()
     val publicKey = sessionKey.public as EdDSAPublicKey

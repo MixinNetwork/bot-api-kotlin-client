@@ -7,6 +7,7 @@ import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.AddressService
 import one.mixin.bot.api.AssetService
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit
 
 class HttpClient private constructor(
     private val clientToken: SessionToken,
+    cnServer: Boolean = false,
     debug: Boolean = false
 ) {
 
@@ -104,7 +106,7 @@ class HttpClient private constructor(
 
     private val retrofit: Retrofit by lazy {
         val builder = Retrofit.Builder()
-            .baseUrl(URL)
+            .baseUrl(if (cnServer) { CN_URL } else { URL })
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
@@ -129,6 +131,8 @@ class HttpClient private constructor(
 
     class Builder {
         private lateinit var clientToken: SessionToken
+        private var cnServer: Boolean = false
+        private var debug: Boolean = false
 
         fun configEdDSA(
             userId: String,
@@ -150,8 +154,18 @@ class HttpClient private constructor(
             return this
         }
 
+        fun useCNServer(): Builder {
+            cnServer = true
+            return this
+        }
+
+        fun enableDebug(): Builder {
+            debug = true
+            return this
+        }
+
         fun build(): HttpClient {
-            return HttpClient(clientToken)
+            return HttpClient(clientToken, cnServer, debug)
         }
     }
 }
