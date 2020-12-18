@@ -96,7 +96,7 @@ private suspend fun createPin(client: HttpClient, userAesKey: String) {
     val response = client.userService.createPin(
         PinRequest(requireNotNull(encryptPin(userAesKey, DEFAULT_PIN)))
     )
-    if (response.isSuccess) {
+    if (response.isSuccess()) {
         println("Create pin success ${response.data?.userId}")
     } else {
         println("Create pin fail")
@@ -117,7 +117,7 @@ private suspend fun transferToUser(
             encryptPin(aseKey, pin, System.nanoTime())
         )
     )
-    if (response.isSuccess) {
+    if (response.isSuccess()) {
         println("Transfer success: ${response.data?.snapshotId}")
     } else {
         println("Transfer fail ${response.error}")
@@ -127,7 +127,7 @@ private suspend fun transferToUser(
 private suspend fun getAsset(client: HttpClient) {
     // Get asset
     val assetResponse = client.assetService.getAsset(CNB_ID)
-    if (assetResponse.isSuccess) {
+    if (assetResponse.isSuccess()) {
         println("Assets ${assetResponse.data?.symbol}: ${assetResponse.data?.balance}")
     } else {
         println("Assets fail")
@@ -152,7 +152,7 @@ private suspend fun createAddress(client: HttpClient, userAesKey: String): Strin
         )
     )
 
-    if (addressesResponse.isSuccess) {
+    if (addressesResponse.isSuccess()) {
         println("Create address ${addressesResponse.data?.addressId}")
     } else {
         println("Assets fail")
@@ -177,7 +177,7 @@ private suspend fun withdrawalToAddress(
             ), UUID.randomUUID().toString(), "withdrawal test"
         )
     )
-    if (withdrawalsResponse.isSuccess) {
+    if (withdrawalsResponse.isSuccess()) {
         println("Withdrawal success: ${withdrawalsResponse.data?.snapshotId}")
     } else {
         println("Withdrawal fail")
