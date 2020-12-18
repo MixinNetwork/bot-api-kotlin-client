@@ -15,6 +15,7 @@ class TransferRequest(
     val traceId: String? = null,
     @SerializedName("memo")
     val memo: String? = null,
+    // only for validate payment
     @SerializedName("address_id")
     val addressId: String? = null
 )
