@@ -2,9 +2,11 @@ package one.mixin.bot.api.coroutine
 
 import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.vo.Asset
+import one.mixin.bot.vo.Fiat
 import one.mixin.bot.vo.PendingDeposit
 import one.mixin.bot.vo.Ticker
 import one.mixin.bot.vo.TopAsset
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -34,4 +36,7 @@ interface AssetCoroutineService {
 
     @GET("network/assets/top")
     suspend fun topAssets(): MixinResponse<List<TopAsset>>
+
+    @GET("fiats")
+    suspend fun getFiats(): MixinResponse<List<Fiat>>
 }

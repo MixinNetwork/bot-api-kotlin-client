@@ -70,6 +70,10 @@ fun main() = runBlocking {
             userPrivateKey.seed.base64Encode()
         )
     )
+
+    // Get fiats
+    getFiats(client)
+
     // Get asset
     getAsset(client)
 
@@ -129,6 +133,16 @@ private suspend fun getAsset(client: HttpClient) {
     val assetResponse = client.assetService.getAsset(CNB_ID)
     if (assetResponse.isSuccess()) {
         println("Assets ${assetResponse.data?.symbol}: ${assetResponse.data?.balance}")
+    } else {
+        println("Assets fail")
+    }
+}
+
+private suspend fun getFiats(client: HttpClient) {
+    // Get fiats
+    val fiatsResponse = client.assetService.getFiats()
+    if (fiatsResponse.isSuccess) {
+        println("Assets ${fiatsResponse.data?.get(0)?.code}: ${fiatsResponse.data?.get(0)?.rate}")
     } else {
         println("Assets fail")
     }

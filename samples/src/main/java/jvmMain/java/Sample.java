@@ -10,6 +10,7 @@ import one.mixin.bot.vo.*;
 
 import java.io.IOException;
 import java.security.KeyPair;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -44,6 +45,8 @@ public class Sample {
             EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
             userAesKey = base64Encode(calculateAgreement(base64Decode(user.getPinToken()), userPrivateKey));
 
+            // get fiats
+            getFiats(client);
 
             // create user's pin
             createPin(client, userAesKey);
@@ -175,6 +178,16 @@ public class Sample {
 
         } else {
             System.out.println("Delete fail");
+        }
+    }
+
+    private static void getFiats(HttpClient client) throws IOException {
+        MixinResponse<List<Fiat>> fiatsResponse = client.getAssetService().getFiatsCall().execute().body();
+        assert fiatsResponse != null;
+        if (fiatsResponse.isSuccess()) {
+            System.out.printf("Fiats success: %f%n", fiatsResponse.getData().get(0).getRate());
+        } else {
+            System.out.println("Fiats fail");
         }
     }
 
