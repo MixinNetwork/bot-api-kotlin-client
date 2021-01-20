@@ -24,6 +24,7 @@ import java.util.Random
 import java.util.UUID
 
 const val CNB_ID = "965e5c6e-434c-3fa9-b780-c50f43cd955c"
+const val BTC_ID = "c6d0c728-2624-429b-8e0d-d9d19b6592fa"
 const val DEFAULT_PIN = "131416"
 const val DEFAULT_AMOUNT = "2"
 
@@ -74,6 +75,9 @@ fun main() = runBlocking {
     // Get fiats
     getFiats(client)
 
+    // Get BTC fee
+    getFee(client)
+
     // Get asset
     getAsset(client)
 
@@ -98,7 +102,7 @@ private suspend fun createUser(client: HttpClient, sessionSecret: String): User?
 
 private suspend fun createPin(client: HttpClient, userAesKey: String) {
     val response = client.userService.createPin(
-        PinRequest(requireNotNull(encryptPin(userAesKey, DEFAULT_PIN)))
+        PinRequest(encryptPin(userAesKey, DEFAULT_PIN))
     )
     if (response.isSuccess()) {
         println("Create pin success ${response.data?.userId}")
@@ -141,10 +145,20 @@ private suspend fun getAsset(client: HttpClient) {
 private suspend fun getFiats(client: HttpClient) {
     // Get fiats
     val fiatsResponse = client.assetService.getFiats()
-    if (fiatsResponse.isSuccess) {
-        println("Assets ${fiatsResponse.data?.get(0)?.code}: ${fiatsResponse.data?.get(0)?.rate}")
+    if (fiatsResponse.isSuccess()) {
+        println("Fiats ${fiatsResponse.data?.get(0)?.code}: ${fiatsResponse.data?.get(0)?.rate}")
     } else {
-        println("Assets fail")
+        println("Fiats fail")
+    }
+}
+
+private suspend fun getFee(client: HttpClient) {
+    // Get fee
+    val feeResponse = client.assetService.assetsFee(BTC_ID)
+    if (feeResponse.isSuccess()) {
+        println("Fee ${feeResponse.data?.amount}")
+    } else {
+        println("Fee fail")
     }
 }
 

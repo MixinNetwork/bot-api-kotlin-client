@@ -2,6 +2,7 @@ package one.mixin.bot.api.call
 
 import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.vo.Asset
+import one.mixin.bot.vo.AssetFee
 import one.mixin.bot.vo.Fiat
 import one.mixin.bot.vo.PendingDeposit
 import one.mixin.bot.vo.Ticker
@@ -40,4 +41,7 @@ interface AssetCallService {
 
     @GET("fiats")
     fun getFiatsCall(): Call<MixinResponse<List<Fiat>>>
+
+    @GET("assets/{id}/fee")
+    fun assetsFeeCall(@Path("id") id: String): Call<MixinResponse<AssetFee>>
 }

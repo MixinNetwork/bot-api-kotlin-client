@@ -25,6 +25,7 @@ public class Sample {
 
     final static String userPin = "131416";
     final static String CNB_assetId = "965e5c6e-434c-3fa9-b780-c50f43cd955c";
+    final static String BTC_assetId = "c6d0c728-2624-429b-8e0d-d9d19b6592fa";
     final static String amount = "2";
 
     public static void main(String[] args) {
@@ -47,6 +48,9 @@ public class Sample {
 
             // get fiats
             getFiats(client);
+
+            // get BTC fee
+            getFee(client);
 
             // create user's pin
             createPin(client, userAesKey);
@@ -188,6 +192,16 @@ public class Sample {
             System.out.printf("Fiats success: %f%n", fiatsResponse.getData().get(0).getRate());
         } else {
             System.out.println("Fiats fail");
+        }
+    }
+
+    private static void getFee(HttpClient client) throws IOException {
+        MixinResponse<AssetFee> feeResponse = client.getAssetService().assetsFeeCall(BTC_assetId).execute().body();
+        assert feeResponse != null;
+        if (feeResponse.isSuccess()) {
+            System.out.printf("Fee success: %s%n", Objects.requireNonNull(feeResponse.getData()).getAmount());
+        } else {
+            System.out.println("Fee fail");
         }
     }
 

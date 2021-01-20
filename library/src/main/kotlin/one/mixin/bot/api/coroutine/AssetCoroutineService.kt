@@ -2,6 +2,7 @@ package one.mixin.bot.api.coroutine
 
 import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.vo.Asset
+import one.mixin.bot.vo.AssetFee
 import one.mixin.bot.vo.Fiat
 import one.mixin.bot.vo.PendingDeposit
 import one.mixin.bot.vo.Ticker
@@ -39,4 +40,7 @@ interface AssetCoroutineService {
 
     @GET("fiats")
     suspend fun getFiats(): MixinResponse<List<Fiat>>
+
+    @GET("assets/{id}/fee")
+    suspend fun assetsFee(@Path("id") id: String): MixinResponse<AssetFee>
 }
