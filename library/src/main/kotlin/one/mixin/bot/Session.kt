@@ -7,24 +7,21 @@ import okio.ByteString.Companion.encode
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.bodyToString
-import one.mixin.bot.extension.cutOut
+import one.mixin.bot.extension.path
 import one.mixin.bot.extension.toLeByteArray
 import one.mixin.bot.util.aesEncrypt
 import java.security.Key
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-fun signToken(userId: String, sessionId: String, request: Request, key: Key): String {
+fun signToken(userId: String, sessionId: String, method: String, path: String, body: String?, key: Key): String {
     val expire = System.currentTimeMillis() / 1000 + 1800
     val iat = System.currentTimeMillis() / 1000
 
-    var content = "${request.method}${request.url.cutOut()}"
-    request.body?.apply {
-        if (contentLength() > 0) {
-            content += bodyToString()
-        }
+    var content = "${method}$path"
+    body?.let {
+        content += body
     }
-
     return Jwts.builder()
         .setClaims(
             ConcurrentHashMap<String, Any>().apply {
@@ -39,6 +36,16 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
         )
         .signWith(key)
         .compact()
+}
+
+fun signToken(userId: String, sessionId: String, request: Request, key: Key): String {
+    var body: String? = null
+    request.body?.apply {
+        if (contentLength() > 0) {
+            body = bodyToString()
+        }
+    }
+    return signToken(userId, sessionId, request.method, request.url.path(), body, key)
 }
 
 fun encryptPin(key: String, pin: String, iterator: Long = System.nanoTime()): String {

@@ -7,7 +7,6 @@ import one.mixin.bot.vo.Fiat
 import one.mixin.bot.vo.PendingDeposit
 import one.mixin.bot.vo.Ticker
 import one.mixin.bot.vo.TopAsset
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query

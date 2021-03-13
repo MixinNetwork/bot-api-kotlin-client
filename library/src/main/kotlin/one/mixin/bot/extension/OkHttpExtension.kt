@@ -10,7 +10,7 @@ fun RequestBody.bodyToString(): String {
     return buffer.readUtf8()
 }
 
-fun HttpUrl.cutOut(): String {
+fun HttpUrl.path(): String {
     return toString().removePrefix("$scheme://$host")
 }
 
