@@ -20,6 +20,7 @@ import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.TransferRequest
 import one.mixin.bot.vo.User
 import one.mixin.bot.vo.WithdrawalRequest
+import one.mixin.bot.vo.generateTextMessageRequest
 import java.util.Random
 import java.util.UUID
 
@@ -84,9 +85,13 @@ fun main() = runBlocking {
     // Create address
     val addressId = createAddress(client, userAesKey) ?: return@runBlocking
 
-    // withdrawal
+    // Withdrawal
     withdrawalToAddress(client, addressId, userAesKey)
 
+    //Use bot's token
+    client.setUserToken(null)
+    // Send text message
+    sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Text message")
     return@runBlocking
 }
 
@@ -209,5 +214,23 @@ private suspend fun withdrawalToAddress(
         println("Withdrawal success: ${withdrawalsResponse.data?.snapshotId}")
     } else {
         println("Withdrawal fail")
+    }
+}
+
+private suspend fun sendTextMessage(client: HttpClient, recipientId: String, text: String) {
+    val response = client.messageService.postMessage(
+        listOf(
+            generateTextMessageRequest(
+                Config.userId,
+                recipientId,
+                UUID.randomUUID().toString(),
+                text
+            )
+        )
+    )
+    if(response.isSuccess()){
+        println("Send success")
+    }else{
+        println("Send fail")
     }
 }

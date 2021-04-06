@@ -11,6 +11,7 @@ import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.AddressService
 import one.mixin.bot.api.AssetService
+import one.mixin.bot.api.MessageService
 import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.api.UserService
 import one.mixin.bot.api.exception.ClientErrorException
@@ -127,6 +128,10 @@ class HttpClient private constructor(
 
     val snapshotService: SnapshotService by lazy {
         retrofit.create(SnapshotService::class.java)
+    }
+
+    val messageService: MessageService by lazy {
+        retrofit.create(MessageService::class.java)
     }
 
     class Builder {

@@ -6,19 +6,17 @@ import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import one.mixin.bot.HttpClient;
 import one.mixin.bot.SessionToken;
 import one.mixin.bot.api.MixinResponse;
+import one.mixin.bot.util.ConversationUtil;
 import one.mixin.bot.vo.*;
 
 import java.io.IOException;
 import java.security.KeyPair;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static jvmMain.java.Config.*;
 import static one.mixin.bot.SessionKt.encryptPin;
-import static one.mixin.bot.extension.Base64ExtensionKt.base64Decode;
 import static one.mixin.bot.extension.Base64ExtensionKt.base64Encode;
+import static one.mixin.bot.util.Base64UtilKt.base64Decode;
 import static one.mixin.bot.util.CryptoUtilKt.*;
 
 public class Sample {
@@ -72,7 +70,12 @@ public class Sample {
             withdrawalToAddress(client, addressId, userAesKey);
 
             // Delete address
-            deleteAddress(client, addressId,userAesKey);
+            deleteAddress(client, addressId, userAesKey);
+
+            //Use bot's token
+            client.setUserToken(null);
+            // Send text message
+            sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Test message");
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
         }
@@ -202,6 +205,21 @@ public class Sample {
             System.out.printf("Fee success: %s%n", Objects.requireNonNull(feeResponse.getData()).getAmount());
         } else {
             System.out.println("Fee fail");
+        }
+    }
+
+    private static void sendTextMessage(HttpClient client, String recipientId, String text) throws IOException {
+        List<MessageRequest> messageRequests = new ArrayList<>();
+        messageRequests.add(new MessageRequest(
+                ConversationUtil.Companion.generateConversationId(userId, recipientId),
+                recipientId, UUID.randomUUID().toString(), "PLAIN_TEXT",
+                Base64.getEncoder().encodeToString(text.getBytes()), null, null
+        ));
+        MixinResponse messageResponse = client.getMessageService().postMessageCall(messageRequests).execute().body();
+        if (messageResponse.isSuccess()) {
+            System.out.println("Send success");
+        } else {
+            System.out.println("Send fail");
         }
     }
 
