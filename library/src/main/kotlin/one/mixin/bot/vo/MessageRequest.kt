@@ -22,9 +22,12 @@ data class MessageRequest(
 )
 
 fun generateTextMessageRequest(
-    senderId: String, recipientId: String, messageId: String,
+    senderId: String,
+    recipientId: String,
+    messageId: String,
     text: String,
-    representativeId: String? = null, quoteMessageId: String? = null
+    representativeId: String? = null,
+    quoteMessageId: String? = null
 ) = MessageRequest(
     generateConversationId(senderId, recipientId),
     recipientId,
@@ -34,4 +37,3 @@ fun generateTextMessageRequest(
     representativeId,
     quoteMessageId
 )
-
