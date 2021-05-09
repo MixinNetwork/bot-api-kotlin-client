@@ -16,7 +16,9 @@ import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.getEdDSAPrivateKeyFromString
 import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.AddressRequest
+import one.mixin.bot.vo.OpponentMultisig
 import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.TransactionRequest
 import one.mixin.bot.vo.TransferRequest
 import one.mixin.bot.vo.User
 import one.mixin.bot.vo.WithdrawalRequest
@@ -27,7 +29,7 @@ import java.util.UUID
 const val CNB_ID = "965e5c6e-434c-3fa9-b780-c50f43cd955c"
 const val BTC_ID = "c6d0c728-2624-429b-8e0d-d9d19b6592fa"
 const val DEFAULT_PIN = "131416"
-const val DEFAULT_AMOUNT = "2"
+const val DEFAULT_AMOUNT = "1"
 
 fun main() = runBlocking {
     val key = getEdDSAPrivateKeyFromString(Config.privateKey)
@@ -92,6 +94,10 @@ fun main() = runBlocking {
     client.setUserToken(null)
     // Send text message
     sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Text message")
+
+    // Transactions
+    transactions(client, pinToken)
+
     return@runBlocking
 }
 
@@ -228,9 +234,35 @@ private suspend fun sendTextMessage(client: HttpClient, recipientId: String, tex
             )
         )
     )
-    if(response.isSuccess()){
+    if (response.isSuccess()) {
         println("Send success")
-    }else{
+    } else {
         println("Send fail")
+    }
+}
+
+private suspend fun transactions(
+    client: HttpClient,
+    userAesKey: String,
+) {
+    // Transactions
+    val transactionsResponse = client.assetService.transactions(
+        TransactionRequest(
+            CNB_ID,
+            OpponentMultisig(listOf("00c5a4ae-dcdc-48db-ab8e-a7eef69b441d", "087e91ff-7169-451a-aaaa-5b3297411a4b", "4e0e6e6b-6c9d-4e99-b7f1-1356322abec3"), 2),
+            DEFAULT_AMOUNT,
+            encryptPin(
+                userAesKey,
+                DEFAULT_PIN,
+                System.nanoTime()
+            ),
+            UUID.randomUUID().toString(),
+            "memo"
+        )
+    )
+    if (transactionsResponse.isSuccess()) {
+        println("Transactions success: ${transactionsResponse.data?.snapshotId}")
+    } else {
+        println("Transactions fail")
     }
 }

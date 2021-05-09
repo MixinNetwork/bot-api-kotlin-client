@@ -42,7 +42,7 @@ public class Sample {
             // decrypt pin token
             String userAesKey;
             EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
-            userAesKey = base64Encode(calculateAgreement(base64Decode(user.getPinToken()), userPrivateKey));
+            userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), userPrivateKey));
 
             // get fiats
             getFiats(client);
@@ -76,6 +76,12 @@ public class Sample {
             client.setUserToken(null);
             // Send text message
             sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Test message");
+
+            List<String> receivers = new ArrayList<>();
+            receivers.add("00c5a4ae-dcdc-48db-ab8e-a7eef69b441d");
+            receivers.add("087e91ff-7169-451a-aaaa-5b3297411a4b");
+            receivers.add("105f6e8b-d249-4b4d-9beb-e03cefaebc37");
+            transactions(client, receivers, pinToken, pin);
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
         }
@@ -192,7 +198,7 @@ public class Sample {
         MixinResponse<List<Fiat>> fiatsResponse = client.getAssetService().getFiatsCall().execute().body();
         assert fiatsResponse != null;
         if (fiatsResponse.isSuccess()) {
-            System.out.printf("Fiats success: %f%n", fiatsResponse.getData().get(0).getRate());
+            System.out.printf("Fiats success: %f%n", Objects.requireNonNull(fiatsResponse.getData()).get(0).getRate());
         } else {
             System.out.println("Fiats fail");
         }
@@ -216,6 +222,7 @@ public class Sample {
                 Base64.getEncoder().encodeToString(text.getBytes()), null, null
         ));
         MixinResponse messageResponse = client.getMessageService().postMessageCall(messageRequests).execute().body();
+        assert messageResponse != null;
         if (messageResponse.isSuccess()) {
             System.out.println("Send success");
         } else {
@@ -232,4 +239,19 @@ public class Sample {
         }
     }
 
+
+    private static void transactions(HttpClient client, List<String> receivers, String aseKey, String pin) throws IOException {
+        MixinResponse<TransactionResponse> transactionResponse = client.getAssetService().transactionsCall(
+                new TransactionRequest(Sample.CNB_assetId, new OpponentMultisig(
+                        receivers,
+                        2
+                ), Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
+                        , null, null)).execute().body();
+        assert transactionResponse != null;
+        if (transactionResponse.isSuccess()) {
+            System.out.printf("TransactionsResponse success: %s%n", Objects.requireNonNull(transactionResponse.getData()).getSnapshotId());
+        } else {
+            System.out.printf("Transactions fail: %s", Objects.requireNonNull(transactionResponse.getError()).getDescription());
+        }
+    }
 }

@@ -7,7 +7,11 @@ import one.mixin.bot.vo.Fiat
 import one.mixin.bot.vo.PendingDeposit
 import one.mixin.bot.vo.Ticker
 import one.mixin.bot.vo.TopAsset
+import one.mixin.bot.vo.TransactionRequest
+import one.mixin.bot.vo.TransactionResponse
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -42,4 +46,7 @@ interface AssetCoroutineService {
 
     @GET("assets/{id}/fee")
     suspend fun assetsFee(@Path("id") id: String): MixinResponse<AssetFee>
+
+    @POST("transactions")
+    suspend fun transactions(@Body request: TransactionRequest): MixinResponse<TransactionResponse>
 }
