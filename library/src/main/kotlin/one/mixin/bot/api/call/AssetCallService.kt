@@ -1,9 +1,13 @@
 package one.mixin.bot.api.call
 
 import one.mixin.bot.api.MixinResponse
+import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.vo.Asset
 import one.mixin.bot.vo.AssetFee
 import one.mixin.bot.vo.Fiat
+import one.mixin.bot.vo.MultisigsRequest
+import one.mixin.bot.vo.MultisigsResponse
+import one.mixin.bot.vo.OutPuts
 import one.mixin.bot.vo.PendingDeposit
 import one.mixin.bot.vo.Ticker
 import one.mixin.bot.vo.TopAsset
@@ -51,4 +55,23 @@ interface AssetCallService {
 
     @POST("transactions")
     fun transactionsCall(@Body request: TransactionRequest): Call<MixinResponse<TransactionResponse>>
+
+    @GET("multisigs/outputs")
+    fun outputs(
+        @Query("members") members: String? = null,
+        @Query("threshold") threshold: Int? = null,
+        @Query("state") state: Int? = null,
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: Int = SnapshotService.LIMIT
+    ): Call<MixinResponse<OutPuts>>
+
+    @POST("multisigs/requests")
+    fun requests(@Body request: MultisigsRequest): Call<MixinResponse<MultisigsResponse>>
+
+    @POST("multisigs/requests/:id/:action")
+    fun requests(
+        @Path("id") id: String,
+        @Path("action") action: String,
+        @Body pin: String
+    ): Call<MixinResponse<MultisigsResponse>>
 }
