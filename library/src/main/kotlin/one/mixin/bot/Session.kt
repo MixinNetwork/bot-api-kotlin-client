@@ -48,7 +48,7 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
     return signToken(userId, sessionId, request.method, request.url.path(), body, key)
 }
 
-fun encryptPin(key: String, pin: String, iterator: Long = System.nanoTime()): String {
+fun encryptPin(key: String, pin: String, iterator: Long = System.currentTimeMillis() * 1_000_000): String {
     val pinByte = pin.toByteArray() + (System.currentTimeMillis() / 1000).toLeByteArray() + iterator.toLeByteArray()
     return aesEncrypt(key.base64Decode(), pinByte).base64Encode()
 }
