@@ -49,4 +49,15 @@ interface SnapshotCallService {
         @Query("destination") destination: String? = null,
         @Query("tag") tag: String? = null
     ): Call<MixinResponse<List<Snapshot>>>
+
+    @GET("/network/snapshots/{id}")
+    fun networkSnapshotCall(@Path("id") snapshotId: String): Call<MixinResponse<Snapshot>>
+
+    @GET("/network/snapshots/")
+    fun networkSnapshotsCall(
+        @Query("asset") assetId: String,
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: Int = LIMIT,
+        @Query("order") order: String? = null
+    ): Call<MixinResponse<List<Snapshot>>>
 }

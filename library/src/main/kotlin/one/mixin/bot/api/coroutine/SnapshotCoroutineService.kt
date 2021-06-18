@@ -48,4 +48,15 @@ interface SnapshotCoroutineService {
         @Query("destination") destination: String? = null,
         @Query("tag") tag: String? = null
     ): MixinResponse<List<Snapshot>>
+
+    @GET("/network/snapshots/{id}")
+    suspend fun networkSnapshot(@Path("id") snapshotId: String): MixinResponse<Snapshot>
+
+    @GET("/network/snapshots/")
+    suspend fun networkSnapshots(
+        @Query("asset") assetId: String,
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: Int = SnapshotService.LIMIT,
+        @Query("order") order: String? = null
+    ): MixinResponse<List<Snapshot>>
 }

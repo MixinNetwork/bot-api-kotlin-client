@@ -98,6 +98,8 @@ fun main() = runBlocking {
     // Transactions
     transactions(client, pinToken)
 
+    networkSnapshots(client, CNB_ID)
+    networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc")
     return@runBlocking
 }
 
@@ -264,5 +266,29 @@ private suspend fun transactions(
         println("Transactions success: ${transactionsResponse.data?.snapshotId}")
     } else {
         println("Transactions fail")
+    }
+}
+
+private suspend fun networkSnapshot(
+    client: HttpClient,
+    snapshotId: String
+) {
+    val snapshotResponse = client.snapshotService.networkSnapshot(snapshotId)
+    if (snapshotResponse.isSuccess()) {
+        println("Success: ${snapshotResponse.data?.snapshotId}")
+    } else {
+        println("Fail")
+    }
+}
+
+private suspend fun networkSnapshots(
+    client: HttpClient,
+    assetId: String
+) {
+    val snapshotResponse = client.snapshotService.networkSnapshots(assetId)
+    if (snapshotResponse.isSuccess()) {
+        println("Success: ${snapshotResponse.data?.size}")
+    } else {
+        println("Fail: ${snapshotResponse.error?.description}")
     }
 }

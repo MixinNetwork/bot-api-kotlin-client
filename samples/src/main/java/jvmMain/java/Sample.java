@@ -82,6 +82,9 @@ public class Sample {
             receivers.add("087e91ff-7169-451a-aaaa-5b3297411a4b");
             receivers.add("105f6e8b-d249-4b4d-9beb-e03cefaebc37");
             transactions(client, receivers, pinToken, pin);
+
+            networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc");
+            networkSnapshots(client, CNB_assetId);
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
         }
@@ -252,6 +255,26 @@ public class Sample {
             System.out.printf("TransactionsResponse success: %s%n", Objects.requireNonNull(transactionResponse.getData()).getSnapshotId());
         } else {
             System.out.printf("Transactions fail: %s", Objects.requireNonNull(transactionResponse.getError()).getDescription());
+        }
+    }
+
+    private static void networkSnapshot(HttpClient client, String snapshotId) throws IOException {
+        MixinResponse<Snapshot> snapshotResponse = client.getSnapshotService().networkSnapshotCall(snapshotId).execute().body();
+        assert snapshotResponse != null;
+        if (snapshotResponse.isSuccess()) {
+            System.out.printf("Success: %s%n", Objects.requireNonNull(snapshotResponse.getData()).getSnapshotId());
+        } else {
+            System.out.printf("Fail: %s", Objects.requireNonNull(snapshotResponse.getError()).getDescription());
+        }
+    }
+
+    private static void networkSnapshots(HttpClient client, String assetId) throws IOException {
+        MixinResponse<List<Snapshot>> snapshotResponse = client.getSnapshotService().networkSnapshotsCall(assetId, null, 10, "ASC").execute().body();
+        assert snapshotResponse != null;
+        if (snapshotResponse.isSuccess()) {
+            System.out.printf("Success: %d%n", Objects.requireNonNull(snapshotResponse.getData()).size());
+        } else {
+            System.out.printf("Fail: %s", Objects.requireNonNull(snapshotResponse.getError()).getDescription());
         }
     }
 }
