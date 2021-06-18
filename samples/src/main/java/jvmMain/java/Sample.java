@@ -82,6 +82,9 @@ public class Sample {
             receivers.add("087e91ff-7169-451a-aaaa-5b3297411a4b");
             receivers.add("105f6e8b-d249-4b4d-9beb-e03cefaebc37");
             transactions(client, receivers, pinToken, pin);
+
+            networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc");
+            networkSnapshots(client, CNB_assetId);
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
         }

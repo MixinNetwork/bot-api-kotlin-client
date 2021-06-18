@@ -18,7 +18,6 @@ import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.AddressRequest
 import one.mixin.bot.vo.OpponentMultisig
 import one.mixin.bot.vo.PinRequest
-import one.mixin.bot.vo.Snapshot
 import one.mixin.bot.vo.TransactionRequest
 import one.mixin.bot.vo.TransferRequest
 import one.mixin.bot.vo.User
@@ -99,6 +98,8 @@ fun main() = runBlocking {
     // Transactions
     transactions(client, pinToken)
 
+    networkSnapshots(client, CNB_ID)
+    networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc")
     return@runBlocking
 }
 
@@ -286,8 +287,8 @@ private suspend fun networkSnapshots(
 ) {
     val snapshotResponse = client.snapshotService.networkSnapshots(assetId)
     if (snapshotResponse.isSuccess()) {
-        println("Success: ${snapshotResponse.data?.snapshotId}")
+        println("Success: ${snapshotResponse.data?.size}")
     } else {
-        println("Fail")
+        println("Fail: ${snapshotResponse.error?.description}")
     }
 }

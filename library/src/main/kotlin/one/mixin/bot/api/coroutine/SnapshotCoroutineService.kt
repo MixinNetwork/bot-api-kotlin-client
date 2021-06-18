@@ -50,9 +50,9 @@ interface SnapshotCoroutineService {
     ): MixinResponse<List<Snapshot>>
 
     @GET("/network/snapshots/{id}")
-    suspend fun networkSnapshot(@Query("id") snapshotId: String): MixinResponse<Snapshot>
+    suspend fun networkSnapshot(@Path("id") snapshotId: String): MixinResponse<Snapshot>
 
-    @GET("/network/snapshots/{id}")
+    @GET("/network/snapshots/")
     suspend fun networkSnapshots(
         @Query("asset") assetId: String,
         @Query("offset") offset: String? = null,
