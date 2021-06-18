@@ -18,6 +18,7 @@ import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.AddressRequest
 import one.mixin.bot.vo.OpponentMultisig
 import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.Snapshot
 import one.mixin.bot.vo.TransactionRequest
 import one.mixin.bot.vo.TransferRequest
 import one.mixin.bot.vo.User
@@ -264,5 +265,29 @@ private suspend fun transactions(
         println("Transactions success: ${transactionsResponse.data?.snapshotId}")
     } else {
         println("Transactions fail")
+    }
+}
+
+private suspend fun networkSnapshot(
+    client: HttpClient,
+    snapshotId: String
+) {
+    val snapshotResponse = client.snapshotService.networkSnapshot(snapshotId)
+    if (snapshotResponse.isSuccess()) {
+        println("Success: ${snapshotResponse.data?.snapshotId}")
+    } else {
+        println("Fail")
+    }
+}
+
+private suspend fun networkSnapshots(
+    client: HttpClient,
+    assetId: String
+) {
+    val snapshotResponse = client.snapshotService.networkSnapshots(assetId)
+    if (snapshotResponse.isSuccess()) {
+        println("Success: ${snapshotResponse.data?.snapshotId}")
+    } else {
+        println("Fail")
     }
 }
