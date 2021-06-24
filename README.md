@@ -16,7 +16,7 @@ allprojects {
 Add the dependency
 ```
 dependencies {
-    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.4.3'
+    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.4.6'
 }
 ```
 
