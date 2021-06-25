@@ -259,7 +259,7 @@ public class Sample {
     }
 
     private static void networkSnapshot(HttpClient client, String snapshotId) throws IOException {
-        MixinResponse<Snapshot> snapshotResponse = client.getSnapshotService().networkSnapshotCall(snapshotId).execute().body();
+        MixinResponse<NetworkSnapshot> snapshotResponse = client.getSnapshotService().networkSnapshotCall(snapshotId).execute().body();
         assert snapshotResponse != null;
         if (snapshotResponse.isSuccess()) {
             System.out.printf("Success: %s%n", Objects.requireNonNull(snapshotResponse.getData()).getSnapshotId());
@@ -269,7 +269,7 @@ public class Sample {
     }
 
     private static void networkSnapshots(HttpClient client, String assetId) throws IOException {
-        MixinResponse<List<Snapshot>> snapshotResponse = client.getSnapshotService().networkSnapshotsCall(assetId, null, 10, "ASC").execute().body();
+        MixinResponse<List<NetworkSnapshot>> snapshotResponse = client.getSnapshotService().networkSnapshotsCall(assetId, null, 10, "ASC").execute().body();
         assert snapshotResponse != null;
         if (snapshotResponse.isSuccess()) {
             System.out.printf("Success: %d%n", Objects.requireNonNull(snapshotResponse.getData()).size());

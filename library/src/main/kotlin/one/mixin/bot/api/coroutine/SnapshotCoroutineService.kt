@@ -2,6 +2,7 @@ package one.mixin.bot.api.coroutine
 
 import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.api.SnapshotService
+import one.mixin.bot.vo.NetworkSnapshot
 import one.mixin.bot.vo.Snapshot
 import one.mixin.bot.vo.TransferRequest
 import one.mixin.bot.vo.WithdrawalRequest
@@ -50,7 +51,7 @@ interface SnapshotCoroutineService {
     ): MixinResponse<List<Snapshot>>
 
     @GET("/network/snapshots/{id}")
-    suspend fun networkSnapshot(@Path("id") snapshotId: String): MixinResponse<Snapshot>
+    suspend fun networkSnapshot(@Path("id") snapshotId: String): MixinResponse<NetworkSnapshot>
 
     @GET("/network/snapshots/")
     suspend fun networkSnapshots(
@@ -58,5 +59,5 @@ interface SnapshotCoroutineService {
         @Query("offset") offset: String? = null,
         @Query("limit") limit: Int = SnapshotService.LIMIT,
         @Query("order") order: String? = null
-    ): MixinResponse<List<Snapshot>>
+    ): MixinResponse<List<NetworkSnapshot>>
 }

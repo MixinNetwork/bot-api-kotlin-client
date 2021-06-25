@@ -2,6 +2,7 @@ package one.mixin.bot.api.call
 
 import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.api.SnapshotService.Companion.LIMIT
+import one.mixin.bot.vo.NetworkSnapshot
 import one.mixin.bot.vo.Snapshot
 import one.mixin.bot.vo.TransferRequest
 import one.mixin.bot.vo.WithdrawalRequest
@@ -51,7 +52,7 @@ interface SnapshotCallService {
     ): Call<MixinResponse<List<Snapshot>>>
 
     @GET("/network/snapshots/{id}")
-    fun networkSnapshotCall(@Path("id") snapshotId: String): Call<MixinResponse<Snapshot>>
+    fun networkSnapshotCall(@Path("id") snapshotId: String): Call<MixinResponse<NetworkSnapshot>>
 
     @GET("/network/snapshots/")
     fun networkSnapshotsCall(
@@ -59,5 +60,5 @@ interface SnapshotCallService {
         @Query("offset") offset: String? = null,
         @Query("limit") limit: Int = LIMIT,
         @Query("order") order: String? = null
-    ): Call<MixinResponse<List<Snapshot>>>
+    ): Call<MixinResponse<List<NetworkSnapshot>>>
 }
