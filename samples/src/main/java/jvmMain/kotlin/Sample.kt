@@ -29,7 +29,7 @@ import java.util.UUID
 const val CNB_ID = "965e5c6e-434c-3fa9-b780-c50f43cd955c"
 const val BTC_ID = "c6d0c728-2624-429b-8e0d-d9d19b6592fa"
 const val DEFAULT_PIN = "131416"
-const val DEFAULT_AMOUNT = "1"
+const val DEFAULT_AMOUNT = "0.01"
 
 fun main() = runBlocking {
     val key = getEdDSAPrivateKeyFromString(Config.privateKey)
@@ -251,11 +251,13 @@ private suspend fun transactions(
     val transactionsResponse = client.assetService.transactions(
         TransactionRequest(
             CNB_ID,
-            OpponentMultisig(listOf("00c5a4ae-dcdc-48db-ab8e-a7eef69b441d", "087e91ff-7169-451a-aaaa-5b3297411a4b", "4e0e6e6b-6c9d-4e99-b7f1-1356322abec3"), 2),
+            // OpponentMultisig(listOf("00c5a4ae-dcdc-48db-ab8e-a7eef69b441d", "087e91ff-7169-451a-aaaa-5b3297411a4b", "4e0e6e6b-6c9d-4e99-b7f1-1356322abec3"), 2),
+            opponentMultisig = null,
+            opponentKey = "XINQTmRReDuPEUAVEyDyE2mBgxa1ojVRAvpYcKs5nSA7FDBBfAEeVRn8s9vAm3Cn1qzQ7JtjG62go4jSJU6yWyRUKHpamWAM", // test address
             DEFAULT_AMOUNT,
             encryptPin(
                 userAesKey,
-                DEFAULT_PIN,
+                pin,
                 System.nanoTime()
             ),
             UUID.randomUUID().toString(),

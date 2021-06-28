@@ -24,7 +24,7 @@ public class Sample {
     final static String userPin = "131416";
     final static String CNB_assetId = "965e5c6e-434c-3fa9-b780-c50f43cd955c";
     final static String BTC_assetId = "c6d0c728-2624-429b-8e0d-d9d19b6592fa";
-    final static String amount = "2";
+    final static String amount = "0.001";
 
     public static void main(String[] args) {
         EdDSAPrivateKey key = getEdDSAPrivateKeyFromString(privateKey);
@@ -245,10 +245,7 @@ public class Sample {
 
     private static void transactions(HttpClient client, List<String> receivers, String aseKey, String pin) throws IOException {
         MixinResponse<TransactionResponse> transactionResponse = client.getAssetService().transactionsCall(
-                new TransactionRequest(Sample.CNB_assetId, new OpponentMultisig(
-                        receivers,
-                        2
-                ), Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
+                new TransactionRequest(Sample.CNB_assetId, null,"XINQTmRReDuPEUAVEyDyE2mBgxa1ojVRAvpYcKs5nSA7FDBBfAEeVRn8s9vAm3Cn1qzQ7JtjG62go4jSJU6yWyRUKHpamWAM", Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
                         , null, null)).execute().body();
         assert transactionResponse != null;
         if (transactionResponse.isSuccess()) {

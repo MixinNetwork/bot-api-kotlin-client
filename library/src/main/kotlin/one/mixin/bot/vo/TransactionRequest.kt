@@ -6,7 +6,9 @@ data class TransactionRequest(
     @SerializedName("asset_id")
     val assetId: String,
     @SerializedName("opponent_multisig")
-    val opponentMultisig: OpponentMultisig,
+    val opponentMultisig: OpponentMultisig? = null,
+    @SerializedName("opponent_key")
+    val opponentKey: String? = null,
     val amount: String,
     val pin: String,
     @SerializedName("trace_id")
