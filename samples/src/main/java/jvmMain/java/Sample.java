@@ -83,6 +83,8 @@ public class Sample {
             receivers.add("105f6e8b-d249-4b4d-9beb-e03cefaebc37");
             transactions(client, receivers, pinToken, pin);
 
+            transactionsOpponentKey(client, "XINQTmRReDuPEUAVEyDyE2mBgxa1ojVRAvpYcKs5nSA7FDBBfAEeVRn8s9vAm3Cn1qzQ7JtjG62go4jSJU6yWyRUKHpamWAM", pinToken, pin);
+
             networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc");
             networkSnapshots(client, CNB_assetId);
         } catch (InterruptedException | IOException e) {
@@ -245,7 +247,10 @@ public class Sample {
 
     private static void transactions(HttpClient client, List<String> receivers, String aseKey, String pin) throws IOException {
         MixinResponse<TransactionResponse> transactionResponse = client.getAssetService().transactionsCall(
-                new TransactionRequest(Sample.CNB_assetId, null,"XINQTmRReDuPEUAVEyDyE2mBgxa1ojVRAvpYcKs5nSA7FDBBfAEeVRn8s9vAm3Cn1qzQ7JtjG62go4jSJU6yWyRUKHpamWAM", Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
+                new TransactionRequest(Sample.CNB_assetId, new OpponentMultisig(
+                        receivers,
+                        2
+                ), null, Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
                         , null, null)).execute().body();
         assert transactionResponse != null;
         if (transactionResponse.isSuccess()) {
@@ -254,6 +259,19 @@ public class Sample {
             System.out.printf("Transactions fail: %s", Objects.requireNonNull(transactionResponse.getError()).getDescription());
         }
     }
+
+    private static void transactionsOpponentKey(HttpClient client, String opponentKey, String aseKey, String pin) throws IOException {
+        MixinResponse<TransactionResponse> transactionResponse = client.getAssetService().transactionsCall(
+                new TransactionRequest(Sample.CNB_assetId, null, opponentKey, Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
+                        , null, null)).execute().body();
+        assert transactionResponse != null;
+        if (transactionResponse.isSuccess()) {
+            System.out.printf("TransactionsResponse success: %s%n", Objects.requireNonNull(transactionResponse.getData()).getTransactionHash());
+        } else {
+            System.out.printf("Transactions fail: %s", Objects.requireNonNull(transactionResponse.getError()).getDescription());
+        }
+    }
+
 
     private static void networkSnapshot(HttpClient client, String snapshotId) throws IOException {
         MixinResponse<NetworkSnapshot> snapshotResponse = client.getSnapshotService().networkSnapshotCall(snapshotId).execute().body();
