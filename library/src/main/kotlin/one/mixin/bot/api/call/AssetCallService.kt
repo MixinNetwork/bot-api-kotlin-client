@@ -21,7 +21,7 @@ interface AssetCallService {
     @GET("assets")
     fun assetsCall(): Call<MixinResponse<List<Asset>>>
 
-    @GET("/ticker")
+    @GET("network/ticker")
     fun tickerCall(
         @Query("asset") assetId: String,
         @Query("offset") offset: String? = null

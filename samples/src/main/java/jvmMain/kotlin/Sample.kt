@@ -16,7 +16,6 @@ import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.getEdDSAPrivateKeyFromString
 import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.AddressRequest
-import one.mixin.bot.vo.OpponentMultisig
 import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.TransactionRequest
 import one.mixin.bot.vo.TransferRequest
@@ -74,6 +73,9 @@ fun main() = runBlocking {
             userPrivateKey.seed.base64Encode()
         )
     )
+
+    // Get ticker
+    getTicker(client)
 
     // Get fiats
     getFiats(client)
@@ -172,6 +174,16 @@ private suspend fun getFee(client: HttpClient) {
         println("Fee ${feeResponse.data?.amount}")
     } else {
         println("Fee fail")
+    }
+}
+
+private suspend fun getTicker(client: HttpClient) {
+    // Get fee
+    val tickerResponse = client.assetService.ticker(BTC_ID)
+    if (tickerResponse.isSuccess()) {
+        println("Ticker ${tickerResponse.data}")
+    } else {
+        println("Ticker fail")
     }
 }
 

@@ -19,7 +19,7 @@ interface AssetCoroutineService {
     @GET("assets")
     suspend fun assets(): MixinResponse<List<Asset>>
 
-    @GET("/ticker")
+    @GET("network/ticker")
     suspend fun ticker(
         @Query("asset") assetId: String,
         @Query("offset") offset: String? = null

@@ -44,6 +44,9 @@ public class Sample {
             EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
             userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), userPrivateKey));
 
+            // get ticker
+            getTicker(client);
+
             // get fiats
             getFiats(client);
 
@@ -216,6 +219,16 @@ public class Sample {
             System.out.printf("Fee success: %s%n", Objects.requireNonNull(feeResponse.getData()).getAmount());
         } else {
             System.out.println("Fee fail");
+        }
+    }
+
+    private static void getTicker(HttpClient client) throws IOException {
+        MixinResponse<Ticker> tickerResponse = client.getAssetService().tickerCall(BTC_assetId, null).execute().body();
+        assert tickerResponse != null;
+        if (tickerResponse.isSuccess()) {
+            System.out.printf("Ticker success: %s%n", Objects.requireNonNull(tickerResponse.getData()));
+        } else {
+            System.out.println("Ticker fail");
         }
     }
 
