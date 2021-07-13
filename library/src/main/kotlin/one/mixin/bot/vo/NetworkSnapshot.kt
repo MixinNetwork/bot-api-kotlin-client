@@ -8,7 +8,7 @@ data class NetworkSnapshot(
     val asset: Asset,
     @SerializedName("created_at")
     val createdAt: String,
-    val data:String,
+    val data: String,
     @SerializedName("snapshot_id")
     val snapshotId: String,
     @SerializedName("source")

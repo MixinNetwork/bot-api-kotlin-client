@@ -1,9 +1,6 @@
 package one.mixin.bot
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import java.security.Security
-import java.util.Locale
-import java.util.concurrent.TimeUnit
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
@@ -25,6 +22,9 @@ import one.mixin.bot.util.getRSAPrivateKeyFromString
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.security.Security
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class HttpClient private constructor(
     private val clientToken: SessionToken,
