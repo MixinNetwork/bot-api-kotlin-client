@@ -1,10 +1,7 @@
 package one.mixin.bot.api.coroutine
 
 import one.mixin.bot.api.MixinResponse
-import one.mixin.bot.vo.Account
-import one.mixin.bot.vo.AccountRequest
-import one.mixin.bot.vo.PinRequest
-import one.mixin.bot.vo.User
+import one.mixin.bot.vo.*
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -35,4 +32,7 @@ interface UserCoroutineService {
 
     @POST("multisigs/{id}/unlock")
     suspend fun unlockMultisigs(@Path("id") id: String, @Body pinRequest: PinRequest): MixinResponse<Void>
+
+    @POST("outputs")
+    suspend fun readGhostKeys(@Body ghostKeyRequest: GhostKeyRequest): MixinResponse<List<GhostKey>>
 }

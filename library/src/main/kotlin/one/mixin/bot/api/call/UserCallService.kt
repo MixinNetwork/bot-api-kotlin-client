@@ -1,10 +1,7 @@
 package one.mixin.bot.api.call
 
 import one.mixin.bot.api.MixinResponse
-import one.mixin.bot.vo.Account
-import one.mixin.bot.vo.AccountRequest
-import one.mixin.bot.vo.PinRequest
-import one.mixin.bot.vo.User
+import one.mixin.bot.vo.*
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -42,4 +39,9 @@ interface UserCallService {
         @Path("id") id: String,
         @Body pinRequest: PinRequest
     ): Call<MixinResponse<Void>>
+
+    @POST("outputs")
+    fun readGhostKeysCall(
+        @Body ghostKeyRequest: GhostKeyRequest
+    ): MixinResponse<List<GhostKey>>
 }
