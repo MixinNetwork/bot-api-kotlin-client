@@ -1,7 +1,12 @@
 package one.mixin.bot.api.coroutine
 
 import one.mixin.bot.api.MixinResponse
-import one.mixin.bot.vo.*
+import one.mixin.bot.vo.Account
+import one.mixin.bot.vo.AccountRequest
+import one.mixin.bot.vo.GhostKey
+import one.mixin.bot.vo.GhostKeyRequest
+import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.User
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
