@@ -195,12 +195,10 @@ private suspend fun createAddress(client: HttpClient, userAesKey: String): Strin
             "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
             null,
             "label",
-            requireNotNull(
-                encryptPin(
-                    userAesKey,
-                    DEFAULT_PIN,
-                    System.nanoTime()
-                )
+            encryptPin(
+                userAesKey,
+                DEFAULT_PIN,
+                System.nanoTime()
             )
         )
     )
