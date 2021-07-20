@@ -2,9 +2,6 @@ package one.mixin.bot
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import java.security.Key
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 import okhttp3.Request
 import okio.ByteString.Companion.encode
 import one.mixin.bot.extension.base64Decode
@@ -13,6 +10,9 @@ import one.mixin.bot.extension.bodyToString
 import one.mixin.bot.extension.path
 import one.mixin.bot.extension.toLeByteArray
 import one.mixin.bot.util.aesEncrypt
+import java.security.Key
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
 fun signToken(userId: String, sessionId: String, method: String, path: String, body: String?, key: Key): String {
     val expire = System.currentTimeMillis() / 1000 + 1800

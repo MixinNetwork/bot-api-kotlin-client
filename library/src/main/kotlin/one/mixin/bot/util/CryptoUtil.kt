@@ -1,5 +1,12 @@
 package one.mixin.bot.util
 
+import net.i2p.crypto.eddsa.EdDSAPrivateKey
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
+import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
+import one.mixin.bot.extension.base64Decode
+import one.mixin.bot.extension.base64Encode
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.whispersystems.curve25519.Curve25519
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -18,13 +25,6 @@ import javax.crypto.spec.PSource
 import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.and
 import kotlin.experimental.or
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
-import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
-import one.mixin.bot.extension.base64Decode
-import one.mixin.bot.extension.base64Encode
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.whispersystems.curve25519.Curve25519
 
 fun generateRSAKeyPair(keyLength: Int = 2048): KeyPair {
     val kpg = KeyPairGenerator.getInstance("RSA")
