@@ -140,14 +140,14 @@ class HttpClient private constructor(
 
     val externalService: ExternalService by lazy {
         object : ExternalService {
-            override fun getutxoCall(hash: String, index: Int): Call<JsonObject> {
+            override fun getUtxoCall(hash: String, index: Int): Call<JsonObject> {
                 val list = mutableListOf<Any>()
                 list.add(hash)
                 list.add(index)
                 return userService.mixinMainnetRPCCall(RpcRequest("getutxo", list))
             }
 
-            override suspend fun getutxo(hash: String, index: Int): JsonObject {
+            override suspend fun getUtxo(hash: String, index: Int): JsonObject {
                 val list = mutableListOf<Any>()
                 list.add(hash)
                 list.add(index)

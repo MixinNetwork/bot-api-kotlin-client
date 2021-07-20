@@ -99,7 +99,7 @@ public class Sample {
     }
 
     private static void utxo(HttpClient client) throws IOException {
-        JsonObject response = client.getExternalService().getutxoCall("b6afed179a8192513990e29953e3a6875eab53050b1e174d5c83ab76bbbd4b29",0).execute().body();
+        JsonObject response = client.getExternalService().getUtxoCall("b6afed179a8192513990e29953e3a6875eab53050b1e174d5c83ab76bbbd4b29",0).execute().body();
         assert response != null;
         System.out.printf("%s%n", Utxo.Companion.fromJson(response.getAsJsonObject("data")).getHash());
     }
