@@ -100,7 +100,7 @@ public class Sample {
 
     private static void rpc(HttpClient client) throws IOException {
         ArrayList<Object> list = new ArrayList<>();
-        list.add("ab798fa45d74ab031010bc9e27114f710949cf804114d4f760c0deee69802f3a");
+        list.add("b6afed179a8192513990e29953e3a6875eab53050b1e174d5c83ab76bbbd4b29");
         list.add(0);
         JsonObject response = client.getUserService().mixinRPCCall(new RpcRequest("getutxo", list)).execute().body();
         assert response != null;
