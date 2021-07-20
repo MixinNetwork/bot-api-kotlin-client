@@ -144,14 +144,14 @@ class HttpClient private constructor(
                 val list = mutableListOf<Any>()
                 list.add(hash)
                 list.add(index)
-                return userService.mixinRPCCall(RpcRequest("getutxo", list))
+                return userService.mixinMainnetRPCCall(RpcRequest("getutxo", list))
             }
 
             override suspend fun getutxo(hash: String, index: Int): JsonObject {
                 val list = mutableListOf<Any>()
                 list.add(hash)
                 list.add(index)
-                return userService.mixinRPC(RpcRequest("getutxo", list))
+                return userService.mixinMainnetRPC(RpcRequest("getutxo", list))
             }
         }
     }

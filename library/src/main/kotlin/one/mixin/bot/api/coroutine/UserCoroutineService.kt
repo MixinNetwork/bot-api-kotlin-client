@@ -44,7 +44,7 @@ interface UserCoroutineService {
     suspend fun readGhostKeys(@Body ghostKeyRequest: GhostKeyRequest): MixinResponse<List<GhostKey>>
 
     @POST("external/proxy")
-    suspend fun mixinRPC(
+    suspend fun mixinMainnetRPC(
         @Body rpcRequest: RpcRequest
     ): JsonObject
 }

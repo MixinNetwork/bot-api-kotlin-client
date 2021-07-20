@@ -53,7 +53,7 @@ interface UserCallService {
     ): Call<MixinResponse<List<GhostKey>>>
 
     @POST("external/proxy")
-    fun mixinRPCCall(
+    fun mixinMainnetRPCCall(
         @Body rpcRequest: RpcRequest
     ): Call<JsonObject>
 }
