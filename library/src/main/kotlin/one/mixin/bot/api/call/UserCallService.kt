@@ -1,11 +1,13 @@
 package one.mixin.bot.api.call
 
+import com.google.gson.JsonObject
 import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.vo.Account
 import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.GhostKey
 import one.mixin.bot.vo.GhostKeyRequest
 import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.RpcRequest
 import one.mixin.bot.vo.User
 import retrofit2.Call
 import retrofit2.http.Body
@@ -48,5 +50,10 @@ interface UserCallService {
     @POST("outputs")
     fun readGhostKeysCall(
         @Body ghostKeyRequest: GhostKeyRequest
-    ): MixinResponse<List<GhostKey>>
+    ): Call<MixinResponse<List<GhostKey>>>
+
+    @POST("external/proxy")
+    fun mixinRPCCall(
+        @Body rpcRequest: RpcRequest
+    ): Call<MixinResponse<JsonObject>>
 }

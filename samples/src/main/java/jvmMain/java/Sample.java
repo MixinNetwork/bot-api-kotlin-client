@@ -1,5 +1,6 @@
 package jvmMain.java;
 
+import com.google.gson.JsonObject;
 import kotlin.Unit;
 import net.i2p.crypto.eddsa.EdDSAPrivateKey;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
@@ -31,6 +32,8 @@ public class Sample {
         String pinToken = decryASEKey(pinTokenPem, key);
         HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key).build();
         try {
+            rpc(client);
+
             KeyPair sessionKey = generateEd25519KeyPair();
             EdDSAPublicKey publicKey = (EdDSAPublicKey) (sessionKey.getPublic());
             String sessionSecret = base64Encode(publicKey.getAbyte());
@@ -95,6 +98,10 @@ public class Sample {
         }
     }
 
+    private static void rpc(HttpClient client) throws IOException {
+        MixinResponse<JsonObject> response = client.getUserService().mixinRPCCall(new RpcRequest("getinfo", null)).execute().body();
+        System.out.printf("%s%n", response.getData());
+    }
 
     private static String createAddress(HttpClient client, String userAesKey) throws IOException {
         MixinResponse<Address> addressResponse = client.getAddressService().createAddressesCall(new AddressRequest(Sample.CNB_assetId,
