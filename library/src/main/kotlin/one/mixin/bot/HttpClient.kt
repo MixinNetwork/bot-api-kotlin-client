@@ -1,5 +1,6 @@
 package one.mixin.bot
 
+import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
@@ -11,6 +12,7 @@ import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.AddressService
 import one.mixin.bot.api.AssetService
+import one.mixin.bot.api.ExternalService
 import one.mixin.bot.api.MessageService
 import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.api.UserService
@@ -19,7 +21,9 @@ import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.util.getRSAPrivateKeyFromString
+import one.mixin.bot.vo.RpcRequest
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.Security
@@ -132,6 +136,24 @@ class HttpClient private constructor(
 
     val messageService: MessageService by lazy {
         retrofit.create(MessageService::class.java)
+    }
+
+    val externalService: ExternalService by lazy {
+        object : ExternalService {
+            override fun getutxoCall(hash: String, index: Int): Call<JsonObject> {
+                val list = mutableListOf<Any>()
+                list.add(hash)
+                list.add(index)
+                return userService.mixinRPCCall(RpcRequest("getutxo", list))
+            }
+
+            override suspend fun getutxo(hash: String, index: Int): JsonObject {
+                val list = mutableListOf<Any>()
+                list.add(hash)
+                list.add(index)
+                return userService.mixinRPC(RpcRequest("getutxo", list))
+            }
+        }
     }
 
     class Builder {

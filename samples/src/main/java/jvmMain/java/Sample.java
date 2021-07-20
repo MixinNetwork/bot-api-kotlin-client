@@ -32,7 +32,7 @@ public class Sample {
         String pinToken = decryASEKey(pinTokenPem, key);
         HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key).build();
         try {
-            rpc(client);
+            utxo(client);
 
             KeyPair sessionKey = generateEd25519KeyPair();
             EdDSAPublicKey publicKey = (EdDSAPublicKey) (sessionKey.getPublic());
@@ -98,11 +98,9 @@ public class Sample {
         }
     }
 
-    private static void rpc(HttpClient client) throws IOException {
+    private static void utxo(HttpClient client) throws IOException {
         ArrayList<Object> list = new ArrayList<>();
-        list.add("b6afed179a8192513990e29953e3a6875eab53050b1e174d5c83ab76bbbd4b29");
-        list.add(0);
-        JsonObject response = client.getUserService().mixinRPCCall(new RpcRequest("getutxo", list)).execute().body();
+        JsonObject response = client.getExternalService().getutxoCall("b6afed179a8192513990e29953e3a6875eab53050b1e174d5c83ab76bbbd4b29",0).execute().body();
         assert response != null;
         System.out.printf("%s%n", response.toString());
     }

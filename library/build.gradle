@@ -3,7 +3,6 @@ plugins {
     id 'kotlin'
 }
 
-apply plugin: 'maven-publish'
 apply plugin: 'java'
 
 java {
