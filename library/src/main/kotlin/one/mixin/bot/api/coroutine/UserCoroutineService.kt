@@ -1,11 +1,13 @@
 package one.mixin.bot.api.coroutine
 
+import com.google.gson.JsonObject
 import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.vo.Account
 import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.GhostKey
 import one.mixin.bot.vo.GhostKeyRequest
 import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.RpcRequest
 import one.mixin.bot.vo.User
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -40,4 +42,9 @@ interface UserCoroutineService {
 
     @POST("outputs")
     suspend fun readGhostKeys(@Body ghostKeyRequest: GhostKeyRequest): MixinResponse<List<GhostKey>>
+
+    @POST("external/proxy")
+    suspend fun mixinRPC(
+        @Body rpcRequest: RpcRequest
+    ): JsonObject
 }
