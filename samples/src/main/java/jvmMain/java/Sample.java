@@ -93,6 +93,8 @@ public class Sample {
 
             networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc");
             networkSnapshots(client, CNB_assetId);
+
+            readGhostKey(client);
         } catch (InterruptedException | IOException e) {
             System.out.println(e.getMessage());
         }
@@ -311,6 +313,21 @@ public class Sample {
             System.out.printf("Success: %d%n", Objects.requireNonNull(snapshotResponse.getData()).size());
         } else {
             System.out.printf("Fail: %s", Objects.requireNonNull(snapshotResponse.getError()).getDescription());
+        }
+    }
+
+    private static void readGhostKey(HttpClient client) throws IOException {
+        List<String> userList = new ArrayList<>();
+        userList.add("639ec50a-d4f1-4135-8624-3c71189dcdcc");
+        userList.add("d3bee23a-81d4-462e-902a-22dae9ef89ff");
+        GhostKeyRequest request = new GhostKeyRequest(userList, 0, "");
+        MixinResponse<GhostKey> response = client.getUserService().readGhostKeysCall(request).execute().body();
+        assert response != null;
+
+        if (response.isSuccess()) {
+            System.out.printf("ReadGhostKey success %s%n", response.getData());
+        } else {
+            System.out.println("ReadGhostKey failed");
         }
     }
 }

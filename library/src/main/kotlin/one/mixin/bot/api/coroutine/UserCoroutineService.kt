@@ -41,7 +41,7 @@ interface UserCoroutineService {
     suspend fun unlockMultisigs(@Path("id") id: String, @Body pinRequest: PinRequest): MixinResponse<Void>
 
     @POST("outputs")
-    suspend fun readGhostKeys(@Body ghostKeyRequest: GhostKeyRequest): MixinResponse<List<GhostKey>>
+    suspend fun readGhostKeys(@Body ghostKeyRequest: GhostKeyRequest): MixinResponse<GhostKey>
 
     @POST("external/proxy")
     suspend fun mixinMainnetRPC(

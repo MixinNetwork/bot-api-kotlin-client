@@ -50,7 +50,7 @@ interface UserCallService {
     @POST("outputs")
     fun readGhostKeysCall(
         @Body ghostKeyRequest: GhostKeyRequest
-    ): Call<MixinResponse<List<GhostKey>>>
+    ): Call<MixinResponse<GhostKey>>
 
     @POST("external/proxy")
     fun mixinMainnetRPCCall(
