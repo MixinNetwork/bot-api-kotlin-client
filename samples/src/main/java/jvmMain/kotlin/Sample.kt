@@ -50,7 +50,6 @@ fun main() = runBlocking {
 
     // create user's pin
     createPin(client, userAesKey)
-    //Use bot's token
 
     //Use bot's token
     client.setUserToken(null)
@@ -80,10 +79,11 @@ fun main() = runBlocking {
     getAsset(client)
 
     // Create address
-    val addressId = createAddress(client, userAesKey) ?: return@runBlocking
-
-    // Withdrawal
-    withdrawalToAddress(client, addressId, userAesKey)
+    val addressId = createAddress(client, userAesKey)
+    if (addressId != null) {
+        // Withdrawal
+        withdrawalToAddress(client, addressId, userAesKey)
+    }
 
     //Use bot's token
     client.setUserToken(null)
@@ -117,7 +117,7 @@ private suspend fun createPin(client: HttpClient, userAesKey: String) {
     if (response.isSuccess()) {
         println("Create pin success ${response.data?.userId}")
     } else {
-        println("Create pin fail")
+        println("Create pin failure")
     }
 }
 
@@ -138,7 +138,7 @@ private suspend fun transferToUser(
     if (response.isSuccess()) {
         println("Transfer success: ${response.data?.snapshotId}")
     } else {
-        println("Transfer fail ${response.error}")
+        println("Transfer failure ${response.error}")
     }
 }
 
@@ -148,7 +148,7 @@ private suspend fun getAsset(client: HttpClient) {
     if (assetResponse.isSuccess()) {
         println("Assets ${assetResponse.data?.symbol}: ${assetResponse.data?.balance}")
     } else {
-        println("Assets fail")
+        println("Assets failure ${assetResponse.error}")
     }
 }
 
@@ -158,7 +158,7 @@ private suspend fun getFiats(client: HttpClient) {
     if (fiatsResponse.isSuccess()) {
         println("Fiats ${fiatsResponse.data?.get(0)?.code}: ${fiatsResponse.data?.get(0)?.rate}")
     } else {
-        println("Fiats fail")
+        println("Fiats failure ${fiatsResponse.error}")
     }
 }
 
@@ -168,7 +168,7 @@ private suspend fun getFee(client: HttpClient) {
     if (feeResponse.isSuccess()) {
         println("Fee ${feeResponse.data?.amount}")
     } else {
-        println("Fee fail")
+        println("Fee failure ${feeResponse.error}")
     }
 }
 
@@ -178,7 +178,7 @@ private suspend fun getTicker(client: HttpClient) {
     if (tickerResponse.isSuccess()) {
         println("Ticker ${tickerResponse.data}")
     } else {
-        println("Ticker fail")
+        println("Ticker failure ${tickerResponse.error}")
     }
 }
 
@@ -201,7 +201,7 @@ private suspend fun createAddress(client: HttpClient, userAesKey: String): Strin
     if (addressesResponse.isSuccess()) {
         println("Create address ${addressesResponse.data?.addressId}")
     } else {
-        println("Assets fail")
+        println("Create address failure ${addressesResponse.error}")
     }
     return addressesResponse.data?.addressId
 }
@@ -214,19 +214,17 @@ private suspend fun withdrawalToAddress(
     // Withdrawals
     val withdrawalsResponse = client.snapshotService.withdrawals(
         WithdrawalRequest(
-            addressId, DEFAULT_AMOUNT, requireNotNull(
-                encryptPin(
-                    userAesKey,
-                    DEFAULT_PIN,
-                    System.nanoTime()
-                )
+            addressId, DEFAULT_AMOUNT, encryptPin(
+                userAesKey,
+                DEFAULT_PIN,
+                System.nanoTime()
             ), UUID.randomUUID().toString(), "withdrawal test"
         )
     )
     if (withdrawalsResponse.isSuccess()) {
         println("Withdrawal success: ${withdrawalsResponse.data?.snapshotId}")
     } else {
-        println("Withdrawal fail")
+        println("Withdrawal failure ${withdrawalsResponse.error}")
     }
 }
 
@@ -244,7 +242,7 @@ private suspend fun sendTextMessage(client: HttpClient, recipientId: String, tex
     if (response.isSuccess()) {
         println("Send success")
     } else {
-        println("Send fail")
+        println("Send failure ${response.error}")
     }
 }
 
@@ -272,7 +270,7 @@ private suspend fun transactions(
     if (transactionsResponse.isSuccess()) {
         println("Transactions success: ${transactionsResponse.data?.snapshotId}")
     } else {
-        println("Transactions fail")
+        println("Transactions failure ${transactionsResponse.error}")
     }
 }
 
@@ -282,9 +280,9 @@ private suspend fun networkSnapshot(
 ) {
     val snapshotResponse = client.snapshotService.networkSnapshot(snapshotId)
     if (snapshotResponse.isSuccess()) {
-        println("Success: ${snapshotResponse.data?.snapshotId}")
+        println("Network snapshot success: ${snapshotResponse.data?.snapshotId}")
     } else {
-        println("Fail")
+        println("Network snapshot failure ${snapshotResponse.error}")
     }
 }
 
@@ -294,9 +292,9 @@ private suspend fun networkSnapshots(
 ) {
     val snapshotResponse = client.snapshotService.networkSnapshots(assetId)
     if (snapshotResponse.isSuccess()) {
-        println("Success: ${snapshotResponse.data?.size}")
+        println("Network snapshots success: ${snapshotResponse.data?.size}")
     } else {
-        println("Fail: ${snapshotResponse.error?.description}")
+        println("Network snapshot failure: ${snapshotResponse.error?.description}")
     }
 }
 
@@ -309,6 +307,6 @@ private suspend fun readGhostKey(client: HttpClient) {
     if (response.isSuccess()) {
         println("ReadGhostKey success ${response.data}")
     } else {
-        println("ReadGhostKey failed")
+        println("ReadGhostKey failure ${response.error}")
     }
 }

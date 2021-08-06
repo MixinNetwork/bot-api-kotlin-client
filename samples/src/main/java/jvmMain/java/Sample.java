@@ -141,7 +141,7 @@ public class Sample {
             user = userResponse.getData();
             System.out.printf("Create user success: %s%n", Objects.requireNonNull(userResponse.getData()).getFullName());
         } else {
-            System.out.println("Create user fail");
+            System.out.println("Create user failure");
             return null;
         }
         assert user != null;
@@ -155,7 +155,7 @@ public class Sample {
         if (pinResponse.isSuccess()) {
             System.out.printf("Create pin success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
         } else {
-            System.out.println("Create pin fail");
+            System.out.println("Create pin failure");
         }
     }
 
@@ -167,7 +167,7 @@ public class Sample {
         if (transferResponse.isSuccess()) {
             System.out.printf("Transfer success: %s%n", Objects.requireNonNull(transferResponse.getData()).getSnapshotId());
         } else {
-            System.out.println("Transfer fail");
+            System.out.println("Transfer failure");
         }
     }
 
@@ -178,7 +178,7 @@ public class Sample {
         if (assetResponse.isSuccess()) {
             System.out.printf("Assets %s: %s%n", Objects.requireNonNull(assetResponse.getData()).getSymbol(), Objects.requireNonNull(assetResponse.getData()).getBalance());
         } else {
-            System.out.println("Transfer fail");
+            System.out.println("Transfer failure");
         }
     }
 
@@ -193,7 +193,7 @@ public class Sample {
             addressId = Objects.requireNonNull(withdrawalsResponse.getData()).getSnapshotId();
             System.out.printf("Withdrawal success: %s%n", addressId);
         } else {
-            System.out.println("Withdrawal fail");
+            System.out.println("Withdrawal failure");
         }
     }
 
@@ -208,7 +208,7 @@ public class Sample {
             System.out.printf("Delete success: %s%n", addressId);
 
         } else {
-            System.out.println("Delete fail");
+            System.out.println("Delete failure");
         }
     }
 
@@ -218,7 +218,7 @@ public class Sample {
         if (fiatsResponse.isSuccess()) {
             System.out.printf("Fiats success: %f%n", Objects.requireNonNull(fiatsResponse.getData()).get(0).getRate());
         } else {
-            System.out.println("Fiats fail");
+            System.out.println("Fiats failure");
         }
     }
 
@@ -228,7 +228,7 @@ public class Sample {
         if (feeResponse.isSuccess()) {
             System.out.printf("Fee success: %s%n", Objects.requireNonNull(feeResponse.getData()).getAmount());
         } else {
-            System.out.println("Fee fail");
+            System.out.println("Fee failure");
         }
     }
 
@@ -238,7 +238,7 @@ public class Sample {
         if (tickerResponse.isSuccess()) {
             System.out.printf("Ticker success: %s%n", Objects.requireNonNull(tickerResponse.getData()));
         } else {
-            System.out.println("Ticker fail");
+            System.out.println("Ticker failure");
         }
     }
 
@@ -254,7 +254,7 @@ public class Sample {
         if (messageResponse.isSuccess()) {
             System.out.println("Send success");
         } else {
-            System.out.println("Send fail");
+            System.out.println("Send failure");
         }
     }
 
@@ -279,7 +279,7 @@ public class Sample {
         if (transactionResponse.isSuccess()) {
             System.out.printf("TransactionsResponse success: %s%n", Objects.requireNonNull(transactionResponse.getData()).getSnapshotId());
         } else {
-            System.out.printf("Transactions fail: %s", Objects.requireNonNull(transactionResponse.getError()).getDescription());
+            System.out.printf("Transactions failure: %s", Objects.requireNonNull(transactionResponse.getError()).getDescription());
         }
     }
 
@@ -291,7 +291,7 @@ public class Sample {
         if (transactionResponse.isSuccess()) {
             System.out.printf("TransactionsResponse success: %s%n", Objects.requireNonNull(transactionResponse.getData()).getTransactionHash());
         } else {
-            System.out.printf("Transactions fail: %s", Objects.requireNonNull(transactionResponse.getError()).getDescription());
+            System.out.printf("Transactions failure: %s", Objects.requireNonNull(transactionResponse.getError()).getDescription());
         }
     }
 
@@ -302,7 +302,7 @@ public class Sample {
         if (snapshotResponse.isSuccess()) {
             System.out.printf("Success: %s%n", Objects.requireNonNull(snapshotResponse.getData()).getSnapshotId());
         } else {
-            System.out.printf("Fail: %s", Objects.requireNonNull(snapshotResponse.getError()).getDescription());
+            System.out.printf("failure: %s", Objects.requireNonNull(snapshotResponse.getError()).getDescription());
         }
     }
 
@@ -312,7 +312,7 @@ public class Sample {
         if (snapshotResponse.isSuccess()) {
             System.out.printf("Success: %d%n", Objects.requireNonNull(snapshotResponse.getData()).size());
         } else {
-            System.out.printf("Fail: %s", Objects.requireNonNull(snapshotResponse.getError()).getDescription());
+            System.out.printf("failure: %s", Objects.requireNonNull(snapshotResponse.getError()).getDescription());
         }
     }
 
@@ -327,7 +327,7 @@ public class Sample {
         if (response.isSuccess()) {
             System.out.printf("ReadGhostKey success %s%n", response.getData());
         } else {
-            System.out.println("ReadGhostKey failed");
+            System.out.println("ReadGhostKey failure");
         }
     }
 }
