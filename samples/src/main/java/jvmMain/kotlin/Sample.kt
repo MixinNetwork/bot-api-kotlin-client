@@ -7,6 +7,7 @@ import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
 import one.mixin.bot.HttpClient
 import one.mixin.bot.SessionToken
+import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.encryptPin
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
@@ -15,6 +16,7 @@ import one.mixin.bot.util.decryASEKey
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.getEdDSAPrivateKeyFromString
 import one.mixin.bot.vo.*
+import retrofit2.http.Query
 import java.util.Random
 import java.util.UUID
 
@@ -100,7 +102,7 @@ fun main() = runBlocking {
     return@runBlocking
 }
 
-private suspend fun createUser(client: HttpClient, sessionSecret: String): User? {
+internal suspend fun createUser(client: HttpClient, sessionSecret: String): User? {
     val response = client.userService.createUsers(
         AccountRequest(
             Random().nextInt(10).toString() + "User",
@@ -110,7 +112,7 @@ private suspend fun createUser(client: HttpClient, sessionSecret: String): User?
     return response.data
 }
 
-private suspend fun createPin(client: HttpClient, userAesKey: String) {
+internal suspend fun createPin(client: HttpClient, userAesKey: String) {
     val response = client.userService.createPin(
         PinRequest(encryptPin(userAesKey, DEFAULT_PIN))
     )
@@ -121,25 +123,28 @@ private suspend fun createPin(client: HttpClient, userAesKey: String) {
     }
 }
 
-private suspend fun transferToUser(
+internal suspend fun transferToUser(
     client: HttpClient,
     userId: String,
     aseKey: String,
     pin: String
-) {
+): Snapshot? {
     val response = client.snapshotService.transfer(
         TransferRequest(
             CNB_ID,
             userId,
             DEFAULT_AMOUNT,
-            encryptPin(aseKey, pin, System.nanoTime())
+            encryptPin(aseKey, pin)
         )
     )
+    var snapshot: Snapshot? = null
     if (response.isSuccess()) {
+        snapshot = response.data
         println("Transfer success: ${response.data?.snapshotId}")
     } else {
         println("Transfer failure ${response.error}")
     }
+    return snapshot
 }
 
 private suspend fun getAsset(client: HttpClient) {
@@ -274,7 +279,7 @@ private suspend fun transactions(
     }
 }
 
-private suspend fun networkSnapshot(
+internal suspend fun networkSnapshot(
     client: HttpClient,
     snapshotId: String
 ) {
@@ -286,16 +291,22 @@ private suspend fun networkSnapshot(
     }
 }
 
-private suspend fun networkSnapshots(
+internal suspend fun networkSnapshots(
     client: HttpClient,
-    assetId: String
-) {
-    val snapshotResponse = client.snapshotService.networkSnapshots(assetId)
+    assetId: String,
+    offset: String? = null,
+    limit: Int = SnapshotService.LIMIT,
+    order: String? = null
+): List<NetworkSnapshot>? {
+    val snapshotResponse = client.snapshotService.networkSnapshots(assetId, offset, limit, order)
+    var networkSnapshots: List<NetworkSnapshot>? = null
     if (snapshotResponse.isSuccess()) {
+        networkSnapshots = snapshotResponse.data
         println("Network snapshots success: ${snapshotResponse.data?.size}")
     } else {
         println("Network snapshot failure: ${snapshotResponse.error?.description}")
     }
+    return networkSnapshots
 }
 
 private suspend fun readGhostKey(client: HttpClient) {
