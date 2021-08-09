@@ -8,7 +8,6 @@ data class NetworkSnapshot(
     val asset: Asset,
     @SerializedName("created_at")
     val createdAt: String,
-    val data: String,
     @SerializedName("snapshot_id")
     val snapshotId: String,
     @SerializedName("source")
@@ -20,4 +19,6 @@ data class NetworkSnapshot(
     val traceId: String?,
     @SerializedName("opponent_id")
     val opponentId: String?,
+    @SerializedName("data")
+    val memo: String?,
 )

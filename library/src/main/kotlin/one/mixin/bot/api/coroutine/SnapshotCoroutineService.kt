@@ -53,7 +53,7 @@ interface SnapshotCoroutineService {
     @GET("/network/snapshots/{id}")
     suspend fun networkSnapshot(@Path("id") snapshotId: String): MixinResponse<NetworkSnapshot>
 
-    @GET("/network/snapshots/")
+    @GET("/network/snapshots")
     suspend fun networkSnapshots(
         @Query("asset") assetId: String,
         @Query("offset") offset: String? = null,

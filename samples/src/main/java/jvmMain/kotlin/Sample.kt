@@ -301,8 +301,11 @@ internal suspend fun networkSnapshots(
     val snapshotResponse = client.snapshotService.networkSnapshots(assetId, offset, limit, order)
     var networkSnapshots: List<NetworkSnapshot>? = null
     if (snapshotResponse.isSuccess()) {
-        networkSnapshots = snapshotResponse.data
-        println("Network snapshots success: ${snapshotResponse.data?.size}")
+        networkSnapshots = snapshotResponse.data as List<NetworkSnapshot>
+        println("Network snapshots success")
+        for (s in networkSnapshots) {
+            println(s)
+        }
     } else {
         println("Network snapshot failure: ${snapshotResponse.error?.description}")
     }

@@ -54,7 +54,7 @@ interface SnapshotCallService {
     @GET("/network/snapshots/{id}")
     fun networkSnapshotCall(@Path("id") snapshotId: String): Call<MixinResponse<NetworkSnapshot>>
 
-    @GET("/network/snapshots/")
+    @GET("/network/snapshots")
     fun networkSnapshotsCall(
         @Query("asset") assetId: String,
         @Query("offset") offset: String? = null,

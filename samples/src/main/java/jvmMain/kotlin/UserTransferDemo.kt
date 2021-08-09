@@ -27,6 +27,7 @@ fun main() = runBlocking {
     // create alice
     val alice = createUser(client, aliceSessionSecret)
     alice ?: return@runBlocking
+    println("alice: $alice")
     val aliceToken = SessionToken.EdDSA(
         alice.userId, alice.sessionId,
         (aliceSessionKey.private as EdDSAPrivateKey).seed.base64Encode()
@@ -48,6 +49,7 @@ fun main() = runBlocking {
     // create bob
     val bob = createUser(client, bobSessionSecret)
     bob ?: return@runBlocking
+    println("bob: $bob")
     val bobToken = SessionToken.EdDSA(
         bob.userId, bob.sessionId,
         (bobSessionKey.private as EdDSAPrivateKey).seed.base64Encode()
@@ -90,4 +92,14 @@ fun main() = runBlocking {
         assert(bobNetworkSnapshots?.find { it.snapshotId == snapshotAlice2Bob.snapshotId } != null)
     }
 
+
+    // use bot's token
+    client.setUserToken(null)
+    val botNetworkSnapshot = networkSnapshots(client, CNB_ID, limit = 10)
+    if (snapshotBot2Alice != null) {
+        assert(botNetworkSnapshot?.find { it.snapshotId == snapshotBot2Alice.snapshotId } != null)
+    }
+    if (snapshotAlice2Bob != null) {
+        assert(botNetworkSnapshot?.find { it.snapshotId == snapshotAlice2Bob.snapshotId } != null )
+    }
 }

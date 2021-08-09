@@ -92,7 +92,7 @@ public class Sample {
             transactionsOpponentKey(client, "XINQTmRReDuPEUAVEyDyE2mBgxa1ojVRAvpYcKs5nSA7FDBBfAEeVRn8s9vAm3Cn1qzQ7JtjG62go4jSJU6yWyRUKHpamWAM", pinToken, pin);
 
             networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc");
-            networkSnapshots(client, CNB_assetId);
+            networkSnapshots(client, CNB_assetId, null, 10, null);
 
             readGhostKey(client);
         } catch (InterruptedException | IOException e) {
@@ -306,11 +306,15 @@ public class Sample {
         }
     }
 
-    private static void networkSnapshots(HttpClient client, String assetId) throws IOException {
-        MixinResponse<List<NetworkSnapshot>> snapshotResponse = client.getSnapshotService().networkSnapshotsCall(assetId, null, 10, "ASC").execute().body();
+    private static void networkSnapshots(HttpClient client, String assetId, String offset, int limit, String order) throws IOException {
+        MixinResponse<List<NetworkSnapshot>> snapshotResponse = client.getSnapshotService().networkSnapshotsCall(assetId, offset, limit, order).execute().body();
         assert snapshotResponse != null;
         if (snapshotResponse.isSuccess()) {
+            List<NetworkSnapshot> data = snapshotResponse.getData();
             System.out.printf("Success: %d%n", Objects.requireNonNull(snapshotResponse.getData()).size());
+            for (NetworkSnapshot datum : data) {
+                System.out.println(datum.toString());
+            }
         } else {
             System.out.printf("failure: %s", Objects.requireNonNull(snapshotResponse.getError()).getDescription());
         }
