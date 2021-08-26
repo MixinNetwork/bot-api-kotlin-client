@@ -21,4 +21,6 @@ data class NetworkSnapshot(
     val opponentId: String?,
     @SerializedName("data")
     val memo: String?,
+    @SerializedName("transaction_hash")
+    val transactionHash: String?,
 )
