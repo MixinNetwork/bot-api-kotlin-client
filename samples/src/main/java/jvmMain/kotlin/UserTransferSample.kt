@@ -8,10 +8,7 @@ import one.mixin.bot.HttpClient
 import one.mixin.bot.SessionToken
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.util.calculateAgreement
-import one.mixin.bot.util.decryASEKey
-import one.mixin.bot.util.generateEd25519KeyPair
-import one.mixin.bot.util.getEdDSAPrivateKeyFromString
+import one.mixin.bot.util.*
 
 fun main() = runBlocking {
     val key = getEdDSAPrivateKeyFromString(Config.privateKey)
@@ -35,7 +32,7 @@ fun main() = runBlocking {
     client.setUserToken(aliceToken)
     // decrypt pin token
     val alicePrivateKey = aliceSessionKey.private as EdDSAPrivateKey
-    val aliceAesKey = calculateAgreement(alice.pinToken.base64Decode(), alicePrivateKey).base64Encode()
+    val aliceAesKey = calculateAgreement(alice.pinToken.base64Decode(), privateKeyToCurve25519(alicePrivateKey.seed)).base64Encode()
     // create alice's pin
     createPin(client, aliceAesKey)
 
@@ -57,7 +54,7 @@ fun main() = runBlocking {
     client.setUserToken(bobToken)
     // decrypt pin token
     val bobPrivateKey = bobSessionKey.private as EdDSAPrivateKey
-    val bobAesKey = calculateAgreement(bob.pinToken.base64Decode(), bobPrivateKey).base64Encode()
+    val bobAesKey = calculateAgreement(bob.pinToken.base64Decode(), privateKeyToCurve25519(bobPrivateKey.seed)).base64Encode()
     // create bob's pin
     createPin(client, bobAesKey)
 

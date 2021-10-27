@@ -11,10 +11,7 @@ import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.encryptPin
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.util.calculateAgreement
-import one.mixin.bot.util.decryASEKey
-import one.mixin.bot.util.generateEd25519KeyPair
-import one.mixin.bot.util.getEdDSAPrivateKeyFromString
+import one.mixin.bot.util.*
 import one.mixin.bot.vo.*
 import java.util.Random
 import java.util.UUID
@@ -47,7 +44,7 @@ fun main() = runBlocking {
     // decrypt pin token
     val userAesKey: String
     val userPrivateKey = sessionKey.private as EdDSAPrivateKey
-    userAesKey = calculateAgreement(user.pinToken.base64Decode(), userPrivateKey).base64Encode()
+    userAesKey = calculateAgreement(user.pinToken.base64Decode(), privateKeyToCurve25519(userPrivateKey.seed)).base64Encode()
 
     // create user's pin
     createPin(client, userAesKey)

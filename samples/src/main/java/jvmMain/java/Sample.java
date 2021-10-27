@@ -43,7 +43,7 @@ public class Sample {
             // decrypt pin token
             String userAesKey;
             EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
-            userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), userPrivateKey));
+            userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), privateKeyToCurve25519(userPrivateKey.getSeed())));
 
             // get ticker
             getTicker(client);

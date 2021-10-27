@@ -1,8 +1,13 @@
+@file:Suppress("unused")
+
 package one.mixin.bot.util
 
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
+import net.i2p.crypto.eddsa.EdDSAPublicKey
+import net.i2p.crypto.eddsa.math.FieldElement
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
+import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -16,7 +21,7 @@ import java.security.SecureRandom
 import java.security.Security
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
-import java.util.Base64
+import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.IvParameterSpec
@@ -36,9 +41,9 @@ fun generateEd25519KeyPair(): KeyPair {
     return net.i2p.crypto.eddsa.KeyPairGenerator().generateKeyPair()
 }
 
-@Throws(IllegalArgumentException::class)
-fun calculateAgreement(publicKey: ByteArray, privateKey: EdDSAPrivateKey): ByteArray =
-    Curve25519.getInstance(Curve25519.BEST).calculateAgreement(publicKey, privateKeyToCurve25519(privateKey.seed))
+fun calculateAgreement(publicKey: ByteArray, privateKey: ByteArray): ByteArray {
+    return Curve25519.getInstance(Curve25519.BEST).calculateAgreement(publicKey, privateKey)
+}
 
 fun privateKeyToCurve25519(edSeed: ByteArray): ByteArray {
     val md = MessageDigest.getInstance("SHA-512")
@@ -60,18 +65,37 @@ fun decryASEKey(src: String, privateKey: EdDSAPrivateKey): String? {
     return Base64.getEncoder().encodeToString(
         calculateAgreement(
             Base64.getUrlDecoder().decode(src),
-            privateKey
+            privateKeyToCurve25519(privateKey.seed)
         )
     )
 }
 
 private val secureRandom: SecureRandom = SecureRandom()
-private val GCM_IV_LENGTH = 12
+private const val GCM_IV_LENGTH = 12
 
 fun generateAesKey(): ByteArray {
     val key = ByteArray(16)
     secureRandom.nextBytes(key)
     return key
+}
+
+fun publicKeyToCurve25519(publicKey: EdDSAPublicKey): ByteArray {
+    val p = publicKey.abyte.map { it.toInt().toByte() }.toByteArray()
+    val public = EdDSAPublicKey(EdDSAPublicKeySpec(p, ed25519))
+    val groupElement = public.a
+    val x = edwardsToMontgomeryX(groupElement.y)
+    return x.toByteArray()
+}
+private fun edwardsToMontgomeryX(y: FieldElement): FieldElement {
+    val field = ed25519.curve.field
+    var oneMinusY = field.ONE
+    oneMinusY = oneMinusY.subtract(y)
+    oneMinusY = oneMinusY.invert()
+
+    var outX = field.ONE
+    outX = outX.add(y)
+
+    return oneMinusY.multiply(outX)
 }
 
 fun aesGcmEncrypt(plain: ByteArray, key: ByteArray): ByteArray {
@@ -136,7 +160,7 @@ private fun stripRsaPrivateKeyHeaders(privatePem: String): String {
     val lines = privatePem.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     lines.filter { line ->
         !line.contains("BEGIN RSA PRIVATE KEY") &&
-            !line.contains("END RSA PRIVATE KEY") && !line.trim { it <= ' ' }.isEmpty()
+            !line.contains("END RSA PRIVATE KEY") && line.trim { it <= ' ' }.isNotEmpty()
     }
         .forEach { line -> strippedKey.append(line.trim { it <= ' ' }) }
     return strippedKey.toString().trim { it <= ' ' }
