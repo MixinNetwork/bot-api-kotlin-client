@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id 'kotlin'
+    id 'maven'
 }
 
 java {
@@ -9,7 +10,7 @@ java {
 }
 
 dependencies {
-    implementation project(':library')
+    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.1'
     // implementation 'com.github.MixinNetwork:bot-api-kotlin-client:main-SNAPSHOT'
 
     // Kotlin
