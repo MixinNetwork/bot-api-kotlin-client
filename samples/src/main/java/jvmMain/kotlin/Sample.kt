@@ -16,7 +16,6 @@ import one.mixin.bot.util.decryASEKey
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.getEdDSAPrivateKeyFromString
 import one.mixin.bot.vo.*
-import retrofit2.http.Query
 import java.util.Random
 import java.util.UUID
 

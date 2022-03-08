@@ -18,8 +18,10 @@ import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.api.UserService
 import one.mixin.bot.api.exception.ClientErrorException
 import one.mixin.bot.api.exception.ServerErrorException
+import one.mixin.bot.extension.HostSelectionInterceptor
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.extension.isNeedSwitch
 import one.mixin.bot.util.getRSAPrivateKeyFromString
 import one.mixin.bot.vo.RpcRequest
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -33,7 +35,8 @@ import java.util.concurrent.TimeUnit
 class HttpClient private constructor(
     private val clientToken: SessionToken,
     cnServer: Boolean = false,
-    debug: Boolean = false
+    debug: Boolean = false,
+    autoSwitch: Boolean = false
 ) {
 
     init {
@@ -59,7 +62,7 @@ class HttpClient private constructor(
         builder.readTimeout(10, TimeUnit.SECONDS)
         builder.pingInterval(15, TimeUnit.SECONDS)
         builder.retryOnConnectionFailure(false)
-
+        builder.addInterceptor(HostSelectionInterceptor.get(if (cnServer) { CN_URL } else { URL }))
         builder.addInterceptor(
             Interceptor { chain ->
                 val request = chain.request().newBuilder()
@@ -90,9 +93,15 @@ class HttpClient private constructor(
                 val response = try {
                     chain.proceed(request)
                 } catch (e: Exception) {
-                    if (e.message?.contains("502") == true) {
-                        throw ServerErrorException(502)
-                    } else throw e
+                    throw e.apply {
+                        if (autoSwitch && e.isNeedSwitch()) {
+                            HostSelectionInterceptor.get().switch(request)
+                        } else {
+                            if (e.message?.contains("502") == true) {
+                                throw ServerErrorException(502)
+                            } else throw e
+                        }
+                    }
                 }
 
                 if (!response.isSuccessful) {
@@ -160,6 +169,7 @@ class HttpClient private constructor(
         private lateinit var clientToken: SessionToken
         private var cnServer: Boolean = false
         private var debug: Boolean = false
+        private var autoSwitch: Boolean = false
 
         fun configEdDSA(
             userId: String,
@@ -191,8 +201,14 @@ class HttpClient private constructor(
             return this
         }
 
+
+        fun enableAutoSwitch(): Builder {
+            debug = true
+            return this
+        }
+
         fun build(): HttpClient {
-            return HttpClient(clientToken, cnServer, debug)
+            return HttpClient(clientToken, cnServer, debug, autoSwitch)
         }
     }
 }

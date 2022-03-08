@@ -10,8 +10,8 @@ java {
 }
 
 dependencies {
-    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.1'
-    // implementation 'com.github.MixinNetwork:bot-api-kotlin-client:main-SNAPSHOT'
+    implementation project(":library")
+    // implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.1'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"

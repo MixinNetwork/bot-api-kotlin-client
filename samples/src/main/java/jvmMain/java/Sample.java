@@ -1,6 +1,5 @@
 package jvmMain.java;
 
-import com.google.gson.JsonObject;
 import kotlin.Unit;
 import net.i2p.crypto.eddsa.EdDSAPrivateKey;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
@@ -30,7 +29,7 @@ public class Sample {
     public static void main(String[] args) {
         EdDSAPrivateKey key = getEdDSAPrivateKeyFromString(privateKey);
         String pinToken = decryASEKey(pinTokenPem, key);
-        HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key).build();
+        HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key).enableDebug().enableAutoSwitch().build();
         try {
             utxo(client);
 
@@ -101,9 +100,9 @@ public class Sample {
     }
 
     private static void utxo(HttpClient client) throws IOException {
-        JsonObject response = client.getExternalService().getUtxoCall("b6afed179a8192513990e29953e3a6875eab53050b1e174d5c83ab76bbbd4b29",0).execute().body();
-        assert response != null;
-        System.out.printf("%s%n", Utxo.Companion.fromJson(response.getAsJsonObject("data")).getHash());
+//        JsonObject response = client.getExternalService().getUtxoCall("b6afed179a8192513990e29953e3a6875eab53050b1e174d5c83ab76bbbd4b29",0).execute().body();
+//        assert response != null;
+//        System.out.printf("%s%n", Utxo.Companion.fromJson(response.getAsJsonObject("data")).getHash());
     }
 
     private static String createAddress(HttpClient client, String userAesKey) throws IOException {
@@ -249,13 +248,13 @@ public class Sample {
                 recipientId, UUID.randomUUID().toString(), "PLAIN_TEXT",
                 Base64.getEncoder().encodeToString(text.getBytes()), null, null
         ));
-        MixinResponse messageResponse = client.getMessageService().postMessageCall(messageRequests).execute().body();
-        assert messageResponse != null;
-        if (messageResponse.isSuccess()) {
-            System.out.println("Send success");
-        } else {
-            System.out.println("Send failure");
-        }
+//        MixinResponse messageResponse = client.getMessageService().postMessageCall(messageRequests).execute().body();
+//        assert messageResponse != null;
+//        if (messageResponse.isSuccess()) {
+//            System.out.println("Send success");
+//        } else {
+//            System.out.println("Send failure");
+//        }
     }
 
     private static SessionToken getUserToken(User user, KeyPair sessionKey, boolean isRsa) {

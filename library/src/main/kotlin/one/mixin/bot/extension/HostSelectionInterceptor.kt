@@ -1,0 +1,85 @@
+package one.mixin.bot.extension
+
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.Interceptor
+import okhttp3.Request
+import one.mixin.bot.Constants
+import one.mixin.bot.Constants.API.URL
+import java.io.IOException
+import java.net.ConnectException
+import java.net.NoRouteToHostException
+import java.net.ProtocolException
+import java.net.SocketException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import javax.net.ssl.SSLHandshakeException
+import javax.net.ssl.SSLPeerUnverifiedException
+
+fun Throwable.isNeedSwitch(): Boolean {
+    return (
+        this is SocketTimeoutException ||
+            this is UnknownHostException ||
+            this is ConnectException ||
+            this is ProtocolException ||
+            this is NoRouteToHostException ||
+            this is SocketException ||
+            this is SSLPeerUnverifiedException ||
+            this is SSLHandshakeException
+        )
+}
+
+class HostSelectionInterceptor private constructor() : Interceptor {
+    @Volatile
+    private var host: HttpUrl? = URL.toHttpUrlOrNull()
+
+    private fun setHost(url: String) {
+        CURRENT_URL = url
+        this.host = url.toHttpUrlOrNull()
+    }
+
+    fun switch(request: Request) {
+        val currentUrl = "${request.url.scheme}://${request.url.host}/"
+        if (currentUrl != host.toString()) return
+        if (currentUrl == URL) {
+            setHost(Constants.API.CN_URL)
+        } else {
+            setHost(URL)
+        }
+    }
+
+    @Throws(IOException::class)
+    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+        var request = chain.request()
+        if (request.header("Upgrade") == "websocket") {
+            return chain.proceed(request)
+        }
+        this.host?.let {
+            val newUrl = request.url.newBuilder()
+                .host(it.toUrl().toURI().host)
+                .build()
+            request = request.newBuilder()
+                .url(newUrl)
+                .build()
+        }
+        return chain.proceed(request)
+    }
+
+    companion object {
+        var CURRENT_URL: String = URL
+            private set
+
+        @Synchronized
+        fun get(url: String? = null): HostSelectionInterceptor {
+            if (instance == null) {
+                if (url != null) {
+                    CURRENT_URL = url
+                }
+                instance = HostSelectionInterceptor()
+            }
+            return instance as HostSelectionInterceptor
+        }
+
+        private var instance: HostSelectionInterceptor? = null
+    }
+}
