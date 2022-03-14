@@ -32,7 +32,6 @@ public class Sample {
         HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key).enableDebug().enableAutoSwitch().build();
         try {
             utxo(client);
-
             KeyPair sessionKey = generateEd25519KeyPair();
             EdDSAPublicKey publicKey = (EdDSAPublicKey) (sessionKey.getPublic());
             String sessionSecret = base64Encode(publicKey.getAbyte());
@@ -57,6 +56,8 @@ public class Sample {
 
             // create user's pin
             createPin(client, userAesKey);
+
+            pinVerifyCall(client, userAesKey, userPin);
 
             //Use bot's token
             client.setUserToken(null);
@@ -126,6 +127,14 @@ public class Sample {
         }
     }
 
+    private static void pinVerifyCall(HttpClient client,String userAesKey,String pin) throws IOException{
+        MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin, System.nanoTime())), null)).execute().body();
+        if (pinResponse.isSuccess()) {
+            System.out.printf("Pin verifyCall success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
+        } else {
+            System.out.println("Pin verifyCall error");
+        }
+    }
 
     private static User createUser(HttpClient client, String sessionSecret) throws IOException {
 
