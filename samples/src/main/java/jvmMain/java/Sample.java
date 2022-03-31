@@ -19,6 +19,7 @@ import static one.mixin.bot.extension.Base64ExtensionKt.base64Encode;
 import static one.mixin.bot.util.Base64UtilKt.base64Decode;
 import static one.mixin.bot.util.CryptoUtilKt.*;
 
+@SuppressWarnings("SameParameterValue")
 public class Sample {
 
     final static String userPin = "131416";
@@ -43,7 +44,7 @@ public class Sample {
             // decrypt pin token
             String userAesKey;
             EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
-            userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), userPrivateKey));
+            userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), privateKeyToCurve25519(userPrivateKey.getSeed())));
 
             // get ticker
             getTicker(client);

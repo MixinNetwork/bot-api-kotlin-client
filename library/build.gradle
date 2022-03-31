@@ -1,10 +1,9 @@
 plugins {
     id 'java-library'
     id 'kotlin'
+    id 'maven'
+    id 'java'
 }
-
-apply plugin: 'maven'
-apply plugin: 'java'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -29,7 +28,7 @@ dependencies {
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${coroutineAdapterVersion}"
     implementation "net.i2p.crypto:eddsa:$ed25519Version"
     implementation "org.whispersystems:curve25519-java:$curve25519Version"
-    ktlint "com.pinterest:ktlint:0.40.0"
+    ktlint "com.pinterest:ktlint:$ktlintVersion"
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
