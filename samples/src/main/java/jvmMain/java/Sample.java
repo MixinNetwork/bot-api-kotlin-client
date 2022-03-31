@@ -169,8 +169,7 @@ public class Sample {
 
     private static void transferToUser(HttpClient client, String userId, String aseKey, String pin) throws IOException {
         MixinResponse<Snapshot> transferResponse = client.getSnapshotService().transferCall(
-                new TransferRequest(Sample.CNB_assetId, userId, Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
-                        , null, null, null)).execute().body();
+                new TransferRequest(Sample.CNB_assetId, userId, Sample.amount, encryptPin(aseKey, pin, System.currentTimeMillis() * 1_000_000), null, null, null)).execute().body();
         assert transferResponse != null;
         if (transferResponse.isSuccess()) {
             System.out.printf("Transfer success: %s%n", Objects.requireNonNull(transferResponse.getData()).getSnapshotId());
