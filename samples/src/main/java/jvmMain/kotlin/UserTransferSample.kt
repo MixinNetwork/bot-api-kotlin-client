@@ -8,7 +8,11 @@ import one.mixin.bot.HttpClient
 import one.mixin.bot.SessionToken
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.util.*
+import one.mixin.bot.util.calculateAgreement
+import one.mixin.bot.util.decryASEKey
+import one.mixin.bot.util.generateEd25519KeyPair
+import one.mixin.bot.util.getEdDSAPrivateKeyFromString
+import one.mixin.bot.util.privateKeyToCurve25519
 
 fun main() = runBlocking {
     val key = getEdDSAPrivateKeyFromString(Config.privateKey)
@@ -89,7 +93,6 @@ fun main() = runBlocking {
         assert(bobNetworkSnapshots?.find { it.snapshotId == snapshotAlice2Bob.snapshotId } != null)
     }
 
-
     // use bot's token
     client.setUserToken(null)
     val botNetworkSnapshot = networkSnapshots(client, CNB_ID, limit = 10)
@@ -97,6 +100,6 @@ fun main() = runBlocking {
         assert(botNetworkSnapshot?.find { it.snapshotId == snapshotBot2Alice.snapshotId } != null)
     }
     if (snapshotAlice2Bob != null) {
-        assert(botNetworkSnapshot?.find { it.snapshotId == snapshotAlice2Bob.snapshotId } != null )
+        assert(botNetworkSnapshot?.find { it.snapshotId == snapshotAlice2Bob.snapshotId } != null)
     }
 }

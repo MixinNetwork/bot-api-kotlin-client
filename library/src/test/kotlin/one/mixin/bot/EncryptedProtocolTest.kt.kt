@@ -6,8 +6,16 @@ import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.toByteArray
-import one.mixin.bot.util.*
-import java.util.*
+import one.mixin.bot.util.EncryptedProtocol
+import one.mixin.bot.util.aesDecrypt
+import one.mixin.bot.util.aesEncrypt
+import one.mixin.bot.util.base64Decode
+import one.mixin.bot.util.calculateAgreement
+import one.mixin.bot.util.generateAesKey
+import one.mixin.bot.util.generateEd25519KeyPair
+import one.mixin.bot.util.privateKeyToCurve25519
+import one.mixin.bot.util.publicKeyToCurve25519
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -66,7 +74,8 @@ class EncryptedProtocolTest {
                 vB2NXoVn8vSxANwOSkzp0FDh4NS3h1UB6lZMpPPckS3XYQt5uVt+pmtB9f2mvjH3rGxnqJOR5obJVFruTkCl1IDETvQiq1Mxp96H7CsefaWo7w3N7D1XV+qvKjm4DC
                 8/GqWBmd4SpqLWfhhwD/tPhJeFeXG6s9pp+JLYZAN47pio+JzS0fk/XysjN1o51R7/38or/ADt8IHrPT5Q5e8IfBnqbm6EHBKXqnUUjHO9RRiekfKDyKWbpbJGhxw
                 UxxsO7jR0fql/hEb/tBazUUrskOKpupJXPI5q7DYHzR5IWKFEsFrKwfJqmWNhG4pbu+oZKgn1FH7tp18TTyStVWh4kxhCoU7PTl8jaNFWC4yCTOSrc1zkf0X2Gzu
-                B9qsstbt3RH6Q+mmpraIAcgJZu8LTuGAoojTDfBd8g0y5wEWpYWsYBhRRaKKV2p2SM6JPrbe3xeiiixnHyGhbu6BdPIgSHkFFEs4//2Q==""".trimMargin()
+                B9qsstbt3RH6Q+mmpraIAcgJZu8LTuGAoojTDfBd8g0y5wEWpYWsYBhRRaKKV2p2SM6JPrbe3xeiiixnHyGhbu6BdPIgSHkFFEs4//2Q==
+            """.trimMargin()
         )
         val content = Gson().toJson(mockAttachmentMessagePayload).toByteArray()
         testEncryptAndDecrypt(content)

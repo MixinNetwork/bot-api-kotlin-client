@@ -1,7 +1,7 @@
 package one.mixin.bot.extension
 
 import java.nio.ByteBuffer
-import java.util.*
+import java.util.UUID
 
 fun UUID.toByteArray(): ByteArray {
     val bb = ByteBuffer.wrap(ByteArray(16))

@@ -11,8 +11,22 @@ import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.encryptPin
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.util.*
-import one.mixin.bot.vo.*
+import one.mixin.bot.util.calculateAgreement
+import one.mixin.bot.util.decryASEKey
+import one.mixin.bot.util.generateEd25519KeyPair
+import one.mixin.bot.util.getEdDSAPrivateKeyFromString
+import one.mixin.bot.util.privateKeyToCurve25519
+import one.mixin.bot.vo.AccountRequest
+import one.mixin.bot.vo.AddressRequest
+import one.mixin.bot.vo.GhostKeyRequest
+import one.mixin.bot.vo.NetworkSnapshot
+import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.Snapshot
+import one.mixin.bot.vo.TransactionRequest
+import one.mixin.bot.vo.TransferRequest
+import one.mixin.bot.vo.User
+import one.mixin.bot.vo.WithdrawalRequest
+import one.mixin.bot.vo.generateTextMessageRequest
 import java.util.Random
 import java.util.UUID
 
@@ -49,7 +63,7 @@ fun main() = runBlocking {
     // create user's pin
     createPin(client, userAesKey)
 
-    //Use bot's token
+    // Use bot's token
     client.setUserToken(null)
     // bot transfer to user
     transferToUser(client, user.userId, pinToken, pin)
@@ -83,7 +97,7 @@ fun main() = runBlocking {
         withdrawalToAddress(client, addressId, userAesKey)
     }
 
-    //Use bot's token
+    // Use bot's token
     client.setUserToken(null)
     // Send text message
     sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Text message")
@@ -93,7 +107,7 @@ fun main() = runBlocking {
 
     networkSnapshots(client, CNB_ID)
     networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc")
-    
+
     readGhostKey(client)
     return@runBlocking
 }
@@ -215,11 +229,13 @@ private suspend fun withdrawalToAddress(
     // Withdrawals
     val withdrawalsResponse = client.snapshotService.withdrawals(
         WithdrawalRequest(
-            addressId, DEFAULT_AMOUNT, encryptPin(
+            addressId, DEFAULT_AMOUNT,
+            encryptPin(
                 userAesKey,
                 DEFAULT_PIN,
                 System.nanoTime()
-            ), UUID.randomUUID().toString(), "withdrawal test"
+            ),
+            UUID.randomUUID().toString(), "withdrawal test"
         )
     )
     if (withdrawalsResponse.isSuccess()) {
@@ -309,10 +325,13 @@ internal suspend fun networkSnapshots(
 }
 
 private suspend fun readGhostKey(client: HttpClient) {
-    val request = GhostKeyRequest(listOf(
-        "639ec50a-d4f1-4135-8624-3c71189dcdcc",
-        "d3bee23a-81d4-462e-902a-22dae9ef89ff",
-    ), 0, "")
+    val request = GhostKeyRequest(
+        listOf(
+            "639ec50a-d4f1-4135-8624-3c71189dcdcc",
+            "d3bee23a-81d4-462e-902a-22dae9ef89ff",
+        ),
+        0, ""
+    )
     val response = client.userService.readGhostKeys(request)
     if (response.isSuccess()) {
         println("ReadGhostKey success ${response.data}")

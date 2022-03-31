@@ -10,6 +10,7 @@ buildscript {
     ext.bouncycastleVersion = '1.69'
     ext.ed25519Version = '0.3.0'
     ext.curve25519Version = '0.5.0'
+    ext.ktlintVersion = '0.45.1'
     repositories {
         google()
         jcenter()
@@ -30,4 +31,9 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+task ktlintFormat(group: "formatting") {
+    dependsOn ':library:ktlintFormat'
+    dependsOn ':samples:ktlintFormat'
 }

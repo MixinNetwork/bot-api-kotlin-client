@@ -34,7 +34,7 @@ fun main() {
     // receive message and decrypt with self private key
     val decryptedMessage = encryptedProtocol.decryptMessage(
         receiverPrivateKey,
-         UUID.fromString(receiverSessionId).toByteArray(),
+        UUID.fromString(receiverSessionId).toByteArray(),
         encryptedMessage
     )
 
