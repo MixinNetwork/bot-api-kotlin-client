@@ -201,7 +201,6 @@ class HttpClient private constructor(
             return this
         }
 
-
         fun enableAutoSwitch(): Builder {
             debug = true
             return this
