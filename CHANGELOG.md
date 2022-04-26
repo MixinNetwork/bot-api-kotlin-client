@@ -1,3 +1,14 @@
+### v0.5.4
+- Support Encrypted Protocol
+- Add PIN desciptions into README
+
+### v0.5.3
+- Add `writeNewPom` script
+- Support auto switch host
+
+### v0.5.2
+- NetworkSnapshot add field `transactionHash`
+
 ### v0.5.1
 - Fix decrypt response of API `/network/snapshots`
 - Add UserTransferDemo for kotlin
