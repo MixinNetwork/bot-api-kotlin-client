@@ -114,8 +114,7 @@ public class Sample {
                 "label",
                 Objects.requireNonNull(encryptPin(
                         userAesKey,
-                        Sample.userPin,
-                        System.nanoTime()))
+                        Sample.userPin))
         )).execute().body();
         assert addressResponse != null;
 
@@ -129,7 +128,7 @@ public class Sample {
     }
 
     private static void pinVerifyCall(HttpClient client,String userAesKey,String pin) throws IOException{
-        MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin, System.nanoTime())), null)).execute().body();
+        MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin)), null)).execute().body();
         if (pinResponse.isSuccess()) {
             System.out.printf("Pin verifyCall success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
         } else {
@@ -159,7 +158,7 @@ public class Sample {
     }
 
     private static void createPin(HttpClient client, String userAesKey) throws IOException {
-        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin, System.nanoTime())), null)).execute().body();
+        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin)), null)).execute().body();
         assert pinResponse != null;
         if (pinResponse.isSuccess()) {
             System.out.printf("Create pin success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
@@ -193,8 +192,7 @@ public class Sample {
     private static void withdrawalToAddress(HttpClient client, String addressId, String userAesKey) throws IOException {
         MixinResponse<Snapshot> withdrawalsResponse = client.getSnapshotService().withdrawalsCall(new WithdrawalRequest(addressId, Sample.amount, Objects.requireNonNull(encryptPin(
                 userAesKey,
-                Sample.userPin,
-                System.nanoTime()
+                Sample.userPin
         )), UUID.randomUUID().toString(), "withdrawal test")).execute().body();
         assert withdrawalsResponse != null;
         if (withdrawalsResponse.isSuccess()) {
@@ -208,8 +206,7 @@ public class Sample {
     private static void deleteAddress(HttpClient client, String addressId, String userAesKey) throws IOException {
         MixinResponse<Unit> deleteResponse = client.getAddressService().deleteCall(addressId, new Pin(Objects.requireNonNull(encryptPin(
                 userAesKey,
-                Sample.userPin,
-                System.nanoTime()
+                Sample.userPin
         )))).execute().body();
         assert deleteResponse != null;
         if (deleteResponse.isSuccess()) {
@@ -281,7 +278,7 @@ public class Sample {
                 new TransactionRequest(Sample.CNB_assetId, new OpponentMultisig(
                         receivers,
                         2
-                ), null, Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
+                ), null, Sample.amount, encryptPin(aseKey, pin)
                         , null, null)).execute().body();
         assert transactionResponse != null;
         if (transactionResponse.isSuccess()) {
@@ -293,7 +290,7 @@ public class Sample {
 
     private static void transactionsOpponentKey(HttpClient client, String opponentKey, String aseKey, String pin) throws IOException {
         MixinResponse<TransactionResponse> transactionResponse = client.getAssetService().transactionsCall(
-                new TransactionRequest(Sample.CNB_assetId, null, opponentKey, Sample.amount, encryptPin(aseKey, pin, System.nanoTime())
+                new TransactionRequest(Sample.CNB_assetId, null, opponentKey, Sample.amount, encryptPin(aseKey, pin)
                         , null, null)).execute().body();
         assert transactionResponse != null;
         if (transactionResponse.isSuccess()) {

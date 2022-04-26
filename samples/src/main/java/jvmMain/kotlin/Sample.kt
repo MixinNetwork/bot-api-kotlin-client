@@ -208,7 +208,6 @@ private suspend fun createAddress(client: HttpClient, userAesKey: String): Strin
             encryptPin(
                 userAesKey,
                 DEFAULT_PIN,
-                System.nanoTime()
             )
         )
     )
@@ -233,7 +232,6 @@ private suspend fun withdrawalToAddress(
             encryptPin(
                 userAesKey,
                 DEFAULT_PIN,
-                System.nanoTime()
             ),
             UUID.randomUUID().toString(), "withdrawal test"
         )
@@ -278,7 +276,6 @@ private suspend fun transactions(
             encryptPin(
                 userAesKey,
                 pin,
-                System.nanoTime()
             ),
             UUID.randomUUID().toString(),
             "memo"
