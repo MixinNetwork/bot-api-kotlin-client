@@ -47,4 +47,7 @@ interface UserCoroutineService {
     suspend fun mixinMainnetRPC(
         @Body rpcRequest: RpcRequest
     ): JsonObject
+
+    @GET("search/{query}")
+    suspend fun search(@Path("query") query: String): MixinResponse<User>
 }

@@ -37,6 +37,8 @@ public class Sample {
             EdDSAPublicKey publicKey = (EdDSAPublicKey) (sessionKey.getPublic());
             String sessionSecret = base64Encode(publicKey.getAbyte());
 
+            // searchUser(client);
+
             User user = createUser(client, sessionSecret);
             assert user != null;
             client.setUserToken(getUserToken(user, sessionKey, false));
@@ -155,6 +157,17 @@ public class Sample {
         assert user != null;
 
         return user;
+    }
+
+    private static void searchUser(HttpClient client) throws IOException {
+        // Search user
+        MixinResponse<User> userResponse = client.getUserService().searchCall("26832").execute().body();
+        assert userResponse != null;
+        if (userResponse.isSuccess()) {
+            System.out.printf("User %s: %s%n", Objects.requireNonNull(userResponse.getData()).getFullName(), Objects.requireNonNull(userResponse.getData()).getUserId());
+        } else {
+            System.out.println("Search failure");
+        }
     }
 
     private static void createPin(HttpClient client, String userAesKey) throws IOException {

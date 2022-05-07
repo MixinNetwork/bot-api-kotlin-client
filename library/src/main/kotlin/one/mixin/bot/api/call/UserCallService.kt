@@ -56,4 +56,7 @@ interface UserCallService {
     fun mixinMainnetRPCCall(
         @Body rpcRequest: RpcRequest
     ): Call<JsonObject>
+
+    @GET("search/{query}")
+    fun searchCall(@Path("query") query: String): Call<MixinResponse<User>>
 }
