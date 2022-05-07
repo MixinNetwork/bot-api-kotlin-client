@@ -1,3 +1,6 @@
+### v0.5.5
+- Add search user
+
 ### v0.5.4
 - Support Encrypted Protocol
 - Add PIN desciptions into README
