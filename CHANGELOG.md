@@ -1,3 +1,6 @@
+### v0.5.6
+- Support asset deposit entry
+
 ### v0.5.5
 - Add search user
 

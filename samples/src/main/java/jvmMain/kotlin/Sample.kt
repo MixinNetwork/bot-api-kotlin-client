@@ -159,9 +159,9 @@ internal suspend fun transferToUser(
 
 private suspend fun getAsset(client: HttpClient) {
     // Get asset
-    val assetResponse = client.assetService.getAsset(CNB_ID)
+    val assetResponse = client.assetService.getAsset(BTC_ID)
     if (assetResponse.isSuccess()) {
-        println("Assets ${assetResponse.data?.symbol}: ${assetResponse.data?.balance}")
+        println("Assets ${assetResponse.data?.symbol}: ${assetResponse.data?.balance} ${assetResponse.data?.depositEntries?.last()?.properties}")
     } else {
         println("Assets failure ${assetResponse.error}")
     }

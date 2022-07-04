@@ -11,6 +11,8 @@ data class Asset(
     val iconUrl: String,
     val balance: String,
     val destination: String,
+    @SerializedName("deposit_entries")
+    val depositEntries: List<DepositEntry>?,
     val tag: String?,
     @SerializedName("price_btc")
     val priceBtc: String,
