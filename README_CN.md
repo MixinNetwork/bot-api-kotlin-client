@@ -18,7 +18,7 @@ allprojects {
 添加库
 ```
 dependencies {
-    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.5'
+    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.6'
 }
 ```
 
