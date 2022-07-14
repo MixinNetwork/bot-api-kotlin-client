@@ -12,6 +12,8 @@ import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.AddressService
 import one.mixin.bot.api.AssetService
+import one.mixin.bot.api.AttachmentService
+import one.mixin.bot.api.ConversationService
 import one.mixin.bot.api.ExternalService
 import one.mixin.bot.api.MessageService
 import one.mixin.bot.api.SnapshotService
@@ -28,6 +30,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import java.security.Security
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -145,6 +148,14 @@ class HttpClient private constructor(
 
     val messageService: MessageService by lazy {
         retrofit.create(MessageService::class.java)
+    }
+
+    val conversationService: ConversationService by lazy {
+        retrofit.create(ConversationService::class.java)
+    }
+
+    val attachmentService: AttachmentService by lazy {
+        retrofit.create(AttachmentService::class.java)
     }
 
     val externalService: ExternalService by lazy {
