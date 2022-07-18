@@ -86,6 +86,8 @@ public class Sample {
             // Send text message
             sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Test message");
 
+            createConversationAndSendMessage(client, userId);
+
             List<String> receivers = new ArrayList<>();
             receivers.add("00c5a4ae-dcdc-48db-ab8e-a7eef69b441d");
             receivers.add("087e91ff-7169-451a-aaaa-5b3297411a4b");
@@ -350,6 +352,45 @@ public class Sample {
             System.out.printf("ReadGhostKey success %s%n", response.getData());
         } else {
             System.out.println("ReadGhostKey failure");
+        }
+    }
+
+    private static void createConversationAndSendMessage(HttpClient client, String botUserId) throws IOException {
+        client.setUserToken(null);
+        List<ParticipantRequest> list = new ArrayList<>();
+        ParticipantRequest botParticipant = new ParticipantRequest(botUserId, "", null);
+        ParticipantRequest userParticipant = new ParticipantRequest("e26808d4-b31f-4e3b-9521-19e529b967b0", "", null);
+        list.add(botParticipant);
+        list.add(userParticipant);
+        ConversationRequest conversationRequest = new ConversationRequest(UUID.randomUUID().toString(), "GROUP", "test group", null, null, list, null);
+        MixinResponse<ConversationResponse> response = client.getConversationService().createCall(conversationRequest).execute().body();
+        assert response != null;
+
+        if (response.isSuccess()) {
+            System.out.printf("create conversation success %s\n", response.getData());
+        } else {
+            System.out.printf("create conversation failure %s\n", response.getError());
+            return;
+        }
+
+        ConversationResponse conversation = response.getData();
+        if (conversation == null) return;
+
+        MessageRequest messageRequest = new MessageRequest(
+                conversation.getConversationId(),
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                "PLAIN_TEXT",
+                base64Encode("hello from bot".getBytes()), null, null);
+        ArrayList<MessageRequest> l = new ArrayList<>();
+        l.add(messageRequest);
+        MixinResponse<Void> messageResponse = client.getMessageService().postMessageCall(l).execute().body();
+        assert messageResponse != null;
+
+        if (messageResponse.isSuccess()) {
+            System.out.println("Bot send message success");
+        } else {
+            System.out.printf("Bot send message failure %s\n", messageResponse.getError());
         }
     }
 }

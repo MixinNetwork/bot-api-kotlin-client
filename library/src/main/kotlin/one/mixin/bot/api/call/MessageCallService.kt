@@ -8,5 +8,5 @@ import retrofit2.http.POST
 
 interface MessageCallService {
     @POST("messages")
-    fun postMessageCall(@Body messageRequests: List<MessageRequest>): Call<MixinResponse<Unit>>
+    fun postMessageCall(@Body messageRequests: List<MessageRequest>): Call<MixinResponse<Void>>
 }

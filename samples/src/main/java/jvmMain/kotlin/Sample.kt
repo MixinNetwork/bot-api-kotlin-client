@@ -11,6 +11,7 @@ import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.encryptPin
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.util.base64Encode
 import one.mixin.bot.util.calculateAgreement
 import one.mixin.bot.util.decryASEKey
 import one.mixin.bot.util.generateEd25519KeyPair
@@ -18,8 +19,11 @@ import one.mixin.bot.util.getEdDSAPrivateKeyFromString
 import one.mixin.bot.util.privateKeyToCurve25519
 import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.AddressRequest
+import one.mixin.bot.vo.ConversationRequest
 import one.mixin.bot.vo.GhostKeyRequest
+import one.mixin.bot.vo.MessageRequest
 import one.mixin.bot.vo.NetworkSnapshot
+import one.mixin.bot.vo.ParticipantRequest
 import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.Snapshot
 import one.mixin.bot.vo.TransactionRequest
@@ -48,12 +52,11 @@ fun main() = runBlocking {
     // create user
     val user = createUser(client, sessionSecret)
     user ?: return@runBlocking
-    client.setUserToken(
-        SessionToken.EdDSA(
-            user.userId, user.sessionId,
-            (sessionKey.private as EdDSAPrivateKey).seed.base64Encode()
-        )
+    val userToken = SessionToken.EdDSA(
+        user.userId, user.sessionId,
+        (sessionKey.private as EdDSAPrivateKey).seed.base64Encode()
     )
+    client.setUserToken(userToken)
 
     // decrypt pin token
     val userAesKey: String
@@ -101,6 +104,8 @@ fun main() = runBlocking {
     client.setUserToken(null)
     // Send text message
     sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Text message")
+
+    createConversationAndSendMessage(client, Config.userId)
 
     // Transactions
     transactions(client, pinToken)
@@ -334,5 +339,46 @@ private suspend fun readGhostKey(client: HttpClient) {
         println("ReadGhostKey success ${response.data}")
     } else {
         println("ReadGhostKey failure ${response.error}")
+    }
+}
+
+internal suspend fun createConversationAndSendMessage(client: HttpClient, botUserId: String) {
+    client.setUserToken(null)
+    val botParticipant = ParticipantRequest(
+        userId = botUserId,
+        role = "",
+    )
+    val userParticipant = ParticipantRequest(
+        userId = "e26808d4-b31f-4e3b-9521-19e529b967b0",
+        role = "",
+    )
+    val conversationRequest = ConversationRequest(
+        conversationId = UUID.randomUUID().toString(),
+        category = "GROUP",
+        name = "test group",
+        participants = listOf(botParticipant, userParticipant),
+    )
+    val conversationResponse = client.conversationService.create(conversationRequest)
+    if (conversationResponse.isSuccess()) {
+        println("create conversation success ${conversationResponse.data}")
+    } else {
+        println("create conversation failure ${conversationResponse.error}")
+        return
+    }
+
+    val conversation = conversationResponse.data ?: return
+    val messageRequest = MessageRequest(
+        conversationId = conversation.conversationId,
+        recipientId = UUID.randomUUID().toString(),
+        messageId = UUID.randomUUID().toString(),
+        category = "PLAIN_TEXT",
+        data = requireNotNull(base64Encode("hello from bot".toByteArray())),
+    )
+    println("messageRequest: $messageRequest")
+    val messageResponse = client.messageService.postMessage(listOf(messageRequest))
+    if (messageResponse.isSuccess()) {
+        println("Bot send message success")
+    } else {
+        println("Bot send message failure ${messageResponse.error}")
     }
 }
