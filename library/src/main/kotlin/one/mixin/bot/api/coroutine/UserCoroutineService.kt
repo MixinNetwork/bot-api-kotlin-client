@@ -6,6 +6,9 @@ import one.mixin.bot.vo.Account
 import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.GhostKey
 import one.mixin.bot.vo.GhostKeyRequest
+import one.mixin.bot.vo.MultisigsRequest
+import one.mixin.bot.vo.MultisigsResponse
+import one.mixin.bot.vo.OutputResponse
 import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.RpcRequest
 import one.mixin.bot.vo.User
@@ -13,6 +16,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface UserCoroutineService {
 
@@ -30,6 +34,19 @@ interface UserCoroutineService {
 
     @GET("me")
     suspend fun getMe(): MixinResponse<Account>
+
+    @POST("multisigs/requests")
+    suspend fun requestsMultisigs(@Body request: MultisigsRequest): MixinResponse<MultisigsResponse>
+
+    @GET("multisigs/outputs")
+    suspend fun multisigsOutputs(
+        @Query("members") members: List<String>? = null,
+        @Query("threshold") threshold: String? = null,
+        @Query("state") state: String? = null,
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: String? = null,
+        @Query("order") order: String? = null,
+    ): MixinResponse<List<OutputResponse>>
 
     @POST("multisigs/{id}/cancel")
     suspend fun cancelMultisigs(@Path("id") id: String): MixinResponse<Void>

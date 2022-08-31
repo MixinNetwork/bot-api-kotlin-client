@@ -39,6 +39,8 @@ public class Sample {
 
             // searchUser(client);
 
+            getOutputs(client);
+
             User user = createUser(client, sessionSecret);
             assert user != null;
             client.setUserToken(getUserToken(user, sessionKey, false));
@@ -203,6 +205,20 @@ public class Sample {
             System.out.println("Transfer failure");
         }
     }
+
+    private static void getOutputs(HttpClient client) throws IOException {
+        // Get output
+        MixinResponse<List<OutputResponse>> outputResponse = client.getUserService().multisigsOutputsCall(
+                null, null, null, null, null, null
+        ).execute().body();
+        assert outputResponse != null;
+        if (outputResponse.isSuccess()) {
+            System.out.printf("Output: %d%n", Objects.requireNonNull(outputResponse.getData()).size());
+        } else {
+            System.out.println("Output failure");
+        }
+    }
+
 
     private static void withdrawalToAddress(HttpClient client, String addressId, String userAesKey) throws IOException {
         MixinResponse<Snapshot> withdrawalsResponse = client.getSnapshotService().withdrawalsCall(new WithdrawalRequest(addressId, Sample.amount, Objects.requireNonNull(encryptPin(
