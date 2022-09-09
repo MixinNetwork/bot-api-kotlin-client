@@ -1,2 +1,4 @@
 rootProject.name = "bot-api-kotlin-client"
 include ':library', ':samples'
+include 'multisig'
+
