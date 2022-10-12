@@ -1,4 +1,4 @@
-### v0.5.6
+### v0.5.7
 - Support address fee asset
 
 ### v0.5.6
