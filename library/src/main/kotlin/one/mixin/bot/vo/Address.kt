@@ -18,7 +18,9 @@ data class Address(
     @SerializedName("tag")
     val tag: String?,
     @SerializedName("dust")
-    val dust: String?
+    val dust: String?,
+    @SerializedName("fee_asset_id")
+    val feeAssetId: String
 )
 
 fun Address.displayAddress(): String {
