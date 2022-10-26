@@ -1,3 +1,6 @@
+### v0.5.7
+- Support address fee asset
+
 ### v0.5.6
 - Support asset deposit entry
 

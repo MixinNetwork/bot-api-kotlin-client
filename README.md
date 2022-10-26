@@ -16,7 +16,7 @@ allprojects {
 Add the dependency
 ```
 dependencies {
-    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.6'
+    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.7'
 }
 ```
 
@@ -35,7 +35,7 @@ Add the dependency
 <dependency>
     <groupId>com.github.MixinNetwork</groupId>
     <artifactId>bot-api-kotlin-client</artifactId>
-    <version>v0.1.0</version>
+    <version>v0.5.7</version>
 </dependency>
 ```
 
