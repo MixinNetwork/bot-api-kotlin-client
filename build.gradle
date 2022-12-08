@@ -15,6 +15,7 @@ buildscript {
         google()
         jcenter()
         gradlePluginPortal()
+        mavenCentral()
         maven { url "https://jitpack.io" }
     }
     dependencies {
@@ -27,6 +28,7 @@ allprojects {
         google()
         jcenter()
         gradlePluginPortal()
+        mavenCentral()
         maven { url "https://jitpack.io" }
     }
 }

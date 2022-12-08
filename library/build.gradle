@@ -54,6 +54,48 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     args "-F", "src/**/*.kt"
 }
 
-group = 'com.github.MixinNetwork'
-version = 'v0.5.2'
 sourceCompatibility = 1.8
+publishing {
+    publications {
+        customLibrary(MavenPublication) {
+            groupId = 'com.github.MixinNetwork'
+            artifactId = 'gradle-maven-converter'
+            version = 'v0.5.2'
+
+            from components.java
+
+            pom {
+                name = 'bot-api-kotlin-client'
+                description = 'The Mixin Network based wallet allows for the rapid construction of decentralized wallets, decentralized on-chain exchanges, and other products.'
+                url = 'https://github.com/MixinNetwork/bot-api-kotlin-client/'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+
+            pom.withXml {
+                asNode()
+                        .dependencies
+                        .dependency
+                        .findAll { dependency ->
+                            // find all dependencies with runtime scope
+                            dependency.scope.text() == 'runtime'
+                        }
+                        .each { dependency ->
+                            // set the scope to 'compile'
+                            dependency.scope*.value = 'compile'
+                        }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'bot-api-kotlin-client'
+            url = layout.buildDirectory.dir("repo")
+        }
+    }
+}
