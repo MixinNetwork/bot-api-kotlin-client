@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'kotlin'
-    id 'maven'
+    id 'maven-publish'
     id 'java'
 }
 
@@ -57,17 +57,3 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 group = 'com.github.MixinNetwork'
 version = 'v0.5.2'
 sourceCompatibility = 1.8
-task writeNewPom  (){
-    pom {
-        project {
-            inceptionYear '2021'
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'Mixin Bot Api'
-                }
-            }
-        }
-    }.writeTo("$buildDir/pom.xml")
-}
