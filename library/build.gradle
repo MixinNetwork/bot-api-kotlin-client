@@ -59,8 +59,8 @@ publishing {
     publications {
         customLibrary(MavenPublication) {
             groupId = 'com.github.MixinNetwork'
-            artifactId = 'gradle-maven-converter'
-            version = 'v0.5.2'
+            artifactId = 'bot-api-kotlin-client'
+            version = 'v0.5.7'
 
             from components.java
 
@@ -93,6 +93,7 @@ publishing {
     }
 
     repositories {
+        mavenLocal()
         maven {
             name = 'bot-api-kotlin-client'
             url = layout.buildDirectory.dir("repo")
