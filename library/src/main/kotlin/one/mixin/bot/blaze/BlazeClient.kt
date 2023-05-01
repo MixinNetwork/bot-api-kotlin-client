@@ -1,5 +1,6 @@
 package one.mixin.bot.blaze
 
+import com.google.gson.Gson
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
@@ -8,6 +9,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okio.ByteString
 import one.mixin.bot.Constants
 import one.mixin.bot.SessionToken
+import one.mixin.bot.blaze.msg.Cards
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.signToken
@@ -64,23 +66,19 @@ class BlazeClient private constructor(
         }
 
         val request = Request.Builder().addHeader("Sec-WebSocket-Protocol", "MixinBot-Blaze-1")
-            .addHeader(
-                "Authorization",
-                "Bearer " + (userSessionToken ?: clientToken).let { token ->
-                    signToken(
-                        token.userId, token.sessionId, "GET", "/", "",
-                        if (token is SessionToken.RSA) {
-                            token.privateKey
-                        } else {
-                            val seed = (token as SessionToken.EdDSA).seed
-                            val privateSpec = EdDSAPrivateKeySpec(
-                                seed.base64Decode(), ed25519
-                            )
-                            EdDSAPrivateKey(privateSpec)
-                        }
-                    )
-                }
-            ).url(
+            .addHeader("Authorization", "Bearer " + (userSessionToken ?: clientToken).let { token ->
+                signToken(
+                    token.userId, token.sessionId, "GET", "/", "", if (token is SessionToken.RSA) {
+                        token.privateKey
+                    } else {
+                        val seed = (token as SessionToken.EdDSA).seed
+                        val privateSpec = EdDSAPrivateKeySpec(
+                            seed.base64Decode(), ed25519
+                        )
+                        EdDSAPrivateKey(privateSpec)
+                    }
+                )
+            }).url(
                 if (cnServer) {
                     Constants.API.CN_WS_URL
                 } else {
@@ -114,18 +112,14 @@ class BlazeClient private constructor(
         private var blazeHandler: BlazeHandler = DefaultBlazeHandler()
 
         fun configEdDSA(
-            userId: String,
-            sessionId: String,
-            privateKey: EdDSAPrivateKey
+            userId: String, sessionId: String, privateKey: EdDSAPrivateKey
         ): Builder {
             clientToken = SessionToken.EdDSA(userId, sessionId, privateKey.seed.base64Encode())
             return this
         }
 
         fun configRSA(
-            userId: String,
-            sessionId: String,
-            privateKey: String
+            userId: String, sessionId: String, privateKey: String
         ): Builder {
             val key = getRSAPrivateKeyFromString(privateKey)
             clientToken = SessionToken.RSA(userId, sessionId, key)
@@ -209,23 +203,29 @@ fun sendMsg(webSocket: WebSocket, action: Action, msgParam: MsgParam?): Boolean 
 }
 
 fun sendTextMsg(
-    webSocket: WebSocket,
-    conversationId: String,
-    recipientId: String,
-    text: String
+    webSocket: WebSocket, conversationId: String, recipientId: String, text: String
 ): Boolean {
     val msgParam =
         MsgParam(UUID.randomUUID().toString(), Category.PLAIN_TEXT.toString(), conversationId, recipientId, text)
     return sendMsg(webSocket, Action.CREATE_MESSAGE, msgParam)
 }
 
+fun sendCardMsg(
+    webSocket: WebSocket, conversationId: String, recipientId: String, cards: Cards
+): Boolean {
+    val msgParam = MsgParam(
+        UUID.randomUUID().toString(), Category.PLAIN_TEXT.toString(), conversationId, recipientId, Gson().toJson(cards)
+    )
+    return sendMsg(webSocket, Action.CREATE_MESSAGE, msgParam)
+}
+
+
 fun sendListPendingMsg(webSocket: WebSocket): Boolean {
     return sendMsg(webSocket, Action.LIST_PENDING_MESSAGES, null)
 }
 
 fun sendAckMsg(
-    webSocket: WebSocket,
-    messageId: String
+    webSocket: WebSocket, messageId: String
 ): Boolean {
     val msgParam = MsgParam(messageId)
     msgParam.status = Status.READ.toString()
