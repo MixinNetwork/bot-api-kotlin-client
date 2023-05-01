@@ -214,7 +214,7 @@ fun sendCardMsg(
     webSocket: WebSocket, conversationId: String, recipientId: String, cards: Cards
 ): Boolean {
     val msgParam = MsgParam(
-        UUID.randomUUID().toString(), Category.PLAIN_TEXT.toString(), conversationId, recipientId, Gson().toJson(cards)
+        UUID.randomUUID().toString(), Category.APP_CARD.toString(), conversationId, recipientId, Gson().toJson(cards)
     )
     return sendMsg(webSocket, Action.CREATE_MESSAGE, msgParam)
 }
