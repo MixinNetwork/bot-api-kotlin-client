@@ -11,14 +11,11 @@ fun encode(blazeMsg: BlazeMsg): ByteString {
 }
 
 fun encode(src: String): ByteString {
-    val data = compress(src.toByteArray())
-    return data.toByteString(0, data.size)
+    return src.gzip()
 }
 
 fun decode(src: ByteString): String {
-    val data = decompress(src.toByteArray())
-    val stringData = data.toByteString(0, data.size)
-    return stringData.utf8()
+    return src.ungzip()
 }
 
 fun decodeAs(src: ByteString, decodeData: Boolean): BlazeMsg {
