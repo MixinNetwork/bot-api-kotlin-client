@@ -7,7 +7,7 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import okhttp3.OkHttpClient
 import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
-import one.mixin.bot.api.*
+import one.mixin.bot.api.* //ktlint-disable
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.util.createHttpClient
 import one.mixin.bot.util.getRSAPrivateKeyFromString

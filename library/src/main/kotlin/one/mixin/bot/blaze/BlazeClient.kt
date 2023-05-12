@@ -2,24 +2,24 @@ package one.mixin.bot.blaze
 
 import com.google.gson.Gson
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import okhttp3.*
+import okhttp3.* //ktlint-disable
 import okio.ByteString
 import one.mixin.bot.Constants
 import one.mixin.bot.SessionToken
 import one.mixin.bot.blaze.msg.Buttons
 import one.mixin.bot.blaze.msg.Cards
 import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.util.*
-import java.util.*
+import one.mixin.bot.util.* //ktlint-disable
+import java.util.* //ktlint-disable
 
 class BlazeClient private constructor(
-        private val clientToken: SessionToken,
-        private val cnServer: Boolean = false,
-        private val blazeHandler: BlazeHandler,
-        private val parseData: Boolean = false,
-        private val autoAck: Boolean = false,
-        debug: Boolean = false,
-        autoSwitch: Boolean = false,
+    private val clientToken: SessionToken,
+    private val cnServer: Boolean = false,
+    private val blazeHandler: BlazeHandler,
+    private val parseData: Boolean = false,
+    private val autoAck: Boolean = false,
+    debug: Boolean = false,
+    autoSwitch: Boolean = false,
 ) : WebSocketListener() {
     private var isConnected: Boolean = false
     private var connectNum = 0
@@ -45,11 +45,11 @@ class BlazeClient private constructor(
         }
 
         val request = Request.Builder().url(
-                if (cnServer) {
-                    Constants.API.CN_WS_URL
-                } else {
-                    Constants.API.WS_URL
-                }
+            if (cnServer) {
+                Constants.API.CN_WS_URL
+            } else {
+                Constants.API.WS_URL
+            }
         ).build()
         webSocket = okHttpClient.newWebSocket(request, this)
     }
