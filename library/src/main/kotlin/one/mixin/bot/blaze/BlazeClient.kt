@@ -2,23 +2,24 @@ package one.mixin.bot.blaze
 
 import com.google.gson.Gson
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import okhttp3.* //ktlint-disable
+import okhttp3.*
 import okio.ByteString
 import one.mixin.bot.Constants
 import one.mixin.bot.SessionToken
+import one.mixin.bot.blaze.msg.Buttons
 import one.mixin.bot.blaze.msg.Cards
 import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.util.* //ktlint-disable
+import one.mixin.bot.util.*
 import java.util.*
 
 class BlazeClient private constructor(
-    private val clientToken: SessionToken,
-    private val cnServer: Boolean = false,
-    private val blazeHandler: BlazeHandler,
-    private val parseData: Boolean = false,
-    private val autoAck: Boolean = false,
-    debug: Boolean = false,
-    autoSwitch: Boolean = false,
+        private val clientToken: SessionToken,
+        private val cnServer: Boolean = false,
+        private val blazeHandler: BlazeHandler,
+        private val parseData: Boolean = false,
+        private val autoAck: Boolean = false,
+        debug: Boolean = false,
+        autoSwitch: Boolean = false,
 ) : WebSocketListener() {
     private var isConnected: Boolean = false
     private var connectNum = 0
@@ -44,11 +45,11 @@ class BlazeClient private constructor(
         }
 
         val request = Request.Builder().url(
-            if (cnServer) {
-                Constants.API.CN_WS_URL
-            } else {
-                Constants.API.WS_URL
-            }
+                if (cnServer) {
+                    Constants.API.CN_WS_URL
+                } else {
+                    Constants.API.WS_URL
+                }
         ).build()
         webSocket = okHttpClient.newWebSocket(request, this)
     }
@@ -75,6 +76,7 @@ class BlazeClient private constructor(
         private var parseData: Boolean = false
         private var autoAck: Boolean = false
         private var blazeHandler: BlazeHandler = DefaultBlazeHandler()
+        private var autoSwitch: Boolean = false
 
         fun configEdDSA(userId: String, sessionId: String, privateKey: EdDSAPrivateKey): Builder {
             clientToken = SessionToken.EdDSA(userId, sessionId, privateKey.seed.base64Encode())
@@ -112,8 +114,13 @@ class BlazeClient private constructor(
             return this
         }
 
+        fun enableAutoSwitch(): Builder {
+            autoSwitch = true
+            return this
+        }
+
         fun build(): BlazeClient {
-            return BlazeClient(clientToken, cnServer, blazeHandler, parseData, autoAck, debug)
+            return BlazeClient(clientToken, cnServer, blazeHandler, parseData, autoAck, autoSwitch)
         }
     }
 
@@ -170,6 +177,11 @@ fun sendTextMsg(webSocket: WebSocket, conversationId: String, recipientId: Strin
 
 fun sendCardMsg(webSocket: WebSocket, conversationId: String, recipientId: String, cards: Cards): Boolean {
     val msgParam = MsgParam(UUID.randomUUID().toString(), Category.APP_CARD.toString(), conversationId, recipientId, Gson().toJson(cards))
+    return sendMsg(webSocket, Action.CREATE_MESSAGE, msgParam)
+}
+
+fun sendButtonsMsg(webSocket: WebSocket, conversationId: String, recipientId: String, buttons: List<Buttons>): Boolean {
+    val msgParam = MsgParam(UUID.randomUUID().toString(), Category.APP_BUTTON_GROUP.toString(), conversationId, recipientId, Gson().toJson(buttons))
     return sendMsg(webSocket, Action.CREATE_MESSAGE, msgParam)
 }
 
