@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package one.mixin.bot.blaze
 
 import com.google.gson.Gson
@@ -21,11 +23,14 @@ class BlazeClient private constructor(
     debug: Boolean = false,
     autoSwitch: Boolean = false,
 ) : WebSocketListener() {
+    companion object {
+        private const val MAX_NUM = 10
+        private const val DEFAULT_INTERVAL = 5000 // 重连间隔时间，毫秒
+    }
+
     private var isConnected: Boolean = false
     private var connectNum = 0
-    private val MAX_NUM = 10
     private var interval = 5000
-    private val DEFAULT_INTERVAL = 5000 // 重连间隔时间，毫秒
 
     private var userSessionToken: SessionToken? = null
 

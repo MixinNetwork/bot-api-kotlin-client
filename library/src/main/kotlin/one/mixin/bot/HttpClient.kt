@@ -3,7 +3,6 @@ package one.mixin.bot
 import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import okhttp3.OkHttpClient
 import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
@@ -18,6 +17,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.Security
 
+@Suppress("unused")
 class HttpClient private constructor(
     private val clientToken: SessionToken,
     cnServer: Boolean = false,
@@ -31,7 +31,6 @@ class HttpClient private constructor(
 
     private var userSessionToken: SessionToken? = null
 
-    private val ed25519 by lazy { EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519) }
     fun setUserToken(userSessionToken: SessionToken?) {
         this.userSessionToken = userSessionToken
     }

@@ -14,7 +14,7 @@ import one.mixin.bot.blaze.MsgData;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("SameParameterValue")
-public class Blaze {
+class Blaze {
   public static void main(String[] args) throws IOException {
     EdDSAPrivateKey key = getEdDSAPrivateKeyFromString(privateKey);
     BlazeClient blazeClient =
@@ -28,10 +28,11 @@ public class Blaze {
     blazeClient.start();
 
     // 卡一下；因为没有任何别的服务启动
+    //noinspection ResultOfMethodCallIgnored
     System.in.read();
   }
 
-  public static class MyBlazeHandler implements BlazeHandler {
+  private static class MyBlazeHandler implements BlazeHandler {
 
     @Override
     public boolean onMessage(@NotNull WebSocket webSocket, @NotNull BlazeMsg blazeMsg) {
