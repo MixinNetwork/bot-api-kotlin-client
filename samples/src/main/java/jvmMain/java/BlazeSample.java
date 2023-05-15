@@ -14,7 +14,7 @@ import one.mixin.bot.blaze.MsgData;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("SameParameterValue")
-class Blaze {
+class BlazeSample {
   public static void main(String[] args) throws IOException {
     EdDSAPrivateKey key = getEdDSAPrivateKeyFromString(privateKey);
     BlazeClient blazeClient =

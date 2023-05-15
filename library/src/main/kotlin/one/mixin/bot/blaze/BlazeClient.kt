@@ -24,13 +24,13 @@ class BlazeClient private constructor(
     autoSwitch: Boolean = false,
 ) : WebSocketListener() {
     companion object {
-        private const val MAX_NUM = 10
-        private const val DEFAULT_INTERVAL = 5000 // 重连间隔时间，毫秒
+        private const val MAX_RECONNECT_COUNT = 10
+        private const val DEFAULT_RECONNECT_INTERVAL = 5000
     }
 
     private var isConnected: Boolean = false
-    private var connectNum = 0
-    private var interval = 5000
+    private var connectCount = 0
+    private var reconnectInterval = 5000
 
     private var userSessionToken: SessionToken? = null
 
@@ -60,17 +60,17 @@ class BlazeClient private constructor(
     }
 
     private fun reconnect() {
-        if (connectNum <= MAX_NUM) {
+        if (connectCount <= MAX_RECONNECT_COUNT) {
             try {
-                Thread.sleep(interval.toLong())
+                Thread.sleep(reconnectInterval.toLong())
                 connect()
-                connectNum++
+                connectCount++
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            this.connectNum = 0
+            this.connectCount = 0
         } else {
-            interval += 500
+            reconnectInterval += 500
         }
     }
 
@@ -141,7 +141,7 @@ class BlazeClient private constructor(
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         try {
             // 消息通的时，重置连接次数
-            connectNum = 0
+            connectCount = 0
 
             val blazeMsg = decodeAs(bytes, parseData)
             val handled = blazeHandler.onMessage(webSocket, blazeMsg)
@@ -157,7 +157,7 @@ class BlazeClient private constructor(
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
         isConnected = true
-        interval = DEFAULT_INTERVAL
+        reconnectInterval = DEFAULT_RECONNECT_INTERVAL
         sendListPendingMsg(webSocket)
     }
 

@@ -63,6 +63,34 @@ fun main() = runBlocking {
 ```
 [More usage](https://github.com/MixinNetwork/bot-api-kotlin-client/blob/main/samples/src/main/java/jvmMain/kotlin/Sample.kt)
 
+## Send and Receive Messages
+```kotlin
+fun main(): Unit = runBlocking {
+    val job = launch {
+        val key = getEdDSAPrivateKeyFromString(Config.privateKey)
+        val blazeClient = BlazeClient.Builder()
+            .configEdDSA(Config.userId, Config.sessionId, key)
+            .enableDebug()
+            .enableParseData()
+            .enableAutoAck()
+            .blazeHandler(MyBlazeHandler())
+            .build()
+        blazeClient.start()
+    }
+    job.join()
+}
+
+private class MyBlazeHandler : BlazeHandler {
+    override fun onMessage(webSocket: WebSocket, blazeMsg: BlazeMsg): Boolean {
+        println(blazeMsg)
+        blazeMsg.data?.let { data ->
+            sendTextMsg(webSocket, data.conversionId, data.userId, "read")
+        }
+        return true
+    }
+}
+```
+
 ## About PIN 
 A 6-digit PIN is required when a user is trying to transfer assets, the code functions pretty much like a private key, not retrievable if lost.
 

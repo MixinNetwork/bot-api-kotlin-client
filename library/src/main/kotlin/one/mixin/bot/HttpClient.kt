@@ -24,7 +24,6 @@ class HttpClient private constructor(
     debug: Boolean = false,
     autoSwitch: Boolean = false
 ) {
-
     init {
         Security.addProvider(BouncyCastleProvider())
     }
