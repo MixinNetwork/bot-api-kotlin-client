@@ -79,6 +79,34 @@ fun main() = runBlocking {
 }
 ```
 
+## 发送和接受消息
+```kotlin
+fun main(): Unit = runBlocking {
+    val job = launch {
+        val key = getEdDSAPrivateKeyFromString(Config.privateKey)
+        val blazeClient = BlazeClient.Builder()
+            .configEdDSA(Config.userId, Config.sessionId, key)
+            .enableDebug()
+            .enableParseData()
+            .enableAutoAck()
+            .blazeHandler(MyBlazeHandler())
+            .build()
+        blazeClient.start()
+    }
+    job.join()
+}
+
+private class MyBlazeHandler : BlazeHandler {
+    override fun onMessage(webSocket: WebSocket, blazeMsg: BlazeMsg): Boolean {
+        println(blazeMsg)
+        blazeMsg.data?.let { data ->
+            sendTextMsg(webSocket, data.conversionId, data.userId, "read")
+        }
+        return true
+    }
+}
+```
+
 ## 关于
 当用户尝试操作自己的资产时，需要 6 位 PIN 码，它的功能非常类似于私钥，丢失后无法找回资产。
 
