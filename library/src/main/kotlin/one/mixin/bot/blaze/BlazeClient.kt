@@ -162,7 +162,7 @@ class BlazeClient private constructor(
 }
 
 fun sendMsg(webSocket: WebSocket, action: Action, msgParam: MsgParam?): Boolean {
-    if (action == Action.CREATE_MESSAGE && msgParam?.conversionId.isNullOrEmpty()){
+    if (action == Action.CREATE_MESSAGE && msgParam?.conversionId.isNullOrEmpty()) {
         return false
     }
     if (msgParam?.data != null) {
