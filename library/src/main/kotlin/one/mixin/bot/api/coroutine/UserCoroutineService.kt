@@ -32,7 +32,7 @@ interface UserCoroutineService {
     @POST("pin/update")
     suspend fun updatePin(@Body request: PinRequest): MixinResponse<Account>
 
-    @GET("me")
+    @GET("safe/me")
     suspend fun getMe(): MixinResponse<Account>
 
     @POST("multisigs/requests")

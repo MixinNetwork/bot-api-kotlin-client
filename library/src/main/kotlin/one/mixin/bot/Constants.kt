@@ -9,4 +9,7 @@ object Constants {
         const val CN_URL = "https://mixin-api.zeromesh.net/"
         const val CN_WS_URL = "wss://mixin-blaze.zeromesh.net"
     }
+
+    const val LIMIT = 30
 }
+

@@ -33,7 +33,7 @@ interface UserCallService {
     @POST("pin/update")
     fun updatePinCall(@Body request: PinRequest): Call<MixinResponse<Account>>
 
-    @GET("me")
+    @GET("safe/me")
     fun getMeCall(): Call<MixinResponse<Account>>
 
     @POST("multisigs/requests")

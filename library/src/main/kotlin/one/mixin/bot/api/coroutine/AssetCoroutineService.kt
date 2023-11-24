@@ -41,7 +41,7 @@ interface AssetCoroutineService {
     @GET("network/assets/top")
     suspend fun topAssets(): MixinResponse<List<TopAsset>>
 
-    @GET("fiats")
+    @GET("external/fiats")
     suspend fun getFiats(): MixinResponse<List<Fiat>>
 
     @GET("assets/{id}/fee")

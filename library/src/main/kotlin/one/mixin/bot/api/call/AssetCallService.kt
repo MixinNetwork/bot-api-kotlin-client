@@ -43,7 +43,7 @@ interface AssetCallService {
     @GET("network/assets/top")
     fun topAssetsCall(): Call<MixinResponse<List<TopAsset>>>
 
-    @GET("fiats")
+    @GET("external/fiats")
     fun getFiatsCall(): Call<MixinResponse<List<Fiat>>>
 
     @GET("assets/{id}/fee")
