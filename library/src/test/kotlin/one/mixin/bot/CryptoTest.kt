@@ -1,10 +1,10 @@
 package one.mixin.bot
 
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import one.mixin.bot.util.aesGcmDecrypt
 import one.mixin.bot.util.aesGcmEncrypt
 import one.mixin.bot.util.generateAesKey
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class CryptoTest {
     @Test fun testAesGcm() {

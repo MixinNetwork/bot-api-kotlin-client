@@ -1,10 +1,10 @@
+import java.util.*
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
 import one.mixin.bot.extension.toByteArray
 import one.mixin.bot.util.EncryptedProtocol
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.publicKeyToCurve25519
-import java.util.*
 
 @ExperimentalUnsignedTypes
 fun main() {

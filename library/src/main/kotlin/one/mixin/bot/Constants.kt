@@ -12,4 +12,3 @@ object Constants {
 
     const val LIMIT = 30
 }
-

@@ -1,10 +1,10 @@
 package one.mixin.bot.util
 
+import java.util.UUID
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import one.mixin.bot.extension.toByteArray
-import java.util.UUID
 
 class EncryptedProtocol {
 

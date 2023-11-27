@@ -1,5 +1,7 @@
 package one.mixin.bot.util
 
+import java.util.*
+import java.util.concurrent.TimeUnit
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import okhttp3.Interceptor
@@ -13,8 +15,6 @@ import one.mixin.bot.extension.HostSelectionInterceptor
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.isNeedSwitch
 import one.mixin.bot.signToken
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 fun createHttpClient(userSessionToken: SessionToken?, clientToken: SessionToken, websocket: Boolean, debug: Boolean, cnServer: Boolean, autoSwitch: Boolean): OkHttpClient {
     val builder = OkHttpClient.Builder()
