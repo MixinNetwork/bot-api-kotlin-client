@@ -7,13 +7,15 @@ import one.mixin.bot.blaze.BlazeClient
 import one.mixin.bot.blaze.BlazeHandler
 import one.mixin.bot.blaze.BlazeMsg
 import one.mixin.bot.blaze.sendTextMsg
-import one.mixin.bot.util.getEdDSAPrivateKeyFromString
+import one.mixin.bot.extension.base64Decode
+import one.mixin.bot.util.newKeyPairFromPrivateKey
+import one.mixin.bot.util.newKeyPairFromSeed
 
 fun main(): Unit = runBlocking {
     val job = launch {
-        val key = getEdDSAPrivateKeyFromString(Config.privateKey)
+        val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
         val blazeClient = BlazeClient.Builder()
-            .configEdDSA(Config.userId, Config.sessionId, key)
+            .configEdDSA(Config.userId, Config.sessionId, keyPair)
             .enableDebug()
             .enableParseData()
             .enableAutoAck()

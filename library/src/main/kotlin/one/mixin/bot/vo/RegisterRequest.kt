@@ -9,6 +9,4 @@ data class RegisterRequest(
     val signature: String,
     @SerializedName("pin_base64")
     val pin: String,
-    @SerializedName("salt_base64")
-    val salt: String,
 )

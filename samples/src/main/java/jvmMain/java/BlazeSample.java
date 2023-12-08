@@ -2,21 +2,22 @@ package jvmMain.java;
 
 import static jvmMain.java.Config.*;
 import static one.mixin.bot.blaze.BlazeClientKt.sendTextMsg;
-import static one.mixin.bot.util.CryptoUtilKt.getEdDSAPrivateKeyFromString;
 
 import java.io.IOException;
-import net.i2p.crypto.eddsa.EdDSAPrivateKey;
 import okhttp3.WebSocket;
 import one.mixin.bot.blaze.BlazeClient;
 import one.mixin.bot.blaze.BlazeHandler;
 import one.mixin.bot.blaze.BlazeMsg;
 import one.mixin.bot.blaze.MsgData;
+import one.mixin.bot.extension.Base64ExtensionKt;
+import one.mixin.bot.tip.EdKeyPair;
+import one.mixin.bot.util.CryptoUtilKt;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("SameParameterValue")
 class BlazeSample {
   public static void main(String[] args) throws IOException {
-    EdDSAPrivateKey key = getEdDSAPrivateKeyFromString(privateKey);
+    EdKeyPair key = CryptoUtilKt.newKeyPairFromPrivateKey(Base64ExtensionKt.base64Decode(privateKey));
     BlazeClient blazeClient =
         new BlazeClient.Builder()
             .configEdDSA(userId, sessionId, key)

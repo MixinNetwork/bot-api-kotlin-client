@@ -42,5 +42,11 @@ class Account(
     @SerializedName("transfer_notification_threshold")
     val transferNotificationThreshold: Double = 0.0,
     @SerializedName("transfer_confirmation_threshold")
-    val transferConfirmationThreshold: Double = 100.0
+    val transferConfirmationThreshold: Double = 100.0,
+    @SerializedName("tip_key_base64")
+    val tipKeyBase64: String,
+    @SerializedName("tip_counter")
+    val tipCounter: Int,
+    @SerializedName("has_safe")
+    var hasSafe: Boolean,
 )

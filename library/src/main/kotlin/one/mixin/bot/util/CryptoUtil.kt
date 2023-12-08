@@ -2,6 +2,7 @@
 
 package one.mixin.bot.util
 
+import okio.ByteString.Companion.toByteString
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -20,15 +21,15 @@ import javax.crypto.spec.PSource
 import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.and
 import kotlin.experimental.or
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import net.i2p.crypto.eddsa.EdDSAPublicKey
-import net.i2p.crypto.eddsa.math.FieldElement
-import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
-import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
-import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.tip.EdKeyPair
+import one.mixin.eddsa.Ed25519Sign
+import one.mixin.eddsa.Field25519
+import one.mixin.eddsa.KeyPair.Companion.newKeyPair
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.komputing.khash.keccak.KeccakParameter
+import org.komputing.khash.keccak.extensions.digestKeccak
 import org.whispersystems.curve25519.Curve25519
 
 fun generateRSAKeyPair(keyLength: Int = 2048): KeyPair {
@@ -37,8 +38,28 @@ fun generateRSAKeyPair(keyLength: Int = 2048): KeyPair {
     return kpg.genKeyPair()
 }
 
-fun generateEd25519KeyPair(): KeyPair {
-    return net.i2p.crypto.eddsa.KeyPairGenerator().generateKeyPair()
+fun generateEd25519KeyPair(): EdKeyPair {
+    val keyPair = newKeyPair(true)
+    return EdKeyPair(keyPair.publicKey.toByteArray(), keyPair.privateKey.toByteArray())
+}
+
+fun newKeyPairFromSeed(seed: ByteArray): EdKeyPair {
+    val keyPair = one.mixin.eddsa.KeyPair.newKeyPairFromSeed(seed.toByteString(), checkOnCurve = true)
+    return EdKeyPair(keyPair.publicKey.toByteArray(), keyPair.privateKey.toByteArray())
+}
+
+fun newKeyPairFromPrivateKey(privateKey: ByteArray): EdKeyPair {
+    val keyPair = one.mixin.eddsa.KeyPair.newKeyPairFromSeed(privateKey.sliceArray(0..31).toByteString(), checkOnCurve = true)
+    return EdKeyPair(keyPair.publicKey.toByteArray(), keyPair.privateKey.toByteArray())
+}
+
+fun initFromSeedAndSign(
+    seed: ByteArray,
+    signTarget: ByteArray,
+): ByteArray {
+    val keyPair = newKeyPairFromSeed(seed)
+    val signer = Ed25519Sign(keyPair.privateKey.toByteString(), checkOnCurve = true)
+    return signer.sign(signTarget.toByteString(), checkOnCurve = true).toByteArray()
 }
 
 fun calculateAgreement(publicKey: ByteArray, privateKey: ByteArray): ByteArray {
@@ -54,18 +75,46 @@ fun privateKeyToCurve25519(edSeed: ByteArray): ByteArray {
     return h
 }
 
-internal val ed25519 = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
-
-fun getEdDSAPrivateKeyFromString(base64: String): EdDSAPrivateKey {
-    val privateSpec = EdDSAPrivateKeySpec(base64.base64Decode().copyOfRange(0, 32), ed25519)
-    return EdDSAPrivateKey(privateSpec)
+fun publicKeyToCurve25519(publicKey: ByteArray): ByteArray {
+    val p = publicKey.map { it.toInt().toByte() }.toByteArray()
+    val x = edwardsToMontgomeryX(Field25519.expand(p))
+    return Field25519.contract(x)
 }
 
-fun decryASEKey(src: String, privateKey: EdDSAPrivateKey): String? {
+private fun edwardsToMontgomeryX(y: LongArray): LongArray {
+    val oneMinusY = LongArray(Field25519.LIMB_CNT)
+    oneMinusY[0] = 1
+    Field25519.sub(oneMinusY, oneMinusY, y)
+    Field25519.inverse(oneMinusY, oneMinusY)
+
+    val outX = LongArray(Field25519.LIMB_CNT)
+    outX[0] = 1
+    Field25519.sum(outX, y)
+
+    Field25519.mult(outX, outX, oneMinusY)
+    return outX
+}
+
+fun String.sha256(): ByteArray = toByteArray().sha256()
+
+fun ByteArray.sha256(): ByteArray {
+    val md = MessageDigest.getInstance("SHA256")
+    return md.digest(this)
+}
+
+fun String.sha3Sum256(): ByteArray {
+    return digestKeccak(KeccakParameter.SHA3_256)
+}
+
+fun ByteArray.sha3Sum256(): ByteArray {
+    return digestKeccak(KeccakParameter.SHA3_256)
+}
+
+fun decryASEKey(src: String, privateKey: ByteArray): String? {
     return Base64.getEncoder().encodeToString(
         calculateAgreement(
             Base64.getUrlDecoder().decode(src),
-            privateKeyToCurve25519(privateKey.seed)
+            privateKeyToCurve25519(privateKey)
         )
     )
 }
@@ -77,25 +126,6 @@ fun generateAesKey(): ByteArray {
     val key = ByteArray(16)
     secureRandom.nextBytes(key)
     return key
-}
-
-fun publicKeyToCurve25519(publicKey: EdDSAPublicKey): ByteArray {
-    val p = publicKey.abyte.map { it.toInt().toByte() }.toByteArray()
-    val public = EdDSAPublicKey(EdDSAPublicKeySpec(p, ed25519))
-    val groupElement = public.a
-    val x = edwardsToMontgomeryX(groupElement.y)
-    return x.toByteArray()
-}
-private fun edwardsToMontgomeryX(y: FieldElement): FieldElement {
-    val field = ed25519.curve.field
-    var oneMinusY = field.ONE
-    oneMinusY = oneMinusY.subtract(y)
-    oneMinusY = oneMinusY.invert()
-
-    var outX = field.ONE
-    outX = outX.add(y)
-
-    return oneMinusY.multiply(outX)
 }
 
 fun aesGcmEncrypt(plain: ByteArray, key: ByteArray): ByteArray {

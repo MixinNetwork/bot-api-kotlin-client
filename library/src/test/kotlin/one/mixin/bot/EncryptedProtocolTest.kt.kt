@@ -2,8 +2,6 @@ package one.mixin.bot
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import net.i2p.crypto.eddsa.EdDSAPublicKey
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.toByteArray
 import one.mixin.bot.util.EncryptedProtocol
@@ -86,16 +84,13 @@ class EncryptedProtocolTest {
         val encryptedProtocol = EncryptedProtocol()
 
         val senderKeyPair = generateEd25519KeyPair()
-        val senderPrivateKey = senderKeyPair.private as EdDSAPrivateKey
 
         val receiverKeyPair = generateEd25519KeyPair()
-        val receiverPrivateKey = receiverKeyPair.private as EdDSAPrivateKey
-        val receiverPublicKey = receiverKeyPair.public as EdDSAPublicKey
-        val receiverCurvePublicKey = publicKeyToCurve25519(receiverPublicKey)
+        val receiverCurvePublicKey = publicKeyToCurve25519(receiverKeyPair.publicKey)
 
-        val encodedContent = encryptedProtocol.encryptMessage(senderPrivateKey, content, receiverCurvePublicKey, otherSessionId)
+        val encodedContent = encryptedProtocol.encryptMessage(senderKeyPair, content, receiverCurvePublicKey, otherSessionId)
 
-        val decryptedContent = encryptedProtocol.decryptMessage(receiverPrivateKey, UUID.fromString(otherSessionId).toByteArray(), encodedContent)
+        val decryptedContent = encryptedProtocol.decryptMessage(receiverKeyPair, UUID.fromString(otherSessionId).toByteArray(), encodedContent)
 
         assert(decryptedContent.contentEquals(content))
     }
@@ -103,20 +98,14 @@ class EncryptedProtocolTest {
     @Test
     fun calculateAgreement() {
         val senderKeyPair = generateEd25519KeyPair()
-        val senderPrivateKey = senderKeyPair.private as EdDSAPrivateKey
-        val senderPublicKey = senderKeyPair.public as EdDSAPublicKey
-
         val receiverKeyPair = generateEd25519KeyPair()
-        val receiverPrivateKey = receiverKeyPair.private as EdDSAPrivateKey
-        val receiverPublicKey = receiverKeyPair.public as EdDSAPublicKey
-
-        val senderPrivate = privateKeyToCurve25519(senderPrivateKey.seed)
+        val senderPrivate = privateKeyToCurve25519(senderKeyPair.privateKey)
         val senderSecret =
-            calculateAgreement(publicKeyToCurve25519(receiverPublicKey), senderPrivate)
+            calculateAgreement(publicKeyToCurve25519(receiverKeyPair.publicKey), senderPrivate)
 
-        val receiverPrivate = privateKeyToCurve25519(receiverPrivateKey.seed)
+        val receiverPrivate = privateKeyToCurve25519(receiverKeyPair.privateKey)
         val receiverSecret =
-            calculateAgreement(publicKeyToCurve25519(senderPublicKey), receiverPrivate)
+            calculateAgreement(publicKeyToCurve25519(senderKeyPair.publicKey), receiverPrivate)
 
         assert(senderSecret.contentEquals(receiverSecret))
     }

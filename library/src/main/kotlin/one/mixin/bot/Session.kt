@@ -13,6 +13,7 @@ import one.mixin.bot.extension.bodyToString
 import one.mixin.bot.extension.path
 import one.mixin.bot.extension.toLeByteArray
 import one.mixin.bot.util.aesEncrypt
+import one.mixin.bot.util.initFromSeedAndSign
 
 fun signToken(userId: String, sessionId: String, method: String, path: String, body: String?, key: Key): String {
     val expire = System.currentTimeMillis() / 1000 + 1800
@@ -49,7 +50,29 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
 }
 
 @JvmOverloads
-fun encryptPin(key: String, pin: String, iterator: Long = System.currentTimeMillis() * 1_000_000): String {
-    val pinByte = pin.toByteArray() + (System.currentTimeMillis() / 1000).toLeByteArray() + iterator.toLeByteArray()
-    return aesEncrypt(key.base64Decode(), pinByte).base64Encode()
+fun encryptPin(
+    pinToken: String,
+    pin: String,
+    iterator: Long = System.currentTimeMillis() * 1_000_000,
+): String = encryptPin(pinToken, pin.toByteArray(), iterator)
+
+@JvmOverloads
+fun encryptPin(
+    pinToken: String,
+    signTarget: ByteArray,
+    iterator: Long = System.currentTimeMillis() * 1_000_000,
+): String {
+    val pinByte = signTarget + (System.currentTimeMillis() / 1000).toLeByteArray() + iterator.toLeByteArray()
+    return aesEncrypt(pinToken.base64Decode(), pinByte).base64Encode()
+}
+
+fun encryptTipPin(
+    pinToken: String,
+    signTarget: ByteArray,
+    tipPriv: ByteArray,
+    iterator: Long = System.currentTimeMillis() * 1_000_000,
+): String {
+    val sig = initFromSeedAndSign(tipPriv, signTarget)
+    val pinByte = sig + (System.currentTimeMillis() / 1000).toLeByteArray() + iterator.toLeByteArray()
+    return aesEncrypt(pinToken.base64Decode(), pinByte).base64Encode()
 }

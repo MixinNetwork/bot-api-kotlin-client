@@ -1,5 +1,7 @@
 package one.mixin.bot.util
 
+import okio.Buffer
+
 @ExperimentalUnsignedTypes
 fun toLeByteArray(v: UInt): ByteArray {
     val b = ByteArray(2)
@@ -11,4 +13,10 @@ fun toLeByteArray(v: UInt): ByteArray {
 @ExperimentalUnsignedTypes
 fun leByteArrayToInt(bytes: ByteArray): UInt {
     return bytes[0].toUInt() + (bytes[1].toUInt() shl 8)
+}
+
+fun Long.toBeByteArray(): ByteArray {
+    val buffer = Buffer()
+    buffer.writeLong(this)
+    return buffer.readByteArray()
 }

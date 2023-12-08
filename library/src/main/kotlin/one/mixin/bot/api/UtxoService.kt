@@ -1,6 +1,6 @@
 package one.mixin.bot.api
 
-import one.mixin.bot.api.call.UserCallService
-import one.mixin.bot.api.coroutine.UserCoroutineService
+import one.mixin.bot.api.call.UtxoCallService
+import one.mixin.bot.api.coroutine.UtxoCoroutineService
 
-interface UtxoService : UserCallService, UserCoroutineService
+interface UtxoService : UtxoCallService, UtxoCoroutineService

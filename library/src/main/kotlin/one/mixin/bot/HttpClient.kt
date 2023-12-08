@@ -3,12 +3,11 @@ package one.mixin.bot
 import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import java.security.Security
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import okhttp3.OkHttpClient
 import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.* //ktlint-disable
-import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.tip.EdKeyPair
 import one.mixin.bot.util.createHttpClient
 import one.mixin.bot.util.getRSAPrivateKeyFromString
 import one.mixin.bot.vo.RpcRequest
@@ -81,6 +80,10 @@ class HttpClient private constructor(
         retrofit.create(AttachmentService::class.java)
     }
 
+    val utxoService: UtxoService by lazy {
+        retrofit.create(UtxoService::class.java)
+    }
+
     val externalService: ExternalService by lazy {
         object : ExternalService {
             override fun getUtxoCall(hash: String, index: Int): Call<JsonObject> {
@@ -108,9 +111,9 @@ class HttpClient private constructor(
         fun configEdDSA(
             userId: String,
             sessionId: String,
-            privateKey: EdDSAPrivateKey
+            keyPair: EdKeyPair,
         ): Builder {
-            clientToken = SessionToken.EdDSA(userId, sessionId, privateKey.seed.base64Encode())
+            clientToken = SessionToken.EdDSA(userId, sessionId, keyPair)
             return this
         }
 

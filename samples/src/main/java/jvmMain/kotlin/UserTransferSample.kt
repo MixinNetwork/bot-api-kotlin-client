@@ -2,8 +2,6 @@ package jvmMain.kotlin
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import net.i2p.crypto.eddsa.EdDSAPublicKey
 import one.mixin.bot.HttpClient
 import one.mixin.bot.SessionToken
 import one.mixin.bot.extension.base64Decode
@@ -11,32 +9,31 @@ import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.util.calculateAgreement
 import one.mixin.bot.util.decryASEKey
 import one.mixin.bot.util.generateEd25519KeyPair
-import one.mixin.bot.util.getEdDSAPrivateKeyFromString
+import one.mixin.bot.util.newKeyPairFromPrivateKey
 import one.mixin.bot.util.privateKeyToCurve25519
 
 fun main() = runBlocking {
-    val key = getEdDSAPrivateKeyFromString(Config.privateKey)
-    val pinToken = decryASEKey(Config.pinTokenPem, key) ?: return@runBlocking
+    val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
+    val pinToken = decryASEKey(Config.pinTokenPem, keyPair.privateKey) ?: return@runBlocking
     val client =
-        HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, key).build()
+        HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, keyPair).build()
 
     // create alice keys
     val aliceSessionKey = generateEd25519KeyPair()
-    val alicePublicKey = aliceSessionKey.public as EdDSAPublicKey
-    val aliceSessionSecret = alicePublicKey.abyte.base64Encode()
+    val aliceSessionSecret = aliceSessionKey.publicKey.base64Encode()
 
     // create alice
     val alice = createUser(client, aliceSessionSecret)
     alice ?: return@runBlocking
     println("alice: $alice")
     val aliceToken = SessionToken.EdDSA(
-        alice.userId, alice.sessionId,
-        (aliceSessionKey.private as EdDSAPrivateKey).seed.base64Encode()
+        alice.userId,
+        alice.sessionId,
+        aliceSessionKey,
     )
     client.setUserToken(aliceToken)
     // decrypt pin token
-    val alicePrivateKey = aliceSessionKey.private as EdDSAPrivateKey
-    val aliceAesKey = calculateAgreement(alice.pinToken.base64Decode(), privateKeyToCurve25519(alicePrivateKey.seed)).base64Encode()
+    val aliceAesKey = calculateAgreement(alice.pinToken.base64Decode(), privateKeyToCurve25519(aliceSessionKey.privateKey)).base64Encode()
     // create alice's pin
     createPin(client, aliceAesKey)
 
@@ -44,21 +41,20 @@ fun main() = runBlocking {
     client.setUserToken(null)
     // create bob keys
     val bobSessionKey = generateEd25519KeyPair()
-    val bobPublicKey = bobSessionKey.public as EdDSAPublicKey
-    val bobSessionSecret = bobPublicKey.abyte.base64Encode()
+    val bobSessionSecret = bobSessionKey.publicKey.base64Encode()
 
     // create bob
     val bob = createUser(client, bobSessionSecret)
     bob ?: return@runBlocking
     println("bob: $bob")
     val bobToken = SessionToken.EdDSA(
-        bob.userId, bob.sessionId,
-        (bobSessionKey.private as EdDSAPrivateKey).seed.base64Encode()
+        bob.userId,
+        bob.sessionId,
+        bobSessionKey,
     )
     client.setUserToken(bobToken)
     // decrypt pin token
-    val bobPrivateKey = bobSessionKey.private as EdDSAPrivateKey
-    val bobAesKey = calculateAgreement(bob.pinToken.base64Decode(), privateKeyToCurve25519(bobPrivateKey.seed)).base64Encode()
+    val bobAesKey = calculateAgreement(bob.pinToken.base64Decode(), privateKeyToCurve25519(bobSessionKey.privateKey)).base64Encode()
     // create bob's pin
     createPin(client, bobAesKey)
 

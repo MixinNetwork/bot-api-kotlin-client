@@ -1,10 +1,10 @@
+@file:OptIn(ExperimentalStdlibApi::class)
+
 package jvmMain.kotlin
 
 import jvmMain.kotlin.Config.pin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import net.i2p.crypto.eddsa.EdDSAPublicKey
 import one.mixin.bot.HttpClient
 import one.mixin.bot.SessionToken
 import one.mixin.bot.api.SnapshotService
@@ -15,7 +15,7 @@ import one.mixin.bot.util.base64Encode
 import one.mixin.bot.util.calculateAgreement
 import one.mixin.bot.util.decryASEKey
 import one.mixin.bot.util.generateEd25519KeyPair
-import one.mixin.bot.util.getEdDSAPrivateKeyFromString
+import one.mixin.bot.util.newKeyPairFromPrivateKey
 import one.mixin.bot.util.privateKeyToCurve25519
 import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.AddressRequest
@@ -36,32 +36,31 @@ import java.util.UUID
 
 const val CNB_ID = "965e5c6e-434c-3fa9-b780-c50f43cd955c"
 const val BTC_ID = "c6d0c728-2624-429b-8e0d-d9d19b6592fa"
-const val DEFAULT_PIN = "131416"
+const val DEFAULT_PIN = "5011c07b101e07b74667398d57a40e9001aa8f6c13fe0836a07a1b5f7cf71e4e"
 const val DEFAULT_AMOUNT = "0.01"
 
 fun main() = runBlocking {
-    val key = getEdDSAPrivateKeyFromString(Config.privateKey)
-    val pinToken = decryASEKey(Config.pinTokenPem, key) ?: return@runBlocking
+    val key = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
+    val pinToken = decryASEKey(Config.pinTokenPem, key.privateKey) ?: return@runBlocking
     val client =
         HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, key).build()
 
     val sessionKey = generateEd25519KeyPair()
-    val publicKey = sessionKey.public as EdDSAPublicKey
-    val sessionSecret = publicKey.abyte.base64Encode()
+    val sessionSecret = sessionKey.publicKey.base64Encode()
 
     // create user
     val user = createUser(client, sessionSecret)
     user ?: return@runBlocking
     val userToken = SessionToken.EdDSA(
         user.userId, user.sessionId,
-        (sessionKey.private as EdDSAPrivateKey).seed.base64Encode()
+        sessionKey,
     )
     client.setUserToken(userToken)
 
     // decrypt pin token
     val userAesKey: String
-    val userPrivateKey = sessionKey.private as EdDSAPrivateKey
-    userAesKey = calculateAgreement(user.pinToken.base64Decode(), privateKeyToCurve25519(userPrivateKey.seed)).base64Encode()
+    val userPrivateKey = sessionKey.privateKey
+    userAesKey = calculateAgreement(user.pinToken.base64Decode(), privateKeyToCurve25519(userPrivateKey)).base64Encode()
 
     // create user's pin
     createPin(client, userAesKey)
@@ -77,7 +76,7 @@ fun main() = runBlocking {
         SessionToken.EdDSA(
             user.userId,
             user.sessionId,
-            userPrivateKey.seed.base64Encode()
+            sessionKey,
         )
     )
 
@@ -129,12 +128,12 @@ internal suspend fun createUser(client: HttpClient, sessionSecret: String): User
 
 internal suspend fun createPin(client: HttpClient, userAesKey: String) {
     val response = client.userService.createPin(
-        PinRequest(encryptPin(userAesKey, DEFAULT_PIN))
+        PinRequest(encryptPin(userAesKey, DEFAULT_PIN.hexToByteArray()))
     )
     if (response.isSuccess()) {
         println("Create pin success ${response.data?.userId}")
     } else {
-        println("Create pin failure")
+        println("Create pin failure ${response.error}")
     }
 }
 
@@ -149,7 +148,7 @@ internal suspend fun transferToUser(
             CNB_ID,
             userId,
             DEFAULT_AMOUNT,
-            encryptPin(aseKey, pin)
+            encryptPin(aseKey, pin.toByteArray())
         )
     )
     var snapshot: Snapshot? = null

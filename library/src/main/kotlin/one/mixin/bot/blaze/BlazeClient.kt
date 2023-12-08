@@ -3,14 +3,13 @@
 package one.mixin.bot.blaze
 
 import com.google.gson.Gson
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import okhttp3.* //ktlint-disable
 import okio.ByteString
 import one.mixin.bot.Constants
 import one.mixin.bot.SessionToken
 import one.mixin.bot.blaze.msg.Buttons
 import one.mixin.bot.blaze.msg.Cards
-import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.tip.EdKeyPair
 import one.mixin.bot.util.* //ktlint-disable
 import java.util.* //ktlint-disable
 
@@ -83,8 +82,8 @@ class BlazeClient private constructor(
         private var blazeHandler: BlazeHandler = DefaultBlazeHandler()
         private var autoSwitch: Boolean = false
 
-        fun configEdDSA(userId: String, sessionId: String, privateKey: EdDSAPrivateKey): Builder {
-            clientToken = SessionToken.EdDSA(userId, sessionId, privateKey.seed.base64Encode())
+        fun configEdDSA(userId: String, sessionId: String, keyPair: EdKeyPair): Builder {
+            clientToken = SessionToken.EdDSA(userId, sessionId, keyPair)
             return this
         }
 

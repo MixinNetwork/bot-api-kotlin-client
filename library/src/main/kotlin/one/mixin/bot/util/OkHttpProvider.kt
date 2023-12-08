@@ -1,18 +1,17 @@
 package one.mixin.bot.util
 
+import io.jsonwebtoken.EdDSAPrivateKey
 import java.util.*
 import java.util.concurrent.TimeUnit
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import okio.ByteString.Companion.toByteString
 import one.mixin.bot.Constants
 import one.mixin.bot.SessionToken
 import one.mixin.bot.api.exception.ClientErrorException
 import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.extension.HostSelectionInterceptor
-import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.isNeedSwitch
 import one.mixin.bot.signToken
 
@@ -69,9 +68,8 @@ fun createHttpClient(userSessionToken: SessionToken?, clientToken: SessionToken,
                         if (token is SessionToken.RSA) {
                             token.privateKey
                         } else {
-                            val seed = (token as SessionToken.EdDSA).seed
-                            val privateSpec = EdDSAPrivateKeySpec(seed.base64Decode(), ed25519)
-                            EdDSAPrivateKey(privateSpec)
+                            token as SessionToken.EdDSA
+                            EdDSAPrivateKey(token.keyPair.privateKey.toByteString())
                         }
                     )
                 }

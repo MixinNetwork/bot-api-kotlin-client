@@ -1,16 +1,16 @@
 package jvmMain.java;
 
 import kotlin.Unit;
-import net.i2p.crypto.eddsa.EdDSAPrivateKey;
-import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import one.mixin.bot.HttpClient;
 import one.mixin.bot.SessionToken;
 import one.mixin.bot.api.MixinResponse;
+import one.mixin.bot.extension.Base64ExtensionKt;
+import one.mixin.bot.tip.EdKeyPair;
 import one.mixin.bot.util.ConversationUtil;
+import one.mixin.bot.util.CryptoUtilKt;
 import one.mixin.bot.vo.*;
 
 import java.io.IOException;
-import java.security.KeyPair;
 import java.util.*;
 
 import static jvmMain.java.Config.*;
@@ -28,14 +28,13 @@ public class Sample {
     final static String amount = "0.001";
 
     public static void main(String[] args) {
-        EdDSAPrivateKey key = getEdDSAPrivateKeyFromString(privateKey);
-        String pinToken = decryASEKey(pinTokenPem, key);
+        EdKeyPair key = CryptoUtilKt.newKeyPairFromPrivateKey(Base64ExtensionKt.base64Decode(privateKey));
+        String pinToken = decryASEKey(pinTokenPem, key.getPrivateKey());
         HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key).enableDebug().enableAutoSwitch().build();
         try {
             utxo(client);
-            KeyPair sessionKey = generateEd25519KeyPair();
-            EdDSAPublicKey publicKey = (EdDSAPublicKey) (sessionKey.getPublic());
-            String sessionSecret = base64Encode(publicKey.getAbyte());
+            EdKeyPair sessionKey = generateEd25519KeyPair();
+            String sessionSecret = base64Encode(sessionKey.getPublicKey());
 
             // searchUser(client);
 
@@ -43,12 +42,11 @@ public class Sample {
 
             User user = createUser(client, sessionSecret);
             assert user != null;
-            client.setUserToken(getUserToken(user, sessionKey, false));
+            client.setUserToken(getUserToken(user, sessionKey));
 
             // decrypt pin token
             String userAesKey;
-            EdDSAPrivateKey userPrivateKey = (EdDSAPrivateKey) sessionKey.getPrivate();
-            userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), privateKeyToCurve25519(userPrivateKey.getSeed())));
+            userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), privateKeyToCurve25519(sessionKey.getPrivateKey())));
 
             // get ticker
             getTicker(client);
@@ -71,7 +69,7 @@ public class Sample {
 
             Thread.sleep(2000);
             // Use user's token
-            client.setUserToken(getUserToken(user, sessionKey, false));
+            client.setUserToken(getUserToken(user, sessionKey));
             getAsset(client);
 
             // Create address
@@ -134,7 +132,7 @@ public class Sample {
     }
 
     private static void pinVerifyCall(HttpClient client,String userAesKey,String pin) throws IOException{
-        MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin)), null)).execute().body();
+        MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin)), null, null, null)).execute().body();
         if (pinResponse.isSuccess()) {
             System.out.printf("Pin verifyCall success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
         } else {
@@ -175,7 +173,7 @@ public class Sample {
     }
 
     private static void createPin(HttpClient client, String userAesKey) throws IOException {
-        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin)), null)).execute().body();
+        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin)), null, null, null)).execute().body();
         assert pinResponse != null;
         if (pinResponse.isSuccess()) {
             System.out.printf("Create pin success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
@@ -294,13 +292,8 @@ public class Sample {
 //        }
     }
 
-    private static SessionToken getUserToken(User user, KeyPair sessionKey, boolean isRsa) {
-        if (isRsa) {
-            return new SessionToken.RSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivate());
-        } else {
-            return new SessionToken.EdDSA(user.getUserId(), user.getSessionId(),
-                    base64Encode(((EdDSAPrivateKey) sessionKey.getPrivate()).getSeed()));
-        }
+    private static SessionToken getUserToken(User user, EdKeyPair sessionKey) {
+        return new SessionToken.EdDSA(user.getUserId(), user.getSessionId(), sessionKey);
     }
 
 
