@@ -12,7 +12,6 @@ import java.security.SecureRandom
 import java.security.Security
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
-import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.IvParameterSpec
@@ -110,20 +109,19 @@ fun ByteArray.sha3Sum256(): ByteArray {
     return digestKeccak(KeccakParameter.SHA3_256)
 }
 
-fun decryASEKey(src: String, privateKey: ByteArray): String? {
-    return Base64.getEncoder().encodeToString(
-        calculateAgreement(
-            Base64.getUrlDecoder().decode(src),
-            privateKeyToCurve25519(privateKey)
-        )
-    )
+fun decryptPinToken(
+    serverPublicKey: ByteArray,
+    privateKey: ByteArray,
+): ByteArray {
+    val private = privateKeyToCurve25519(privateKey)
+    return calculateAgreement(serverPublicKey, private)
 }
 
 private val secureRandom: SecureRandom = SecureRandom()
 private const val GCM_IV_LENGTH = 12
 
-fun generateAesKey(): ByteArray {
-    val key = ByteArray(16)
+fun generateRandomBytes(size: Int = 16): ByteArray {
+    val key = ByteArray(size)
     secureRandom.nextBytes(key)
     return key
 }

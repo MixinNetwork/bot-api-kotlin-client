@@ -1,22 +1,21 @@
-@file:OptIn(ExperimentalStdlibApi::class)
-
 package jvmMain.kotlin
 
 import jvmMain.kotlin.Config.pin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import one.mixin.bot.HttpClient
-import one.mixin.bot.SessionToken
 import one.mixin.bot.api.SnapshotService
 import one.mixin.bot.encryptPin
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.extension.base64UrlDecode
+import one.mixin.bot.extension.hexStringToByteArray
 import one.mixin.bot.util.base64Encode
-import one.mixin.bot.util.calculateAgreement
-import one.mixin.bot.util.decryASEKey
+import one.mixin.bot.util.decryptPinToken
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.newKeyPairFromPrivateKey
-import one.mixin.bot.util.privateKeyToCurve25519
+import one.mixin.bot.util.newKeyPairFromSeed
+import one.mixin.bot.util.toBeByteArray
 import one.mixin.bot.vo.AccountRequest
 import one.mixin.bot.vo.AddressRequest
 import one.mixin.bot.vo.ConversationRequest
@@ -36,83 +35,66 @@ import java.util.UUID
 
 const val CNB_ID = "965e5c6e-434c-3fa9-b780-c50f43cd955c"
 const val BTC_ID = "c6d0c728-2624-429b-8e0d-d9d19b6592fa"
-const val DEFAULT_PIN = "5011c07b101e07b74667398d57a40e9001aa8f6c13fe0836a07a1b5f7cf71e4e"
+const val DEFAULT_PIN = "131416"
+const val DEFAULT_TIP_PIN = "5011c07b101e07b74667398d57a40e9001aa8f6c13fe0836a07a1b5f7cf71e4e"
 const val DEFAULT_AMOUNT = "0.01"
 
 fun main() = runBlocking {
-    val key = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
-    val pinToken = decryASEKey(Config.pinTokenPem, key.privateKey) ?: return@runBlocking
-    val client =
-        HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, key).build()
-
-    val sessionKey = generateEd25519KeyPair()
-    val sessionSecret = sessionKey.publicKey.base64Encode()
+    val key = newKeyPairFromPrivateKey(Config.privateKey.base64UrlDecode())
+    val pinToken = decryptPinToken(Config.pinTokenPem.base64UrlDecode(), key.privateKey)
+    val botClient = HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, key).enableDebug().build()
 
     // create user
-    val user = createUser(client, sessionSecret)
+    val sessionKey = generateEd25519KeyPair()
+    val sessionSecret = sessionKey.publicKey.base64Encode()
+    val user = createUser(botClient, sessionSecret)
     user ?: return@runBlocking
-    val userToken = SessionToken.EdDSA(
-        user.userId, user.sessionId,
-        sessionKey,
-    )
-    client.setUserToken(userToken)
+    val userClient = HttpClient.Builder().useCNServer().configEdDSA(user.userId, user.sessionId, sessionKey).enableDebug().build()
+    userClient.userService.getMe()
 
     // decrypt pin token
-    val userAesKey: String
     val userPrivateKey = sessionKey.privateKey
-    userAesKey = calculateAgreement(user.pinToken.base64Decode(), privateKeyToCurve25519(userPrivateKey)).base64Encode()
+    val userAesKey = decryptPinToken(user.pinToken.base64Decode(), userPrivateKey)
 
     // create user's pin
-    createPin(client, userAesKey)
+    createPin(userClient, userAesKey)
 
-    // Use bot's token
-    client.setUserToken(null)
     // bot transfer to user
-    transferToUser(client, user.userId, pinToken, pin)
+    transferToUser(botClient, user.userId, pinToken, pin)
 
     delay(2000)
-    // Use user's token
-    client.setUserToken(
-        SessionToken.EdDSA(
-            user.userId,
-            user.sessionId,
-            sessionKey,
-        )
-    )
 
     // Get ticker
-    getTicker(client)
+    getTicker(userClient)
 
     // Get fiats
-    getFiats(client)
+    getFiats(userClient)
 
     // Get BTC fee
-    getFee(client)
+    getFee(userClient)
 
     // Get asset
-    getAsset(client)
+    getAsset(userClient)
 
     // Create address
-    val addressId = createAddress(client, userAesKey)
+    val addressId = createAddress(userClient, userAesKey)
     if (addressId != null) {
         // Withdrawal
-        withdrawalToAddress(client, addressId, userAesKey)
+        withdrawalToAddress(userClient, addressId, userAesKey)
     }
 
-    // Use bot's token
-    client.setUserToken(null)
     // Send text message
-    sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Text message")
+    sendTextMessage(botClient, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Text message")
 
-    createConversationAndSendMessage(client, Config.userId)
+    createConversationAndSendMessage(botClient, Config.userId)
 
     // Transactions
-    transactions(client, pinToken)
+    transactions(botClient, pinToken)
 
-    networkSnapshots(client, CNB_ID)
-    networkSnapshot(client, "c8e73a02-b543-4100-bd7a-879ed4accdfc")
+    networkSnapshots(botClient, CNB_ID)
+    networkSnapshot(botClient, "c8e73a02-b543-4100-bd7a-879ed4accdfc")
 
-    readGhostKey(client)
+    readGhostKey(botClient)
     return@runBlocking
 }
 
@@ -126,9 +108,21 @@ internal suspend fun createUser(client: HttpClient, sessionSecret: String): User
     return response.data
 }
 
-internal suspend fun createPin(client: HttpClient, userAesKey: String) {
+internal suspend fun createPin(client: HttpClient, userAesKey: ByteArray) {
     val response = client.userService.createPin(
-        PinRequest(encryptPin(userAesKey, DEFAULT_PIN.hexToByteArray()))
+        PinRequest(encryptPin(userAesKey, DEFAULT_PIN.toByteArray()))
+    )
+    if (response.isSuccess()) {
+        println("Create pin success ${response.data?.userId}")
+    } else {
+        println("Create pin failure ${response.error}")
+    }
+}
+
+internal suspend fun createTipPin(client: HttpClient, userAesKey: ByteArray) {
+    val keyPair = newKeyPairFromSeed(DEFAULT_TIP_PIN.hexStringToByteArray())
+    val response = client.userService.createPin(
+        PinRequest(encryptPin(userAesKey, keyPair.publicKey + 1L.toBeByteArray()))
     )
     if (response.isSuccess()) {
         println("Create pin success ${response.data?.userId}")
@@ -140,7 +134,7 @@ internal suspend fun createPin(client: HttpClient, userAesKey: String) {
 internal suspend fun transferToUser(
     client: HttpClient,
     userId: String,
-    aseKey: String,
+    aseKey: ByteArray,
     pin: String
 ): Snapshot? {
     val response = client.snapshotService.transfer(
@@ -201,7 +195,7 @@ private suspend fun getTicker(client: HttpClient) {
     }
 }
 
-private suspend fun createAddress(client: HttpClient, userAesKey: String): String? {
+private suspend fun createAddress(client: HttpClient, userAesKey: ByteArray): String? {
     // Create address
     val addressesResponse = client.addressService.createAddresses(
         AddressRequest(
@@ -227,7 +221,7 @@ private suspend fun createAddress(client: HttpClient, userAesKey: String): Strin
 private suspend fun withdrawalToAddress(
     client: HttpClient,
     addressId: String,
-    userAesKey: String
+    userAesKey: ByteArray
 ) {
     // Withdrawals
     val withdrawalsResponse = client.snapshotService.withdrawals(
@@ -267,7 +261,7 @@ private suspend fun sendTextMessage(client: HttpClient, recipientId: String, tex
 
 private suspend fun transactions(
     client: HttpClient,
-    userAesKey: String,
+    userAesKey: ByteArray,
 ) {
     // Transactions
     val transactionsResponse = client.assetService.transactions(
@@ -342,7 +336,6 @@ private suspend fun readGhostKey(client: HttpClient) {
 }
 
 internal suspend fun createConversationAndSendMessage(client: HttpClient, botUserId: String) {
-    client.setUserToken(null)
     val botParticipant = ParticipantRequest(
         userId = botUserId,
         role = "",

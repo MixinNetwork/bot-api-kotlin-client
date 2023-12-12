@@ -1,10 +1,14 @@
-@file:OptIn(ExperimentalStdlibApi::class)
-
 package one.mixin.bot.tip
 
 import one.mixin.bot.HttpClient
 import one.mixin.bot.encryptPin
 import one.mixin.bot.encryptTipPin
+import one.mixin.bot.extension.base64Decode
+import one.mixin.bot.extension.base64UrlDecode
+import one.mixin.bot.extension.base64UrlEncode
+import one.mixin.bot.extension.hexStringToByteArray
+import one.mixin.bot.extension.toHex
+import one.mixin.bot.util.decryptPinToken
 import one.mixin.bot.util.initFromSeedAndSign
 import one.mixin.bot.util.newKeyPairFromSeed
 import one.mixin.bot.util.sha3Sum256
@@ -13,31 +17,33 @@ import one.mixin.bot.vo.Account
 import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.RegisterRequest
 
-fun updateTipPin(client: HttpClient, tipPubHex: String, pinTokenBase64: String, pin: String) {
-    val encryptedPin = encryptPin(pinTokenBase64, pin.toByteArray())
-    val tipPub = tipPubHex.hexToByteArray()
+fun updateTipPin(client: HttpClient, tipPubHex: String, sessionKeyBase64: String, pinTokenBase64: String, legacyPin: String): Account {
+    val pinToken = decryptPinToken(pinTokenBase64.base64Decode(), sessionKeyBase64.base64UrlDecode())
+    val encryptedLegacyPin = encryptPin(pinToken, legacyPin.toByteArray())
+    val tipPub = tipPubHex.hexStringToByteArray()
     if (tipPub.size != 32) {
         throw TipException("Invalid tip pub size ${tipPub.size}")
     }
-    val newEncryptedPin = encryptPin(pinTokenBase64, tipPub + 1L.toBeByteArray())
-    val pinRequest = PinRequest(newEncryptedPin, encryptedPin)
+    val newEncryptedPin = encryptPin(pinToken, tipPub + 1L.toBeByteArray())
+    val pinRequest = PinRequest(newEncryptedPin, encryptedLegacyPin)
     val resp = client.userService.updatePinCall(pinRequest).execute().body()
     if (resp == null || !resp.isSuccess()) {
-        throw TipException("Update pin failed")
+        throw TipException("Update pin failed ${resp?.error}")
     }
-    val account = resp.data as Account
-    println("account updated to tip. tipPub: ${account.tipKeyBase64}, hasSafe: ${account.hasSafe}")
+    return resp.data as Account
 }
 
-fun registerSafe(client: HttpClient, userId: String, safeSeed: String, tipPriv: ByteArray, pinTokenBase64: String): Account {
-    val seed = safeSeed.hexToByteArray()
+fun registerSafe(client: HttpClient, userId: String, safeSeedHex: String, tipPinHex: String, sessionKeyBase64: String, pinTokenBase64: String): Account {
+    val pinToken = decryptPinToken(pinTokenBase64.base64Decode(), sessionKeyBase64.base64UrlDecode())
+    val seed = safeSeedHex.hexStringToByteArray()
     val keyPair = newKeyPairFromSeed(seed)
-    val safePkHex = keyPair.publicKey.toHexString()
+    val safePkHex = keyPair.publicKey.toHex()
     val userIdHash = userId.sha3Sum256()
-    val signature = initFromSeedAndSign(keyPair.privateKey, userIdHash).toHexString()
+    val signature = initFromSeedAndSign(seed, userIdHash).base64UrlEncode()
 
     val tipBody = TipBody.forSequencerRegister(userId, safePkHex)
-    val bodySig = encryptTipPin(pinTokenBase64, tipBody, tipPriv)
+    val tipPriv = tipPinHex.hexStringToByteArray()
+    val bodySig = encryptTipPin(pinToken, tipBody, tipPriv)
 
     val meResp = client.userService.getMeCall().execute().body()
     if (meResp == null || !meResp.isSuccess()) {

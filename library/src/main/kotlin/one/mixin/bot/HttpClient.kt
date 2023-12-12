@@ -27,14 +27,8 @@ class HttpClient private constructor(
         Security.addProvider(BouncyCastleProvider())
     }
 
-    private var userSessionToken: SessionToken? = null
-
-    fun setUserToken(userSessionToken: SessionToken?) {
-        this.userSessionToken = userSessionToken
-    }
-
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(userSessionToken, clientToken, false, debug, cnServer, autoSwitch)
+        createHttpClient(clientToken, false, debug, cnServer, autoSwitch)
     }
 
     private val retrofit: Retrofit by lazy {

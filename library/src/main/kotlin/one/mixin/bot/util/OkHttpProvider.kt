@@ -15,7 +15,7 @@ import one.mixin.bot.extension.HostSelectionInterceptor
 import one.mixin.bot.extension.isNeedSwitch
 import one.mixin.bot.signToken
 
-fun createHttpClient(userSessionToken: SessionToken?, clientToken: SessionToken, websocket: Boolean, debug: Boolean, cnServer: Boolean, autoSwitch: Boolean): OkHttpClient {
+fun createHttpClient(token: SessionToken, websocket: Boolean, debug: Boolean, cnServer: Boolean, autoSwitch: Boolean): OkHttpClient {
     val builder = OkHttpClient.Builder()
     if (debug) {
         val logging = HttpLoggingInterceptor()
@@ -59,10 +59,7 @@ fun createHttpClient(userSessionToken: SessionToken?, clientToken: SessionToken,
             }
             requestBuilder.addHeader("User-Agent", Constants.UA).addHeader("Accept-Language", Locale.getDefault().language).addHeader(
                 "Authorization",
-                "Bearer " + (
-                    userSessionToken
-                        ?: clientToken
-                    ).let { token ->
+                "Bearer " +
                     signToken(
                         token.userId, token.sessionId, chain.request(),
                         if (token is SessionToken.RSA) {
@@ -72,7 +69,6 @@ fun createHttpClient(userSessionToken: SessionToken?, clientToken: SessionToken,
                             EdDSAPrivateKey(token.keyPair.privateKey.toByteString())
                         }
                     )
-                }
             )
 
             val request = requestBuilder.build()

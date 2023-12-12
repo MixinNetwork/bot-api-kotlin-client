@@ -29,7 +29,7 @@ public class Sample {
 
     public static void main(String[] args) {
         EdKeyPair key = CryptoUtilKt.newKeyPairFromPrivateKey(Base64ExtensionKt.base64Decode(privateKey));
-        String pinToken = decryASEKey(pinTokenPem, key.getPrivateKey());
+        byte[] pinToken = decryptPinToken(Base64ExtensionKt.base64Decode(pinTokenPem), key.getPrivateKey());
         HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key).enableDebug().enableAutoSwitch().build();
         try {
             utxo(client);
@@ -42,11 +42,9 @@ public class Sample {
 
             User user = createUser(client, sessionSecret);
             assert user != null;
-            client.setUserToken(getUserToken(user, sessionKey));
 
             // decrypt pin token
-            String userAesKey;
-            userAesKey = base64Encode(calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), privateKeyToCurve25519(sessionKey.getPrivateKey())));
+            byte[] userAesKey = calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), privateKeyToCurve25519(sessionKey.getPrivateKey()));
 
             // get ticker
             getTicker(client);
@@ -57,32 +55,28 @@ public class Sample {
             // get BTC fee
             getFee(client);
 
+
+            HttpClient userClient = new HttpClient.Builder().configEdDSA(user.getUserId(), user.getSessionId(), sessionKey).enableDebug().enableAutoSwitch().build();
             // create user's pin
-            createPin(client, userAesKey);
+            createPin(userClient, userAesKey);
 
-            pinVerifyCall(client, userAesKey, userPin);
+            pinVerifyCall(userClient, userAesKey, userPin);
 
-            //Use bot's token
-            client.setUserToken(null);
             // bot transfer to user
             transferToUser(client, user.getUserId(), pinToken, pin);
 
             Thread.sleep(2000);
-            // Use user's token
-            client.setUserToken(getUserToken(user, sessionKey));
-            getAsset(client);
+            getAsset(userClient);
 
             // Create address
-            String addressId = createAddress(client, userAesKey);
+            String addressId = createAddress(userClient, userAesKey);
 
             // withdrawal
-            withdrawalToAddress(client, addressId, userAesKey);
+            withdrawalToAddress(userClient, addressId, userAesKey);
 
             // Delete address
-            deleteAddress(client, addressId, userAesKey);
+            deleteAddress(userClient, addressId, userAesKey);
 
-            //Use bot's token
-            client.setUserToken(null);
             // Send text message
             sendTextMessage(client, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Test message");
 
@@ -111,7 +105,7 @@ public class Sample {
 //        System.out.printf("%s%n", Utxo.Companion.fromJson(response.getAsJsonObject("data")).getHash());
     }
 
-    private static String createAddress(HttpClient client, String userAesKey) throws IOException {
+    private static String createAddress(HttpClient client, byte[] userAesKey) throws IOException {
         MixinResponse<Address> addressResponse = client.getAddressService().createAddressesCall(new AddressRequest(Sample.CNB_assetId,
                 "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
                 null,
@@ -131,7 +125,7 @@ public class Sample {
         }
     }
 
-    private static void pinVerifyCall(HttpClient client,String userAesKey,String pin) throws IOException{
+    private static void pinVerifyCall(HttpClient client,byte[] userAesKey,String pin) throws IOException{
         MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin)), null, null, null)).execute().body();
         if (pinResponse.isSuccess()) {
             System.out.printf("Pin verifyCall success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
@@ -172,7 +166,7 @@ public class Sample {
         }
     }
 
-    private static void createPin(HttpClient client, String userAesKey) throws IOException {
+    private static void createPin(HttpClient client, byte[] userAesKey) throws IOException {
         MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin)), null, null, null)).execute().body();
         assert pinResponse != null;
         if (pinResponse.isSuccess()) {
@@ -182,7 +176,7 @@ public class Sample {
         }
     }
 
-    private static void transferToUser(HttpClient client, String userId, String aseKey, String pin) throws IOException {
+    private static void transferToUser(HttpClient client, String userId, byte[] aseKey, String pin) throws IOException {
         MixinResponse<Snapshot> transferResponse = client.getSnapshotService().transferCall(
                 new TransferRequest(Sample.CNB_assetId, userId, Sample.amount, encryptPin(aseKey, pin, System.currentTimeMillis() * 1_000_000), null, null, null)).execute().body();
         assert transferResponse != null;
@@ -218,7 +212,7 @@ public class Sample {
     }
 
 
-    private static void withdrawalToAddress(HttpClient client, String addressId, String userAesKey) throws IOException {
+    private static void withdrawalToAddress(HttpClient client, String addressId, byte[] userAesKey) throws IOException {
         MixinResponse<Snapshot> withdrawalsResponse = client.getSnapshotService().withdrawalsCall(new WithdrawalRequest(addressId, Sample.amount, Objects.requireNonNull(encryptPin(
                 userAesKey,
                 Sample.userPin
@@ -232,7 +226,7 @@ public class Sample {
         }
     }
 
-    private static void deleteAddress(HttpClient client, String addressId, String userAesKey) throws IOException {
+    private static void deleteAddress(HttpClient client, String addressId, byte[] userAesKey) throws IOException {
         MixinResponse<Unit> deleteResponse = client.getAddressService().deleteCall(addressId, new Pin(Objects.requireNonNull(encryptPin(
                 userAesKey,
                 Sample.userPin
@@ -297,7 +291,7 @@ public class Sample {
     }
 
 
-    private static void transactions(HttpClient client, List<String> receivers, String aseKey, String pin) throws IOException {
+    private static void transactions(HttpClient client, List<String> receivers, byte[] aseKey, String pin) throws IOException {
         MixinResponse<TransactionResponse> transactionResponse = client.getAssetService().transactionsCall(
                 new TransactionRequest(Sample.CNB_assetId, new OpponentMultisig(
                         receivers,
@@ -312,7 +306,7 @@ public class Sample {
         }
     }
 
-    private static void transactionsOpponentKey(HttpClient client, String opponentKey, String aseKey, String pin) throws IOException {
+    private static void transactionsOpponentKey(HttpClient client, String opponentKey, byte[] aseKey, String pin) throws IOException {
         MixinResponse<TransactionResponse> transactionResponse = client.getAssetService().transactionsCall(
                 new TransactionRequest(Sample.CNB_assetId, null, opponentKey, Sample.amount, encryptPin(aseKey, pin)
                         , null, null)).execute().body();
@@ -365,7 +359,6 @@ public class Sample {
     }
 
     private static void createConversationAndSendMessage(HttpClient client, String botUserId) throws IOException {
-        client.setUserToken(null);
         List<ParticipantRequest> list = new ArrayList<>();
         ParticipantRequest botParticipant = new ParticipantRequest(botUserId, "", null);
         ParticipantRequest userParticipant = new ParticipantRequest("e26808d4-b31f-4e3b-9521-19e529b967b0", "", null);

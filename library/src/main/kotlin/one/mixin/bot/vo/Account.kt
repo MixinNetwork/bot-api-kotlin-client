@@ -2,7 +2,7 @@ package one.mixin.bot.vo
 
 import com.google.gson.annotations.SerializedName
 
-class Account(
+data class Account(
     @SerializedName("user_id")
     val userId: String,
     @SerializedName("session_id")

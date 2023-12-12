@@ -7,7 +7,6 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import okhttp3.Request
 import okio.ByteString.Companion.encode
-import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.bodyToString
 import one.mixin.bot.extension.path
@@ -51,28 +50,29 @@ fun signToken(userId: String, sessionId: String, request: Request, key: Key): St
 
 @JvmOverloads
 fun encryptPin(
-    pinToken: String,
+    pinToken: ByteArray,
     pin: String,
     iterator: Long = System.currentTimeMillis() * 1_000_000,
 ): String = encryptPin(pinToken, pin.toByteArray(), iterator)
 
 @JvmOverloads
 fun encryptPin(
-    pinToken: String,
+    pinToken: ByteArray,
     signTarget: ByteArray,
     iterator: Long = System.currentTimeMillis() * 1_000_000,
 ): String {
     val pinByte = signTarget + (System.currentTimeMillis() / 1000).toLeByteArray() + iterator.toLeByteArray()
-    return aesEncrypt(pinToken.base64Decode(), pinByte).base64Encode()
+    return aesEncrypt(pinToken, pinByte).base64Encode()
 }
 
+@JvmOverloads
 fun encryptTipPin(
-    pinToken: String,
+    pinToken: ByteArray,
     signTarget: ByteArray,
     tipPriv: ByteArray,
     iterator: Long = System.currentTimeMillis() * 1_000_000,
 ): String {
     val sig = initFromSeedAndSign(tipPriv, signTarget)
     val pinByte = sig + (System.currentTimeMillis() / 1000).toLeByteArray() + iterator.toLeByteArray()
-    return aesEncrypt(pinToken.base64Decode(), pinByte).base64Encode()
+    return aesEncrypt(pinToken, pinByte).base64Encode()
 }

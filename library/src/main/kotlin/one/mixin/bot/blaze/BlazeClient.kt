@@ -31,10 +31,8 @@ class BlazeClient private constructor(
     private var connectCount = 0
     private var reconnectInterval = 5000
 
-    private var userSessionToken: SessionToken? = null
-
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(userSessionToken, clientToken, true, debug, cnServer, autoSwitch)
+        createHttpClient(clientToken, true, debug, cnServer, autoSwitch)
     }
 
     private var webSocket: WebSocket? = null

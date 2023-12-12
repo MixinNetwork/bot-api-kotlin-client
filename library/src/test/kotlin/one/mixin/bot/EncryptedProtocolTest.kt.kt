@@ -9,7 +9,7 @@ import one.mixin.bot.util.aesDecrypt
 import one.mixin.bot.util.aesEncrypt
 import one.mixin.bot.util.base64Decode
 import one.mixin.bot.util.calculateAgreement
-import one.mixin.bot.util.generateAesKey
+import one.mixin.bot.util.generateRandomBytes
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.privateKeyToCurve25519
 import one.mixin.bot.util.publicKeyToCurve25519
@@ -37,7 +37,7 @@ class EncryptedProtocolTest {
     @Test
     fun testAes() {
         val content = "LA".toByteArray()
-        val aesGcmKey = generateAesKey()
+        val aesGcmKey = generateRandomBytes()
         val encodedContent = aesEncrypt(aesGcmKey, content)
         val decryptedContent = aesDecrypt(
             aesGcmKey,
