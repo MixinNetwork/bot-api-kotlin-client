@@ -1,4 +1,4 @@
-package one.mixin.bot.tip
+package one.mixin.bot.safe
 
 import one.mixin.bot.HttpClient
 import one.mixin.bot.encryptPin

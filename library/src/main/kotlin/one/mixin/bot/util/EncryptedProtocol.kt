@@ -2,7 +2,7 @@ package one.mixin.bot.util
 
 import java.util.UUID
 import one.mixin.bot.extension.toByteArray
-import one.mixin.bot.tip.EdKeyPair
+import one.mixin.bot.safe.EdKeyPair
 
 class EncryptedProtocol {
 

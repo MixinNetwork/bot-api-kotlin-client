@@ -1,7 +1,7 @@
 package jvmMain.java;
 
 import one.mixin.bot.extension.UUIDExtensionKt;
-import one.mixin.bot.tip.EdKeyPair;
+import one.mixin.bot.safe.EdKeyPair;
 import one.mixin.bot.util.EncryptedProtocol;
 
 import java.util.Arrays;

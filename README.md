@@ -69,7 +69,7 @@ fun main(): Unit = runBlocking {
     val job = launch {
         val key = getEdDSAPrivateKeyFromString(Config.privateKey)
         val blazeClient = BlazeClient.Builder()
-            .configEdDSA(Config.userId, Config.sessionId, key)
+            .configEdDSA(Config.userId, Config.sessionId, key.privateKey)
             .enableDebug()
             .enableParseData()
             .enableAutoAck()

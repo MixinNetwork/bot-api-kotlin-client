@@ -1,4 +1,4 @@
-package one.mixin.bot.tip
+package one.mixin.bot.safe
 
 class TipException : Exception {
     constructor(message: String) : super(message)

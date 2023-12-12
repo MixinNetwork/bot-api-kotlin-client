@@ -2,10 +2,9 @@ package jvmMain.java;
 
 import kotlin.Unit;
 import one.mixin.bot.HttpClient;
-import one.mixin.bot.SessionToken;
 import one.mixin.bot.api.MixinResponse;
 import one.mixin.bot.extension.Base64ExtensionKt;
-import one.mixin.bot.tip.EdKeyPair;
+import one.mixin.bot.safe.EdKeyPair;
 import one.mixin.bot.util.ConversationUtil;
 import one.mixin.bot.util.CryptoUtilKt;
 import one.mixin.bot.vo.*;
@@ -30,7 +29,7 @@ public class Sample {
     public static void main(String[] args) {
         EdKeyPair key = CryptoUtilKt.newKeyPairFromPrivateKey(Base64ExtensionKt.base64Decode(privateKey));
         byte[] pinToken = decryptPinToken(Base64ExtensionKt.base64Decode(pinTokenPem), key.getPrivateKey());
-        HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key).enableDebug().enableAutoSwitch().build();
+        HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key.getPrivateKey(), null, null).enableDebug().enableAutoSwitch().build();
         try {
             utxo(client);
             EdKeyPair sessionKey = generateEd25519KeyPair();
@@ -56,7 +55,7 @@ public class Sample {
             getFee(client);
 
 
-            HttpClient userClient = new HttpClient.Builder().configEdDSA(user.getUserId(), user.getSessionId(), sessionKey).enableDebug().enableAutoSwitch().build();
+            HttpClient userClient = new HttpClient.Builder().configEdDSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivateKey(), null, null).enableDebug().enableAutoSwitch().build();
             // create user's pin
             createPin(userClient, userAesKey);
 
@@ -285,11 +284,6 @@ public class Sample {
 //            System.out.println("Send failure");
 //        }
     }
-
-    private static SessionToken getUserToken(User user, EdKeyPair sessionKey) {
-        return new SessionToken.EdDSA(user.getUserId(), user.getSessionId(), sessionKey);
-    }
-
 
     private static void transactions(HttpClient client, List<String> receivers, byte[] aseKey, String pin) throws IOException {
         MixinResponse<TransactionResponse> transactionResponse = client.getAssetService().transactionsCall(

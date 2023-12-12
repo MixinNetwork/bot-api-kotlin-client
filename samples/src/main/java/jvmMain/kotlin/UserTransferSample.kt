@@ -3,7 +3,6 @@ package jvmMain.kotlin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import one.mixin.bot.HttpClient
-import one.mixin.bot.SessionToken
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.util.calculateAgreement
@@ -16,7 +15,7 @@ fun main() = runBlocking {
     val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
     val pinToken = decryptPinToken(Config.pinTokenPem.base64Decode(), keyPair.privateKey)
     val client =
-        HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, keyPair).build()
+        HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, keyPair.privateKey).build()
 
     // create alice keys
     val aliceSessionKey = generateEd25519KeyPair()
@@ -26,13 +25,8 @@ fun main() = runBlocking {
     val alice = createUser(client, aliceSessionSecret)
     alice ?: return@runBlocking
     println("alice: $alice")
-    val aliceToken = SessionToken.EdDSA(
-        alice.userId,
-        alice.sessionId,
-        aliceSessionKey,
-    )
     val aliceClient =
-        HttpClient.Builder().useCNServer().configEdDSA(alice.userId, alice.sessionId, aliceSessionKey).build()
+        HttpClient.Builder().useCNServer().configEdDSA(alice.userId, alice.sessionId, aliceSessionKey.privateKey).build()
     // decrypt pin token
     val aliceAesKey = calculateAgreement(alice.pinToken.base64Decode(), privateKeyToCurve25519(aliceSessionKey.privateKey))
     // create alice's pin
@@ -46,13 +40,8 @@ fun main() = runBlocking {
     val bob = createUser(client, bobSessionSecret)
     bob ?: return@runBlocking
     println("bob: $bob")
-    val bobToken = SessionToken.EdDSA(
-        bob.userId,
-        bob.sessionId,
-        bobSessionKey,
-    )
     val bobClient =
-        HttpClient.Builder().useCNServer().configEdDSA(bob.userId, bob.sessionId, bobSessionKey).build()
+        HttpClient.Builder().useCNServer().configEdDSA(bob.userId, bob.sessionId, bobSessionKey.privateKey).build()
     // decrypt pin token
     val bobAesKey = calculateAgreement(bob.pinToken.base64Decode(), privateKeyToCurve25519(bobSessionKey.privateKey))
     // create bob's pin

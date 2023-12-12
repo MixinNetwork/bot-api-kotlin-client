@@ -6,15 +6,14 @@ import com.google.gson.Gson
 import okhttp3.* //ktlint-disable
 import okio.ByteString
 import one.mixin.bot.Constants
-import one.mixin.bot.SessionToken
 import one.mixin.bot.blaze.msg.Buttons
 import one.mixin.bot.blaze.msg.Cards
-import one.mixin.bot.tip.EdKeyPair
 import one.mixin.bot.util.* //ktlint-disable
+import one.mixin.bot.vo.safe.SafeUser
 import java.util.* //ktlint-disable
 
 class BlazeClient private constructor(
-    private val clientToken: SessionToken,
+    private val safeUser: SafeUser,
     private val cnServer: Boolean = false,
     private val blazeHandler: BlazeHandler,
     private val parseData: Boolean = false,
@@ -32,7 +31,7 @@ class BlazeClient private constructor(
     private var reconnectInterval = 5000
 
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(clientToken, true, debug, cnServer, autoSwitch)
+        createHttpClient(safeUser, true, debug, cnServer, autoSwitch)
     }
 
     private var webSocket: WebSocket? = null
@@ -72,7 +71,7 @@ class BlazeClient private constructor(
     }
 
     class Builder {
-        private lateinit var clientToken: SessionToken
+        private lateinit var safeUser: SafeUser
         private var cnServer: Boolean = false
         private var debug: Boolean = false
         private var parseData: Boolean = false
@@ -80,14 +79,14 @@ class BlazeClient private constructor(
         private var blazeHandler: BlazeHandler = DefaultBlazeHandler()
         private var autoSwitch: Boolean = false
 
-        fun configEdDSA(userId: String, sessionId: String, keyPair: EdKeyPair): Builder {
-            clientToken = SessionToken.EdDSA(userId, sessionId, keyPair)
-            return this
-        }
-
-        fun configRSA(userId: String, sessionId: String, privateKey: String): Builder {
-            val key = getRSAPrivateKeyFromString(privateKey)
-            clientToken = SessionToken.RSA(userId, sessionId, key)
+        fun configEdDSA(
+            userId: String,
+            sessionId: String,
+            sessionPrivateKey: ByteArray,
+            serverPublicKey: ByteArray? = null,
+            spendPrivateKey: ByteArray? = null,
+        ): Builder {
+            safeUser = SafeUser(userId, sessionId, sessionPrivateKey.sliceArray(0..31), serverPublicKey, spendPrivateKey)
             return this
         }
 
@@ -122,7 +121,7 @@ class BlazeClient private constructor(
         }
 
         fun build(): BlazeClient {
-            return BlazeClient(clientToken, cnServer, blazeHandler, parseData, autoAck, autoSwitch)
+            return BlazeClient(safeUser, cnServer, blazeHandler, parseData, autoAck, autoSwitch)
         }
     }
 

@@ -8,14 +8,14 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.ByteString.Companion.toByteString
 import one.mixin.bot.Constants
-import one.mixin.bot.SessionToken
 import one.mixin.bot.api.exception.ClientErrorException
 import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.extension.HostSelectionInterceptor
 import one.mixin.bot.extension.isNeedSwitch
 import one.mixin.bot.signToken
+import one.mixin.bot.vo.safe.SafeUser
 
-fun createHttpClient(token: SessionToken, websocket: Boolean, debug: Boolean, cnServer: Boolean, autoSwitch: Boolean): OkHttpClient {
+fun createHttpClient(safeUser: SafeUser, websocket: Boolean, debug: Boolean, cnServer: Boolean, autoSwitch: Boolean): OkHttpClient {
     val builder = OkHttpClient.Builder()
     if (debug) {
         val logging = HttpLoggingInterceptor()
@@ -61,13 +61,10 @@ fun createHttpClient(token: SessionToken, websocket: Boolean, debug: Boolean, cn
                 "Authorization",
                 "Bearer " +
                     signToken(
-                        token.userId, token.sessionId, chain.request(),
-                        if (token is SessionToken.RSA) {
-                            token.privateKey
-                        } else {
-                            token as SessionToken.EdDSA
-                            EdDSAPrivateKey(token.keyPair.privateKey.toByteString())
-                        }
+                        safeUser.userId,
+                        safeUser.sessionId,
+                        chain.request(),
+                        EdDSAPrivateKey(safeUser.sessionPrivateKey.toByteString())
                     )
             )
 

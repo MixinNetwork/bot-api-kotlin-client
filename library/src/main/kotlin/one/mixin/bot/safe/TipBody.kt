@@ -1,4 +1,4 @@
-package one.mixin.bot.tip
+package one.mixin.bot.safe
 
 import one.mixin.bot.extension.stripAmountZero
 import one.mixin.bot.util.sha256

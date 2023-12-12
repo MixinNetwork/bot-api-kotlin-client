@@ -7,10 +7,9 @@ import okhttp3.OkHttpClient
 import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.* //ktlint-disable
-import one.mixin.bot.tip.EdKeyPair
 import one.mixin.bot.util.createHttpClient
-import one.mixin.bot.util.getRSAPrivateKeyFromString
 import one.mixin.bot.vo.RpcRequest
+import one.mixin.bot.vo.safe.SafeUser
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -18,7 +17,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 @Suppress("unused")
 class HttpClient private constructor(
-    private val clientToken: SessionToken,
+    val safeUser: SafeUser,
     cnServer: Boolean = false,
     debug: Boolean = false,
     autoSwitch: Boolean = false
@@ -28,7 +27,7 @@ class HttpClient private constructor(
     }
 
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(clientToken, false, debug, cnServer, autoSwitch)
+        createHttpClient(safeUser, false, debug, cnServer, autoSwitch)
     }
 
     private val retrofit: Retrofit by lazy {
@@ -97,7 +96,7 @@ class HttpClient private constructor(
     }
 
     class Builder {
-        private lateinit var clientToken: SessionToken
+        private lateinit var safeUser: SafeUser
         private var cnServer: Boolean = false
         private var debug: Boolean = false
         private var autoSwitch: Boolean = false
@@ -105,20 +104,11 @@ class HttpClient private constructor(
         fun configEdDSA(
             userId: String,
             sessionId: String,
-            keyPair: EdKeyPair,
+            sessionPrivateKey: ByteArray,
+            serverPublicKey: ByteArray? = null,
+            spendPrivateKey: ByteArray? = null,
         ): Builder {
-            clientToken = SessionToken.EdDSA(userId, sessionId, keyPair)
-            return this
-        }
-
-        fun configRSA(
-            userId: String,
-            sessionId: String,
-            privateKey: String
-        ): Builder {
-            val key = getRSAPrivateKeyFromString(privateKey)
-            clientToken =
-                SessionToken.RSA(userId, sessionId, key)
+            safeUser = SafeUser(userId, sessionId, sessionPrivateKey.sliceArray(0..31), serverPublicKey, spendPrivateKey)
             return this
         }
 
@@ -138,7 +128,7 @@ class HttpClient private constructor(
         }
 
         fun build(): HttpClient {
-            return HttpClient(clientToken, cnServer, debug, autoSwitch)
+            return HttpClient(safeUser, cnServer, debug, autoSwitch)
         }
     }
 }

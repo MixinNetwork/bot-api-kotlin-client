@@ -15,7 +15,7 @@ fun main(): Unit = runBlocking {
     val job = launch {
         val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
         val blazeClient = BlazeClient.Builder()
-            .configEdDSA(Config.userId, Config.sessionId, keyPair)
+            .configEdDSA(Config.userId, Config.sessionId, keyPair.privateKey)
             .enableDebug()
             .enableParseData()
             .enableAutoAck()

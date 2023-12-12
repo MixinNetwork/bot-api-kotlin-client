@@ -10,7 +10,7 @@ import one.mixin.bot.blaze.BlazeHandler;
 import one.mixin.bot.blaze.BlazeMsg;
 import one.mixin.bot.blaze.MsgData;
 import one.mixin.bot.extension.Base64ExtensionKt;
-import one.mixin.bot.tip.EdKeyPair;
+import one.mixin.bot.safe.EdKeyPair;
 import one.mixin.bot.util.CryptoUtilKt;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +20,7 @@ class BlazeSample {
     EdKeyPair key = CryptoUtilKt.newKeyPairFromPrivateKey(Base64ExtensionKt.base64Decode(privateKey));
     BlazeClient blazeClient =
         new BlazeClient.Builder()
-            .configEdDSA(userId, sessionId, key)
+            .configEdDSA(userId, sessionId, key.getPrivateKey(), null, null)
             .enableDebug()
             .enableParseData()
             .enableAutoAck()

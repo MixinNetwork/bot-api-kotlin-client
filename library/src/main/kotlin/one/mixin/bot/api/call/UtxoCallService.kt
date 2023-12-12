@@ -23,6 +23,7 @@ interface UtxoCallService {
         @Query("offset") offset: Long? = null,
         @Query("limit") limit: Int = 500,
         @Query("state") state: String? = null,
+        @Query("asset") asset: String? = null,
     ): Call<MixinResponse<List<Output>>>
 
     @POST("safe/deposit/entries")

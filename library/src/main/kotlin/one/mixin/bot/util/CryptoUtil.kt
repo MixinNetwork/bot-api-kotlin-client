@@ -22,7 +22,7 @@ import kotlin.experimental.and
 import kotlin.experimental.or
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.tip.EdKeyPair
+import one.mixin.bot.safe.EdKeyPair
 import one.mixin.eddsa.Ed25519Sign
 import one.mixin.eddsa.Field25519
 import one.mixin.eddsa.KeyPair.Companion.newKeyPair
