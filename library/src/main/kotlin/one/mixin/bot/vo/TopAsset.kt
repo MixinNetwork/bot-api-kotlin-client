@@ -22,5 +22,5 @@ data class TopAsset(
     val changeUsd: String,
     @SerializedName("change_btc")
     val changeBtc: String,
-    val confirmations: Int
+    val confirmations: Int,
 )

@@ -28,5 +28,4 @@ class OutputResponse(
     val createdAt: String,
     @SerializedName("updated_at")
     val updatedAt: String,
-
 )

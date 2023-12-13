@@ -20,7 +20,7 @@ data class Snapshot(
     val sender: String?,
     val receiver: String?,
     val memo: String?,
-    val confirmations: Int?
+    val confirmations: Int?,
 )
 
 @Suppress("EnumEntryName")

@@ -13,10 +13,10 @@ data class TransactionRequest(
     val pin: String,
     @SerializedName("trace_id")
     val traceId: String?,
-    val memo: String?
+    val memo: String?,
 )
 
 data class OpponentMultisig(
     val receivers: List<String>,
-    val threshold: Int
+    val threshold: Int,
 )

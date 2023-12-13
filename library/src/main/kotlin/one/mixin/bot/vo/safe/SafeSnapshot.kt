@@ -1,6 +1,7 @@
 package one.mixin.bot.vo.safe
 
 import com.google.gson.annotations.SerializedName
+
 data class SafeSnapshot(
     @SerializedName("snapshot_id")
     val snapshotId: String,

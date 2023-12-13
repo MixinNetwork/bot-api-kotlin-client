@@ -1,6 +1,8 @@
+@file:Suppress("ktlint")
+
 package one.mixin.bot.util
 
-import okio.* //ktlint-disable
+import okio.*
 import java.io.IOException
 import java.util.zip.GZIPInputStream
 

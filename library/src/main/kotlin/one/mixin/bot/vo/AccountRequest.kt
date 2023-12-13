@@ -6,5 +6,5 @@ data class AccountRequest(
     @SerializedName("full_name")
     val fullName: String,
     @SerializedName("session_secret")
-    val sessionSecret: String
+    val sessionSecret: String,
 )

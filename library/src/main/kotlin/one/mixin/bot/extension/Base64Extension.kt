@@ -1,6 +1,5 @@
 package one.mixin.bot.extension
 
-import java.lang.Exception
 import java.util.Base64
 
 fun String.base64Encode() = toByteArray().base64Encode()

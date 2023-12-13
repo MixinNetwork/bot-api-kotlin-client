@@ -3,7 +3,6 @@ package one.mixin.bot.api
 import retrofit2.Response
 
 class MixinResponse<T>() {
-
     constructor(response: Response<T>) : this() {
         if (response.isSuccessful) {
             data = response.body()

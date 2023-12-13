@@ -1,8 +1,8 @@
-import java.util.*
 import one.mixin.bot.extension.toByteArray
 import one.mixin.bot.util.EncryptedProtocol
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.publicKeyToCurve25519
+import java.util.*
 
 @ExperimentalUnsignedTypes
 fun main() {
@@ -26,11 +26,12 @@ fun main() {
     // ...
 
     // receive message and decrypt with self private key
-    val decryptedMessage = encryptedProtocol.decryptMessage(
-        receiverKeyPair,
-        UUID.fromString(receiverSessionId).toByteArray(),
-        encryptedMessage
-    )
+    val decryptedMessage =
+        encryptedProtocol.decryptMessage(
+            receiverKeyPair,
+            UUID.fromString(receiverSessionId).toByteArray(),
+            encryptedMessage,
+        )
 
     println("decrypted message equals origin message is ${decryptedMessage.contentEquals(message)}")
 }

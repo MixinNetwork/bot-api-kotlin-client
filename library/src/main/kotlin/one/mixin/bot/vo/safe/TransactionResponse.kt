@@ -2,6 +2,7 @@ package one.mixin.bot.vo.safe
 
 import com.google.gson.annotations.SerializedName
 import java.util.UUID.nameUUIDFromBytes
+
 data class TransactionResponse(
     val type: String,
     @SerializedName("request_id")

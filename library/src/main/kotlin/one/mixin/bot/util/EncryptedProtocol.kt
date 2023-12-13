@@ -1,11 +1,10 @@
 package one.mixin.bot.util
 
-import java.util.UUID
 import one.mixin.bot.extension.toByteArray
 import one.mixin.bot.safe.EdKeyPair
+import java.util.UUID
 
 class EncryptedProtocol {
-
     @ExperimentalUnsignedTypes
     fun encryptMessage(
         keyPair: EdKeyPair,
@@ -13,7 +12,7 @@ class EncryptedProtocol {
         otherPublicKey: ByteArray,
         otherSessionId: String,
         extensionSessionKey: ByteArray? = null,
-        extensionSessionId: String? = null
+        extensionSessionId: String? = null,
     ): ByteArray {
         val aesGcmKey = generateRandomBytes()
         val encryptedMessageData = aesGcmEncrypt(plaintext, aesGcmKey)
@@ -36,7 +35,11 @@ class EncryptedProtocol {
     }
 
     @ExperimentalUnsignedTypes
-    fun decryptMessage(keyPair: EdKeyPair, sessionId: ByteArray, ciphertext: ByteArray): ByteArray {
+    fun decryptMessage(
+        keyPair: EdKeyPair,
+        sessionId: ByteArray,
+        ciphertext: ByteArray,
+    ): ByteArray {
         val sessionSize = leByteArrayToInt(ciphertext.slice(IntRange(1, 2)).toByteArray()).toInt()
         val senderPublicKey = ciphertext.slice(IntRange(3, 34)).toByteArray()
         var key: ByteArray? = null
@@ -56,13 +59,22 @@ class EncryptedProtocol {
         return aesGcmDecrypt(message, decodedMessageKey)
     }
 
-    private fun encryptCipherMessageKey(seed: ByteArray, publicKey: ByteArray, aesGcmKey: ByteArray): ByteArray {
+    private fun encryptCipherMessageKey(
+        seed: ByteArray,
+        publicKey: ByteArray,
+        aesGcmKey: ByteArray,
+    ): ByteArray {
         val private = privateKeyToCurve25519(seed)
         val sharedSecret = calculateAgreement(publicKey, private)
         return aesEncrypt(sharedSecret, aesGcmKey)
     }
 
-    private fun decryptCipherMessageKey(seed: ByteArray, publicKey: ByteArray, iv: ByteArray, ciphertext: ByteArray): ByteArray {
+    private fun decryptCipherMessageKey(
+        seed: ByteArray,
+        publicKey: ByteArray,
+        iv: ByteArray,
+        ciphertext: ByteArray,
+    ): ByteArray {
         val private = privateKeyToCurve25519(seed)
         val sharedSecret = calculateAgreement(publicKey, private)
         return aesDecrypt(sharedSecret, iv, ciphertext)

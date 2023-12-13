@@ -18,7 +18,7 @@ data class MessageRequest(
     @SerializedName("representative_id")
     val representativeId: String? = null,
     @SerializedName("quote_message_id")
-    val quoteMessageId: String? = null
+    val quoteMessageId: String? = null,
 )
 
 fun generateTextMessageRequest(
@@ -27,7 +27,7 @@ fun generateTextMessageRequest(
     messageId: String,
     text: String,
     representativeId: String? = null,
-    quoteMessageId: String? = null
+    quoteMessageId: String? = null,
 ) = MessageRequest(
     generateConversationId(senderId, recipientId),
     recipientId,
@@ -35,5 +35,5 @@ fun generateTextMessageRequest(
     "PLAIN_TEXT",
     requireNotNull(base64Encode(text.toByteArray())),
     representativeId,
-    quoteMessageId
+    quoteMessageId,
 )

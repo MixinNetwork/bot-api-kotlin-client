@@ -20,7 +20,7 @@ data class Address(
     @SerializedName("dust")
     val dust: String?,
     @SerializedName("fee_asset_id")
-    val feeAssetId: String
+    val feeAssetId: String,
 )
 
 fun Address.displayAddress(): String {

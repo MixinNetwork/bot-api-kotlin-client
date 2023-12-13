@@ -23,8 +23,7 @@ object TipBody {
     private const val TIPProvisioningCreate = "TIP:PROVISIONING:UPDATE:"
     private const val TIPBodyForSequencerRegister = "SEQUENCER:REGISTER:"
 
-    fun forVerify(timestamp: Long): ByteArray =
-        String.format("%s%032d", TIPVerify, timestamp).toByteArray()
+    fun forVerify(timestamp: Long): ByteArray = String.format("%s%032d", TIPVerify, timestamp).toByteArray()
 
     fun forRawTransactionCreate(
         assetId: String,
@@ -63,61 +62,47 @@ object TipBody {
     fun forPhoneNumberUpdate(
         verificationId: String,
         code: String,
-    ): ByteArray =
-        (TIPPhoneNumberUpdate + verificationId + code).hashToBody()
+    ): ByteArray = (TIPPhoneNumberUpdate + verificationId + code).hashToBody()
 
     fun forEmergencyContactCreate(
         verificationId: String,
         code: String,
-    ): ByteArray =
-        (TIPEmergencyContactCreate + verificationId + code).hashToBody()
+    ): ByteArray = (TIPEmergencyContactCreate + verificationId + code).hashToBody()
 
     fun forAddressAdd(
         assetId: String,
         publicKey: String?,
         keyTag: String?,
         name: String?,
-    ): ByteArray =
-        (TIPAddressAdd + assetId + (publicKey ?: "") + (keyTag ?: "") + (name ?: "")).hashToBody()
+    ): ByteArray = (TIPAddressAdd + assetId + (publicKey ?: "") + (keyTag ?: "") + (name ?: "")).hashToBody()
 
-    fun forAddressRemove(addressId: String): ByteArray =
-        (TIPAddressRemove + addressId).hashToBody()
+    fun forAddressRemove(addressId: String): ByteArray = (TIPAddressRemove + addressId).hashToBody()
 
-    fun forUserDeactivate(phoneVerificationId: String): ByteArray =
-        (TIPUserDeactivate + phoneVerificationId).hashToBody()
+    fun forUserDeactivate(phoneVerificationId: String): ByteArray = (TIPUserDeactivate + phoneVerificationId).hashToBody()
 
-    fun forEmergencyContactRead(): ByteArray =
-        (TIPEmergencyContactRead + "0").hashToBody()
+    fun forEmergencyContactRead(): ByteArray = (TIPEmergencyContactRead + "0").hashToBody()
 
-    fun forEmergencyContactRemove(): ByteArray =
-        (TIPEmergencyContactRemove + "0").hashToBody()
+    fun forEmergencyContactRemove(): ByteArray = (TIPEmergencyContactRemove + "0").hashToBody()
 
-    fun forMultisigRequestSign(requestId: String): ByteArray =
-        (TIPMultisigRequestSign + requestId).hashToBody()
+    fun forMultisigRequestSign(requestId: String): ByteArray = (TIPMultisigRequestSign + requestId).hashToBody()
 
-    fun forMultisigRequestUnlock(requestId: String): ByteArray =
-        (TIPMultisigRequestUnlock + requestId).hashToBody()
+    fun forMultisigRequestUnlock(requestId: String): ByteArray = (TIPMultisigRequestUnlock + requestId).hashToBody()
 
-    fun forCollectibleRequestSign(requestId: String): ByteArray =
-        (TIPCollectibleRequestSign + requestId).hashToBody()
+    fun forCollectibleRequestSign(requestId: String): ByteArray = (TIPCollectibleRequestSign + requestId).hashToBody()
 
-    fun forCollectibleRequestUnlock(requestId: String): ByteArray =
-        (TIPCollectibleRequestUnlock + requestId).hashToBody()
+    fun forCollectibleRequestUnlock(requestId: String): ByteArray = (TIPCollectibleRequestUnlock + requestId).hashToBody()
 
-    fun forOAuthApprove(authorizationId: String): ByteArray =
-        (TIPOAuthApprove + authorizationId).hashToBody()
+    fun forOAuthApprove(authorizationId: String): ByteArray = (TIPOAuthApprove + authorizationId).hashToBody()
 
     fun forProvisioningCreate(
         id: String,
         secret: String,
-    ): ByteArray =
-        (TIPProvisioningCreate + id + secret).hashToBody()
+    ): ByteArray = (TIPProvisioningCreate + id + secret).hashToBody()
 
     fun forSequencerRegister(
         userId: String,
         publicKey: String,
-    ): ByteArray =
-        (TIPBodyForSequencerRegister + userId + publicKey).hashToBody()
+    ): ByteArray = (TIPBodyForSequencerRegister + userId + publicKey).hashToBody()
 
     private fun String.hashToBody() = sha256()
 }

@@ -2,10 +2,10 @@ package one.mixin.bot.vo.safe
 
 import kernel.Address
 import kernel.Kernel
-import one.mixin.bot.util.decodeBase58
-import one.mixin.bot.util.encodeToBase58String
 import one.mixin.bot.extension.isUUID
 import one.mixin.bot.util.UUIDUtils
+import one.mixin.bot.util.decodeBase58
+import one.mixin.bot.util.encodeToBase58String
 import one.mixin.bot.util.sha3Sum256
 
 const val MixAddressPrefix = "MIX"

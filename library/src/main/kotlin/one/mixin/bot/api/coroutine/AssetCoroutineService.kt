@@ -22,21 +22,25 @@ interface AssetCoroutineService {
     @GET("network/ticker")
     suspend fun ticker(
         @Query("asset") assetId: String,
-        @Query("offset") offset: String? = null
+        @Query("offset") offset: String? = null,
     ): MixinResponse<Ticker>
 
     @GET("assets/{id}")
-    suspend fun getAsset(@Path("id") id: String): MixinResponse<Asset>
+    suspend fun getAsset(
+        @Path("id") id: String,
+    ): MixinResponse<Asset>
 
     @GET("external/transactions")
     suspend fun pendingDeposits(
         @Query("asset") asset: String,
         @Query("destination") key: String? = null,
-        @Query("tag") tag: String? = null
+        @Query("tag") tag: String? = null,
     ): MixinResponse<List<PendingDeposit>>
 
     @GET("network/assets/search/{query}")
-    suspend fun queryAssets(@Path("query") query: String): MixinResponse<List<Asset>>
+    suspend fun queryAssets(
+        @Path("query") query: String,
+    ): MixinResponse<List<Asset>>
 
     @GET("network/assets/top")
     suspend fun topAssets(): MixinResponse<List<TopAsset>>
@@ -45,8 +49,12 @@ interface AssetCoroutineService {
     suspend fun getFiats(): MixinResponse<List<Fiat>>
 
     @GET("assets/{id}/fee")
-    suspend fun assetsFee(@Path("id") id: String): MixinResponse<AssetFee>
+    suspend fun assetsFee(
+        @Path("id") id: String,
+    ): MixinResponse<AssetFee>
 
     @POST("transactions")
-    suspend fun transactions(@Body request: TransactionRequest): MixinResponse<TransactionResponse>
+    suspend fun transactions(
+        @Body request: TransactionRequest,
+    ): MixinResponse<TransactionResponse>
 }

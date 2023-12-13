@@ -18,7 +18,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface TokenCallService {
-
     @GET("safe/assets")
     fun fetchAllTokenCall(): Call<MixinResponse<List<Token>>>
 

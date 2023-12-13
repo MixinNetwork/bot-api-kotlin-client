@@ -20,7 +20,9 @@ data class SafeUser(
         if (spendPrivateKey != null) {
             if (other.spendPrivateKey == null) return false
             if (!spendPrivateKey.contentEquals(other.spendPrivateKey)) return false
-        } else if (other.spendPrivateKey != null) return false
+        } else if (other.spendPrivateKey != null) {
+            return false
+        }
 
         return true
     }

@@ -18,7 +18,10 @@ fun decode(src: ByteString): String {
     return src.ungzip()
 }
 
-fun decodeAs(src: ByteString, decodeData: Boolean): BlazeMsg {
+fun decodeAs(
+    src: ByteString,
+    decodeData: Boolean,
+): BlazeMsg {
     val data = decode(src)
     println(data)
     val blazeMsg = Gson().fromJson(data, BlazeMsg::class.java)

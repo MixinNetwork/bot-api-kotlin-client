@@ -1,9 +1,10 @@
 package one.mixin.bot.vo
 
 data class PaymentResponse(
-    val status: String
+    val status: String,
 )
 
 enum class PaymentStatus {
-    pending, paid
+    pending,
+    paid,
 }

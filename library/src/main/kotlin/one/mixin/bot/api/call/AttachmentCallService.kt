@@ -8,10 +8,11 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AttachmentCallService {
-
     @POST("attachments")
     suspend fun requestAttachmentCall(): Call<MixinResponse<AttachmentResponse>>
 
     @GET("attachments/{id}")
-    suspend fun getAttachmentCall(@Path("id") id: String): Call<MixinResponse<AttachmentResponse>>
+    suspend fun getAttachmentCall(
+        @Path("id") id: String,
+    ): Call<MixinResponse<AttachmentResponse>>
 }

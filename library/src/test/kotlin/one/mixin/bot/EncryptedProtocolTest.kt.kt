@@ -9,8 +9,8 @@ import one.mixin.bot.util.aesDecrypt
 import one.mixin.bot.util.aesEncrypt
 import one.mixin.bot.util.base64Decode
 import one.mixin.bot.util.calculateAgreement
-import one.mixin.bot.util.generateRandomBytes
 import one.mixin.bot.util.generateEd25519KeyPair
+import one.mixin.bot.util.generateRandomBytes
 import one.mixin.bot.util.privateKeyToCurve25519
 import one.mixin.bot.util.publicKeyToCurve25519
 import java.util.UUID
@@ -19,7 +19,6 @@ import kotlin.test.assertEquals
 
 @ExperimentalUnsignedTypes
 class EncryptedProtocolTest {
-
     @Test
     fun testText() {
         val content = "L".toByteArray()
@@ -39,26 +38,29 @@ class EncryptedProtocolTest {
         val content = "LA".toByteArray()
         val aesGcmKey = generateRandomBytes()
         val encodedContent = aesEncrypt(aesGcmKey, content)
-        val decryptedContent = aesDecrypt(
-            aesGcmKey,
-            encodedContent.slice(IntRange(0, 15)).toByteArray(),
-            encodedContent.slice(IntRange(16, encodedContent.size - 1)).toByteArray(),
-        )
+        val decryptedContent =
+            aesDecrypt(
+                aesGcmKey,
+                encodedContent.slice(IntRange(0, 15)).toByteArray(),
+                encodedContent.slice(IntRange(16, encodedContent.size - 1)).toByteArray(),
+            )
         assertEquals("LA", String(decryptedContent))
     }
 
     @Test
     fun testImage() {
-        val mockAttachmentMessagePayload = AttachmentMessagePayload(
-            key = base64Decode("2IFv82k/nPZJlQFYRCD7SgWNtDK+Bi5vo0VXhk4A9DAp/RE5r+Shfgn+xEuQiyn8Hjf+Ox9356geoceH926BJQ=="),
-            digest = base64Decode("z9YuqavioY+hYLB1slFaRzSc9ggBlp+nUOZGHwS8LaU="),
-            attachmentId = "5a3574ca-cc17-470d-88dc-845613d471b4",
-            mimeType = "image/jpeg",
-            height = 949,
-            width = 1080,
-            size = 168540,
-            name = null,
-            thumbnail = """/9j/4AAQSkZJRgABAQAAAQABAAD/4gIoSUNDX1BST0ZJTEUAAQEAAAIYAAAAAAIQAABtbnRyUkdCIFhZWiAAAAAAAAAAAAAAAABhY3
+        val mockAttachmentMessagePayload =
+            AttachmentMessagePayload(
+                key = base64Decode("2IFv82k/nPZJlQFYRCD7SgWNtDK+Bi5vo0VXhk4A9DAp/RE5r+Shfgn+xEuQiyn8Hjf+Ox9356geoceH926BJQ=="),
+                digest = base64Decode("z9YuqavioY+hYLB1slFaRzSc9ggBlp+nUOZGHwS8LaU="),
+                attachmentId = "5a3574ca-cc17-470d-88dc-845613d471b4",
+                mimeType = "image/jpeg",
+                height = 949,
+                width = 1080,
+                size = 168540,
+                name = null,
+                thumbnail =
+                    """/9j/4AAQSkZJRgABAQAAAQABAAD/4gIoSUNDX1BST0ZJTEUAAQEAAAIYAAAAAAIQAABtbnRyUkdCIFhZWiAAAAAAAAAAAAAAAABhY3
                 NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
                 lkZXNjAAAA8AAAAHRyWFlaAAABZAAAABRnWFlaAAABeAAAABRiWFlaAAABjAAAABRyVFJDAAABoAAAAChnVFJDAAABoAAAAChiVFJDAAABoAAAACh3dHB0AAABy
                 AAAABRjcHJ0AAAB3AAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAFgAAAAcAHMAUgBHAEIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -73,8 +75,8 @@ class EncryptedProtocolTest {
                 8/GqWBmd4SpqLWfhhwD/tPhJeFeXG6s9pp+JLYZAN47pio+JzS0fk/XysjN1o51R7/38or/ADt8IHrPT5Q5e8IfBnqbm6EHBKXqnUUjHO9RRiekfKDyKWbpbJGhxw
                 UxxsO7jR0fql/hEb/tBazUUrskOKpupJXPI5q7DYHzR5IWKFEsFrKwfJqmWNhG4pbu+oZKgn1FH7tp18TTyStVWh4kxhCoU7PTl8jaNFWC4yCTOSrc1zkf0X2Gzu
                 B9qsstbt3RH6Q+mmpraIAcgJZu8LTuGAoojTDfBd8g0y5wEWpYWsYBhRRaKKV2p2SM6JPrbe3xeiiixnHyGhbu6BdPIgSHkFFEs4//2Q==
-            """.trimMargin()
-        )
+                    """.trimMargin(),
+            )
         val content = Gson().toJson(mockAttachmentMessagePayload).toByteArray()
         testEncryptAndDecrypt(content)
     }
@@ -90,7 +92,12 @@ class EncryptedProtocolTest {
 
         val encodedContent = encryptedProtocol.encryptMessage(senderKeyPair, content, receiverCurvePublicKey, otherSessionId)
 
-        val decryptedContent = encryptedProtocol.decryptMessage(receiverKeyPair, UUID.fromString(otherSessionId).toByteArray(), encodedContent)
+        val decryptedContent =
+            encryptedProtocol.decryptMessage(
+                receiverKeyPair,
+                UUID.fromString(otherSessionId).toByteArray(),
+                encodedContent,
+            )
 
         assert(decryptedContent.contentEquals(content))
     }
@@ -117,7 +124,7 @@ data class StickerMessagePayload(
     @SerializedName("album_id")
     val albumId: String? = null,
     @SerializedName("name")
-    val name: String? = null
+    val name: String? = null,
 )
 
 data class AttachmentMessagePayload(
@@ -157,11 +164,15 @@ data class AttachmentMessagePayload(
         if (key != null) {
             if (other.key == null) return false
             if (!key.contentEquals(other.key)) return false
-        } else if (other.key != null) return false
+        } else if (other.key != null) {
+            return false
+        }
         if (digest != null) {
             if (other.digest == null) return false
             if (!digest.contentEquals(other.digest)) return false
-        } else if (other.digest != null) return false
+        } else if (other.digest != null) {
+            return false
+        }
         if (attachmentId != other.attachmentId) return false
         if (mimeType != other.mimeType) return false
         if (size != other.size) return false
@@ -173,7 +184,9 @@ data class AttachmentMessagePayload(
         if (waveform != null) {
             if (other.waveform == null) return false
             if (!waveform.contentEquals(other.waveform)) return false
-        } else if (other.waveform != null) return false
+        } else if (other.waveform != null) {
+            return false
+        }
         if (caption != other.caption) return false
         if (createdAt != other.createdAt) return false
 

@@ -2,10 +2,10 @@ package one.mixin.bot
 
 import kernel.Kernel
 import one.mixin.bot.extension.base64Decode
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class JNITest {
     @Test fun testLoadAndUse() {
@@ -17,7 +17,7 @@ class JNITest {
         val arch = System.getProperty("os.arch")
         println("os: $os, arch: $arch")
 
-        System.load("${s}/libs/darwin/amd64/libgojni.so")
+        System.load("$s/libs/darwin/amd64/libgojni.so")
 
         val assetId = "5b9d576914e71e2362f89bb867eb69084931eb958f9a3622d776b861602275f4"
         val amount = "1"

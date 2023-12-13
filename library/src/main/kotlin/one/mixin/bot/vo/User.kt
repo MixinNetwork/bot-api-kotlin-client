@@ -16,5 +16,5 @@ data class User(
     @SerializedName("avatar_url")
     val avatarURL: String,
     @SerializedName("created_at")
-    val createdAt: String
+    val createdAt: String,
 )

@@ -39,79 +39,98 @@ const val DEFAULT_PIN = "131416"
 const val DEFAULT_TIP_PIN = "5011c07b101e07b74667398d57a40e9001aa8f6c13fe0836a07a1b5f7cf71e4e"
 const val DEFAULT_AMOUNT = "0.01"
 
-fun main() = runBlocking {
-    val key = newKeyPairFromPrivateKey(Config.privateKey.base64UrlDecode())
-    val pinToken = decryptPinToken(Config.pinTokenPem.base64UrlDecode(), key.privateKey)
-    val botClient = HttpClient.Builder().useCNServer().configSafeUser(Config.userId, Config.sessionId, key.privateKey).enableDebug().build()
+fun main() =
+    runBlocking {
+        val key = newKeyPairFromPrivateKey(Config.privateKey.base64UrlDecode())
+        val pinToken = decryptPinToken(Config.pinTokenPem.base64UrlDecode(), key.privateKey)
+        val botClient =
+            HttpClient.Builder().useCNServer().configSafeUser(
+                Config.userId,
+                Config.sessionId,
+                key.privateKey,
+            ).enableDebug().build()
 
-    // create user
-    val sessionKey = generateEd25519KeyPair()
-    val sessionSecret = sessionKey.publicKey.base64Encode()
-    val user = createUser(botClient, sessionSecret)
-    user ?: return@runBlocking
-    val userClient = HttpClient.Builder().useCNServer().configSafeUser(user.userId, user.sessionId, sessionKey.privateKey).enableDebug().build()
-    userClient.userService.getMe()
+        // create user
+        val sessionKey = generateEd25519KeyPair()
+        val sessionSecret = sessionKey.publicKey.base64Encode()
+        val user = createUser(botClient, sessionSecret)
+        user ?: return@runBlocking
+        val userClient =
+            HttpClient.Builder().useCNServer().configSafeUser(
+                user.userId,
+                user.sessionId,
+                sessionKey.privateKey,
+            ).enableDebug().build()
+        userClient.userService.getMe()
 
-    // decrypt pin token
-    val userPrivateKey = sessionKey.privateKey
-    val userAesKey = decryptPinToken(user.pinToken.base64Decode(), userPrivateKey)
+        // decrypt pin token
+        val userPrivateKey = sessionKey.privateKey
+        val userAesKey = decryptPinToken(user.pinToken.base64Decode(), userPrivateKey)
 
-    // create user's pin
-    createPin(userClient, userAesKey)
+        // create user's pin
+        createPin(userClient, userAesKey)
 
-    // bot transfer to user
-    transferToUser(botClient, user.userId, pinToken, pin)
+        // bot transfer to user
+        transferToUser(botClient, user.userId, pinToken, pin)
 
-    delay(2000)
+        delay(2000)
 
-    // Get ticker
-    getTicker(userClient)
+        // Get ticker
+        getTicker(userClient)
 
-    // Get fiats
-    getFiats(userClient)
+        // Get fiats
+        getFiats(userClient)
 
-    // Get BTC fee
-    getFee(userClient)
+        // Get BTC fee
+        getFee(userClient)
 
-    // Get asset
-    getAsset(userClient)
+        // Get asset
+        getAsset(userClient)
 
-    // Create address
-    val addressId = createAddress(userClient, userAesKey)
-    if (addressId != null) {
-        // Withdrawal
-        withdrawalToAddress(userClient, addressId, userAesKey)
+        // Create address
+        val addressId = createAddress(userClient, userAesKey)
+        if (addressId != null) {
+            // Withdrawal
+            withdrawalToAddress(userClient, addressId, userAesKey)
+        }
+
+        // Send text message
+        sendTextMessage(botClient, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Text message")
+
+        createConversationAndSendMessage(botClient, Config.userId)
+
+        // Transactions
+        transactions(botClient, pinToken)
+
+        networkSnapshots(botClient, CNB_ID)
+        networkSnapshot(botClient, "c8e73a02-b543-4100-bd7a-879ed4accdfc")
+
+        readGhostKey(botClient)
+        return@runBlocking
     }
 
-    // Send text message
-    sendTextMessage(botClient, "639ec50a-d4f1-4135-8624-3c71189dcdcc", "Text message")
-
-    createConversationAndSendMessage(botClient, Config.userId)
-
-    // Transactions
-    transactions(botClient, pinToken)
-
-    networkSnapshots(botClient, CNB_ID)
-    networkSnapshot(botClient, "c8e73a02-b543-4100-bd7a-879ed4accdfc")
-
-    readGhostKey(botClient)
-    return@runBlocking
-}
-
-internal suspend fun createUser(client: HttpClient, sessionSecret: String): User? {
-    val response = client.userService.createUsers(
-        AccountRequest(
-            Random().nextInt(10).toString() + "User",
-            sessionSecret
+internal suspend fun createUser(
+    client: HttpClient,
+    sessionSecret: String,
+): User? {
+    val response =
+        client.userService.createUsers(
+            AccountRequest(
+                Random().nextInt(10).toString() + "User",
+                sessionSecret,
+            ),
         )
-    )
     return response.data
 }
 
-internal suspend fun createPin(client: HttpClient, userAesKey: ByteArray) {
-    val response = client.userService.createPin(
-        PinRequest(encryptPin(userAesKey, DEFAULT_PIN.toByteArray()))
-    )
+internal suspend fun createPin(
+    client: HttpClient,
+    userAesKey: ByteArray,
+) {
+    val response =
+        client.userService.createPin(
+            PinRequest(encryptPin(userAesKey, DEFAULT_PIN.toByteArray())),
+        )
     if (response.isSuccess()) {
         println("Create pin success ${response.data?.userId}")
     } else {
@@ -119,11 +138,15 @@ internal suspend fun createPin(client: HttpClient, userAesKey: ByteArray) {
     }
 }
 
-internal suspend fun createTipPin(client: HttpClient, userAesKey: ByteArray) {
+internal suspend fun createTipPin(
+    client: HttpClient,
+    userAesKey: ByteArray,
+) {
     val keyPair = newKeyPairFromSeed(DEFAULT_TIP_PIN.hexStringToByteArray())
-    val response = client.userService.createPin(
-        PinRequest(encryptPin(userAesKey, keyPair.publicKey + 1L.toBeByteArray()))
-    )
+    val response =
+        client.userService.createPin(
+            PinRequest(encryptPin(userAesKey, keyPair.publicKey + 1L.toBeByteArray())),
+        )
     if (response.isSuccess()) {
         println("Create pin success ${response.data?.userId}")
     } else {
@@ -135,16 +158,17 @@ internal suspend fun transferToUser(
     client: HttpClient,
     userId: String,
     aseKey: ByteArray,
-    pin: String
+    pin: String,
 ): Snapshot? {
-    val response = client.snapshotService.transfer(
-        TransferRequest(
-            CNB_ID,
-            userId,
-            DEFAULT_AMOUNT,
-            encryptPin(aseKey, pin.toByteArray())
+    val response =
+        client.snapshotService.transfer(
+            TransferRequest(
+                CNB_ID,
+                userId,
+                DEFAULT_AMOUNT,
+                encryptPin(aseKey, pin.toByteArray()),
+            ),
         )
-    )
     var snapshot: Snapshot? = null
     if (response.isSuccess()) {
         snapshot = response.data
@@ -159,7 +183,9 @@ private suspend fun getAsset(client: HttpClient) {
     // Get asset
     val assetResponse = client.assetService.getAsset(BTC_ID)
     if (assetResponse.isSuccess()) {
-        println("Assets ${assetResponse.data?.symbol}: ${assetResponse.data?.balance} ${assetResponse.data?.depositEntries?.last()?.properties}")
+        println(
+            "Assets ${assetResponse.data?.symbol}: ${assetResponse.data?.balance} ${assetResponse.data?.depositEntries?.last()?.properties}",
+        )
     } else {
         println("Assets failure ${assetResponse.error}")
     }
@@ -195,20 +221,24 @@ private suspend fun getTicker(client: HttpClient) {
     }
 }
 
-private suspend fun createAddress(client: HttpClient, userAesKey: ByteArray): String? {
+private suspend fun createAddress(
+    client: HttpClient,
+    userAesKey: ByteArray,
+): String? {
     // Create address
-    val addressesResponse = client.addressService.createAddresses(
-        AddressRequest(
-            CNB_ID,
-            "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
-            null,
-            "label",
-            encryptPin(
-                userAesKey,
-                DEFAULT_PIN,
-            )
+    val addressesResponse =
+        client.addressService.createAddresses(
+            AddressRequest(
+                CNB_ID,
+                "0x45315C1Fd776AF95898C77829f027AFc578f9C2B",
+                null,
+                "label",
+                encryptPin(
+                    userAesKey,
+                    DEFAULT_PIN,
+                ),
+            ),
         )
-    )
 
     if (addressesResponse.isSuccess()) {
         println("Create address ${addressesResponse.data?.addressId}")
@@ -221,19 +251,22 @@ private suspend fun createAddress(client: HttpClient, userAesKey: ByteArray): St
 private suspend fun withdrawalToAddress(
     client: HttpClient,
     addressId: String,
-    userAesKey: ByteArray
+    userAesKey: ByteArray,
 ) {
     // Withdrawals
-    val withdrawalsResponse = client.snapshotService.withdrawals(
-        WithdrawalRequest(
-            addressId, DEFAULT_AMOUNT,
-            encryptPin(
-                userAesKey,
-                DEFAULT_PIN,
+    val withdrawalsResponse =
+        client.snapshotService.withdrawals(
+            WithdrawalRequest(
+                addressId,
+                DEFAULT_AMOUNT,
+                encryptPin(
+                    userAesKey,
+                    DEFAULT_PIN,
+                ),
+                UUID.randomUUID().toString(),
+                "withdrawal test",
             ),
-            UUID.randomUUID().toString(), "withdrawal test"
         )
-    )
     if (withdrawalsResponse.isSuccess()) {
         println("Withdrawal success: ${withdrawalsResponse.data?.snapshotId}")
     } else {
@@ -241,17 +274,22 @@ private suspend fun withdrawalToAddress(
     }
 }
 
-private suspend fun sendTextMessage(client: HttpClient, recipientId: String, text: String) {
-    val response = client.messageService.postMessage(
-        listOf(
-            generateTextMessageRequest(
-                Config.userId,
-                recipientId,
-                UUID.randomUUID().toString(),
-                text
-            )
+private suspend fun sendTextMessage(
+    client: HttpClient,
+    recipientId: String,
+    text: String,
+) {
+    val response =
+        client.messageService.postMessage(
+            listOf(
+                generateTextMessageRequest(
+                    Config.userId,
+                    recipientId,
+                    UUID.randomUUID().toString(),
+                    text,
+                ),
+            ),
         )
-    )
     if (response.isSuccess()) {
         println("Send success")
     } else {
@@ -264,21 +302,22 @@ private suspend fun transactions(
     userAesKey: ByteArray,
 ) {
     // Transactions
-    val transactionsResponse = client.assetService.transactions(
-        TransactionRequest(
-            CNB_ID,
-            // OpponentMultisig(listOf("00c5a4ae-dcdc-48db-ab8e-a7eef69b441d", "087e91ff-7169-451a-aaaa-5b3297411a4b", "4e0e6e6b-6c9d-4e99-b7f1-1356322abec3"), 2),
-            opponentMultisig = null,
-            opponentKey = "XINQTmRReDuPEUAVEyDyE2mBgxa1ojVRAvpYcKs5nSA7FDBBfAEeVRn8s9vAm3Cn1qzQ7JtjG62go4jSJU6yWyRUKHpamWAM", // test address
-            DEFAULT_AMOUNT,
-            encryptPin(
-                userAesKey,
-                pin,
+    val transactionsResponse =
+        client.assetService.transactions(
+            TransactionRequest(
+                CNB_ID,
+                // OpponentMultisig(listOf("00c5a4ae-dcdc-48db-ab8e-a7eef69b441d", "087e91ff-7169-451a-aaaa-5b3297411a4b", "4e0e6e6b-6c9d-4e99-b7f1-1356322abec3"), 2),
+                opponentMultisig = null,
+                opponentKey = "XINQTmRReDuPEUAVEyDyE2mBgxa1ojVRAvpYcKs5nSA7FDBBfAEeVRn8s9vAm3Cn1qzQ7JtjG62go4jSJU6yWyRUKHpamWAM", // test address
+                DEFAULT_AMOUNT,
+                encryptPin(
+                    userAesKey,
+                    pin,
+                ),
+                UUID.randomUUID().toString(),
+                "memo",
             ),
-            UUID.randomUUID().toString(),
-            "memo"
         )
-    )
     if (transactionsResponse.isSuccess()) {
         println("Transactions success: ${transactionsResponse.data?.snapshotId}")
     } else {
@@ -288,7 +327,7 @@ private suspend fun transactions(
 
 internal suspend fun networkSnapshot(
     client: HttpClient,
-    snapshotId: String
+    snapshotId: String,
 ) {
     val snapshotResponse = client.snapshotService.networkSnapshot(snapshotId)
     if (snapshotResponse.isSuccess()) {
@@ -303,7 +342,7 @@ internal suspend fun networkSnapshots(
     assetId: String,
     offset: String? = null,
     limit: Int = SnapshotService.LIMIT,
-    order: String? = null
+    order: String? = null,
 ): List<NetworkSnapshot>? {
     val snapshotResponse = client.snapshotService.networkSnapshots(assetId, offset, limit, order)
     var networkSnapshots: List<NetworkSnapshot>? = null
@@ -320,13 +359,15 @@ internal suspend fun networkSnapshots(
 }
 
 private suspend fun readGhostKey(client: HttpClient) {
-    val request = GhostKeyRequest(
-        listOf(
-            "639ec50a-d4f1-4135-8624-3c71189dcdcc",
-            "d3bee23a-81d4-462e-902a-22dae9ef89ff",
-        ),
-        0, ""
-    )
+    val request =
+        GhostKeyRequest(
+            listOf(
+                "639ec50a-d4f1-4135-8624-3c71189dcdcc",
+                "d3bee23a-81d4-462e-902a-22dae9ef89ff",
+            ),
+            0,
+            "",
+        )
     val response = client.userService.readGhostKeys(request)
     if (response.isSuccess()) {
         println("ReadGhostKey success ${response.data}")
@@ -335,21 +376,27 @@ private suspend fun readGhostKey(client: HttpClient) {
     }
 }
 
-internal suspend fun createConversationAndSendMessage(client: HttpClient, botUserId: String) {
-    val botParticipant = ParticipantRequest(
-        userId = botUserId,
-        role = "",
-    )
-    val userParticipant = ParticipantRequest(
-        userId = "e26808d4-b31f-4e3b-9521-19e529b967b0",
-        role = "",
-    )
-    val conversationRequest = ConversationRequest(
-        conversationId = UUID.randomUUID().toString(),
-        category = "GROUP",
-        name = "test group",
-        participants = listOf(botParticipant, userParticipant),
-    )
+internal suspend fun createConversationAndSendMessage(
+    client: HttpClient,
+    botUserId: String,
+) {
+    val botParticipant =
+        ParticipantRequest(
+            userId = botUserId,
+            role = "",
+        )
+    val userParticipant =
+        ParticipantRequest(
+            userId = "e26808d4-b31f-4e3b-9521-19e529b967b0",
+            role = "",
+        )
+    val conversationRequest =
+        ConversationRequest(
+            conversationId = UUID.randomUUID().toString(),
+            category = "GROUP",
+            name = "test group",
+            participants = listOf(botParticipant, userParticipant),
+        )
     val conversationResponse = client.conversationService.create(conversationRequest)
     if (conversationResponse.isSuccess()) {
         println("create conversation success ${conversationResponse.data}")
@@ -359,13 +406,14 @@ internal suspend fun createConversationAndSendMessage(client: HttpClient, botUse
     }
 
     val conversation = conversationResponse.data ?: return
-    val messageRequest = MessageRequest(
-        conversationId = conversation.conversationId,
-        recipientId = UUID.randomUUID().toString(),
-        messageId = UUID.randomUUID().toString(),
-        category = "PLAIN_TEXT",
-        data = requireNotNull(base64Encode("hello from bot".toByteArray())),
-    )
+    val messageRequest =
+        MessageRequest(
+            conversationId = conversation.conversationId,
+            recipientId = UUID.randomUUID().toString(),
+            messageId = UUID.randomUUID().toString(),
+            category = "PLAIN_TEXT",
+            data = requireNotNull(base64Encode("hello from bot".toByteArray())),
+        )
     println("messageRequest: $messageRequest")
     val messageResponse = client.messageService.postMessage(listOf(messageRequest))
     if (messageResponse.isSuccess()) {

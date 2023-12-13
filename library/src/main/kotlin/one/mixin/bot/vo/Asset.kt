@@ -27,5 +27,5 @@ data class Asset(
     val confirmations: Int,
     @SerializedName("asset_key")
     val assetKey: String?,
-    val reserve: String?
+    val reserve: String?,
 )

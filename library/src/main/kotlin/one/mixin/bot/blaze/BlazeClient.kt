@@ -1,16 +1,16 @@
-@file:Suppress("unused")
+@file:Suppress("ktlint", "unused")
 
 package one.mixin.bot.blaze
 
 import com.google.gson.Gson
-import okhttp3.* //ktlint-disable
+import okhttp3.*
 import okio.ByteString
 import one.mixin.bot.Constants
 import one.mixin.bot.blaze.msg.Buttons
 import one.mixin.bot.blaze.msg.Cards
-import one.mixin.bot.util.* //ktlint-disable
+import one.mixin.bot.util.*
 import one.mixin.bot.vo.safe.SafeUser
-import java.util.* //ktlint-disable
+import java.util.*
 
 class BlazeClient private constructor(
     private val safeUser: SafeUser,

@@ -1,8 +1,6 @@
 package one.mixin.bot.util
 
 import io.jsonwebtoken.EdDSAPrivateKey
-import java.util.*
-import java.util.concurrent.TimeUnit
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -14,8 +12,16 @@ import one.mixin.bot.extension.HostSelectionInterceptor
 import one.mixin.bot.extension.isNeedSwitch
 import one.mixin.bot.signToken
 import one.mixin.bot.vo.safe.SafeUser
+import java.util.*
+import java.util.concurrent.TimeUnit
 
-fun createHttpClient(safeUser: SafeUser, websocket: Boolean, debug: Boolean, cnServer: Boolean, autoSwitch: Boolean): OkHttpClient {
+fun createHttpClient(
+    safeUser: SafeUser,
+    websocket: Boolean,
+    debug: Boolean,
+    cnServer: Boolean,
+    autoSwitch: Boolean,
+): OkHttpClient {
     val builder = OkHttpClient.Builder()
     if (debug) {
         val logging = HttpLoggingInterceptor()
@@ -35,8 +41,8 @@ fun createHttpClient(safeUser: SafeUser, websocket: Boolean, debug: Boolean, cnS
                     Constants.API.CN_WS_URL
                 } else {
                     Constants.API.WS_URL
-                }
-            )
+                },
+            ),
         )
     } else {
         builder.addInterceptor(
@@ -45,8 +51,8 @@ fun createHttpClient(safeUser: SafeUser, websocket: Boolean, debug: Boolean, cnS
                     Constants.API.CN_URL
                 } else {
                     Constants.API.URL
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -64,25 +70,28 @@ fun createHttpClient(safeUser: SafeUser, websocket: Boolean, debug: Boolean, cnS
                         safeUser.userId,
                         safeUser.sessionId,
                         chain.request(),
-                        EdDSAPrivateKey(safeUser.sessionPrivateKey.toByteString())
-                    )
+                        EdDSAPrivateKey(safeUser.sessionPrivateKey.toByteString()),
+                    ),
             )
 
             val request = requestBuilder.build()
 
-            val response = try {
-                chain.proceed(request)
-            } catch (e: Exception) {
-                throw e.apply {
-                    if (autoSwitch && e.isNeedSwitch()) {
-                        HostSelectionInterceptor.get().switch(request)
-                    } else {
-                        if (e.message?.contains("502") == true) {
-                            throw ServerErrorException(502)
-                        } else throw e
+            val response =
+                try {
+                    chain.proceed(request)
+                } catch (e: Exception) {
+                    throw e.apply {
+                        if (autoSwitch && e.isNeedSwitch()) {
+                            HostSelectionInterceptor.get().switch(request)
+                        } else {
+                            if (e.message?.contains("502") == true) {
+                                throw ServerErrorException(502)
+                            } else {
+                                throw e
+                            }
+                        }
                     }
                 }
-            }
 
             if (!response.isSuccessful) {
                 val code = response.code
@@ -93,7 +102,7 @@ fun createHttpClient(safeUser: SafeUser, websocket: Boolean, debug: Boolean, cnS
                 }
             }
             response
-        }
+        },
     )
 
     return builder.build()

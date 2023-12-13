@@ -3,6 +3,16 @@
 package one.mixin.bot.util
 
 import okio.ByteString.Companion.toByteString
+import one.mixin.bot.extension.base64Decode
+import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.safe.EdKeyPair
+import one.mixin.eddsa.Ed25519Sign
+import one.mixin.eddsa.Field25519
+import one.mixin.eddsa.KeyPair.Companion.newKeyPair
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.komputing.khash.keccak.KeccakParameter
+import org.komputing.khash.keccak.extensions.digestKeccak
+import org.whispersystems.curve25519.Curve25519
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -20,16 +30,6 @@ import javax.crypto.spec.PSource
 import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.and
 import kotlin.experimental.or
-import one.mixin.bot.extension.base64Decode
-import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.safe.EdKeyPair
-import one.mixin.eddsa.Ed25519Sign
-import one.mixin.eddsa.Field25519
-import one.mixin.eddsa.KeyPair.Companion.newKeyPair
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.komputing.khash.keccak.KeccakParameter
-import org.komputing.khash.keccak.extensions.digestKeccak
-import org.whispersystems.curve25519.Curve25519
 
 fun generateRSAKeyPair(keyLength: Int = 2048): KeyPair {
     val kpg = KeyPairGenerator.getInstance("RSA")
@@ -61,7 +61,10 @@ fun initFromSeedAndSign(
     return signer.sign(signTarget.toByteString(), checkOnCurve = true).toByteArray()
 }
 
-fun calculateAgreement(publicKey: ByteArray, privateKey: ByteArray): ByteArray {
+fun calculateAgreement(
+    publicKey: ByteArray,
+    privateKey: ByteArray,
+): ByteArray {
     return Curve25519.getInstance(Curve25519.BEST).calculateAgreement(publicKey, privateKey)
 }
 
@@ -126,7 +129,10 @@ fun generateRandomBytes(size: Int = 16): ByteArray {
     return key
 }
 
-fun aesGcmEncrypt(plain: ByteArray, key: ByteArray): ByteArray {
+fun aesGcmEncrypt(
+    plain: ByteArray,
+    key: ByteArray,
+): ByteArray {
     val iv = ByteArray(GCM_IV_LENGTH)
     secureRandom.nextBytes(iv)
     val cipher = Cipher.getInstance("AES/GCM/NoPadding")
@@ -137,7 +143,10 @@ fun aesGcmEncrypt(plain: ByteArray, key: ByteArray): ByteArray {
     return iv.plus(result)
 }
 
-fun aesGcmDecrypt(cipherMessage: ByteArray, key: ByteArray): ByteArray {
+fun aesGcmDecrypt(
+    cipherMessage: ByteArray,
+    key: ByteArray,
+): ByteArray {
     val secretKey = SecretKeySpec(key, "AES")
     val cipher = Cipher.getInstance("AES/GCM/NoPadding")
     val gcmIv = GCMParameterSpec(128, cipherMessage, 0, GCM_IV_LENGTH)
@@ -145,7 +154,10 @@ fun aesGcmDecrypt(cipherMessage: ByteArray, key: ByteArray): ByteArray {
     return cipher.doFinal(cipherMessage, GCM_IV_LENGTH, cipherMessage.size - GCM_IV_LENGTH)
 }
 
-fun aesEncrypt(key: ByteArray, plain: ByteArray): ByteArray {
+fun aesEncrypt(
+    key: ByteArray,
+    plain: ByteArray,
+): ByteArray {
     val keySpec = SecretKeySpec(key, "AES")
     val iv = ByteArray(16)
     secureRandom.nextBytes(iv)
@@ -155,21 +167,32 @@ fun aesEncrypt(key: ByteArray, plain: ByteArray): ByteArray {
     return iv.plus(result)
 }
 
-fun aesDecrypt(key: ByteArray, iv: ByteArray, ciphertext: ByteArray): ByteArray {
+fun aesDecrypt(
+    key: ByteArray,
+    iv: ByteArray,
+    ciphertext: ByteArray,
+): ByteArray {
     val keySpec = SecretKeySpec(key, "AES")
     val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
     cipher.init(Cipher.DECRYPT_MODE, keySpec, IvParameterSpec(iv))
     return cipher.doFinal(ciphertext)
 }
 
-fun rsaDecrypt(privateKey: PrivateKey, iv: String, pinToken: String): String {
+fun rsaDecrypt(
+    privateKey: PrivateKey,
+    iv: String,
+    pinToken: String,
+): String {
     val deCipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
     deCipher.init(
-        Cipher.DECRYPT_MODE, privateKey,
+        Cipher.DECRYPT_MODE,
+        privateKey,
         OAEPParameterSpec(
-            "SHA-256", "MGF1", MGF1ParameterSpec.SHA256,
-            PSource.PSpecified(iv.toByteArray())
-        )
+            "SHA-256",
+            "MGF1",
+            MGF1ParameterSpec.SHA256,
+            PSource.PSpecified(iv.toByteArray()),
+        ),
     )
 
     return (deCipher.doFinal(pinToken.base64Decode())).base64Encode()

@@ -17,7 +17,13 @@ import one.mixin.bot.vo.Account
 import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.RegisterRequest
 
-fun updateTipPin(client: HttpClient, tipPubHex: String, sessionKeyBase64: String, pinTokenBase64: String, legacyPin: String): Account {
+fun updateTipPin(
+    client: HttpClient,
+    tipPubHex: String,
+    sessionKeyBase64: String,
+    pinTokenBase64: String,
+    legacyPin: String,
+): Account {
     val pinToken = decryptPinToken(pinTokenBase64.base64Decode(), sessionKeyBase64.base64UrlDecode())
     val encryptedLegacyPin = encryptPin(pinToken, legacyPin.toByteArray())
     val tipPub = tipPubHex.hexStringToByteArray()
@@ -33,7 +39,14 @@ fun updateTipPin(client: HttpClient, tipPubHex: String, sessionKeyBase64: String
     return resp.data as Account
 }
 
-fun registerSafe(client: HttpClient, userId: String, safeSeedHex: String, tipPinHex: String, sessionKeyBase64: String, pinTokenBase64: String): Account {
+fun registerSafe(
+    client: HttpClient,
+    userId: String,
+    safeSeedHex: String,
+    tipPinHex: String,
+    sessionKeyBase64: String,
+    pinTokenBase64: String,
+): Account {
     val pinToken = decryptPinToken(pinTokenBase64.base64Decode(), sessionKeyBase64.base64UrlDecode())
     val seed = safeSeedHex.hexStringToByteArray()
     val keyPair = newKeyPairFromSeed(seed)
@@ -49,17 +62,18 @@ fun registerSafe(client: HttpClient, userId: String, safeSeedHex: String, tipPin
     if (meResp == null || !meResp.isSuccess()) {
         throw TipException("get safe/me failed ${meResp?.error}")
     }
-    val account =  meResp.data as Account
+    val account = meResp.data as Account
     if (account.hasSafe) {
         println("account has registered safe")
         return account
     }
 
-    val request = RegisterRequest(
-        publicKey = safePkHex,
-        signature = signature,
-        pin = bodySig,
-    )
+    val request =
+        RegisterRequest(
+            publicKey = safePkHex,
+            signature = signature,
+            pin = bodySig,
+        )
     val resp = client.utxoService.registerPublicKeyCall(request).execute().body()
     if (resp == null || !resp.isSuccess()) {
         throw TipException("register safe failed ${resp?.error}")

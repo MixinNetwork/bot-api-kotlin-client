@@ -10,16 +10,24 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AddressCoroutineService {
-
     @POST("addresses")
-    suspend fun createAddresses(@Body request: AddressRequest): MixinResponse<Address>
+    suspend fun createAddresses(
+        @Body request: AddressRequest,
+    ): MixinResponse<Address>
 
     @POST("addresses/{id}/delete")
-    suspend fun delete(@Path("id") id: String, @Body pin: Pin): MixinResponse<Unit>
+    suspend fun delete(
+        @Path("id") id: String,
+        @Body pin: Pin,
+    ): MixinResponse<Unit>
 
     @GET("addresses/{id}")
-    suspend fun address(@Path("id") id: String): MixinResponse<Address>
+    suspend fun address(
+        @Path("id") id: String,
+    ): MixinResponse<Address>
 
     @GET("assets/{id}/addresses")
-    suspend fun addresses(@Path("id") id: String): MixinResponse<List<Address>>
+    suspend fun addresses(
+        @Path("id") id: String,
+    ): MixinResponse<List<Address>>
 }

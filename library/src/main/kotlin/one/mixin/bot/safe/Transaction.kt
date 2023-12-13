@@ -16,26 +16,37 @@ import one.mixin.bot.vo.safe.TransactionResponse
 import one.mixin.bot.vo.safe.UtxoWrapper
 import java.math.BigDecimal
 
-fun sendTransaction(botClient: HttpClient, assetId: String, recipient: TransactionRecipient, traceId: String, memo: String?): List<TransactionResponse> {
+fun sendTransaction(
+    botClient: HttpClient,
+    assetId: String,
+    recipient: TransactionRecipient,
+    traceId: String,
+    memo: String?,
+): List<TransactionResponse> {
     // verify trace id may have been signed already
-    val txIdResp = botClient.utxoService.getTransactionsByIdCall(traceId).execute().body()
-        ?: throw SafeException("get safe/transactions/{id} got null response")
+    val txIdResp =
+        botClient.utxoService.getTransactionsByIdCall(traceId).execute().body()
+            ?: throw SafeException("get safe/transactions/{id} got null response")
     if (txIdResp.error?.code != 404) {
         throw SafeException("get safe/transactions/{id} data: ${txIdResp.data}, error: ${txIdResp.error}")
     }
 
     // check assetId is kernel assetId
-    val asset = if (assetId.isUUID()) {
-        assetIdToAsset(assetId)
-    } else assetId
+    val asset =
+        if (assetId.isUUID()) {
+            assetIdToAsset(assetId)
+        } else {
+            assetId
+        }
 
     // get unspent outputs for asset and may throw insufficient outputs error
     val (utxos, changeAmount) = requestUnspentOutputsForRecipients(botClient, assetId, recipient)
 
     // change to the sender
     if (changeAmount > BigDecimal.ZERO) {
-        val ma = MixAddress.newUuidMixAddress(listOf(botClient.safeUser.userId), 1)
-            ?: throw SafeException("newUuidMixAddress got null mixAddress")
+        val ma =
+            MixAddress.newUuidMixAddress(listOf(botClient.safeUser.userId), 1)
+                ?: throw SafeException("newUuidMixAddress got null mixAddress")
         val tr = TransactionRecipient(ma, changeAmount.toString())
         // TODO
     }
@@ -75,7 +86,11 @@ fun sendTransaction(botClient: HttpClient, assetId: String, recipient: Transacti
     return txResp.data as List<TransactionResponse>
 }
 
-fun requestUnspentOutputsForRecipients(botClient: HttpClient, assetId: String, recipient: TransactionRecipient): Pair<List<Output>, BigDecimal> {
+fun requestUnspentOutputsForRecipients(
+    botClient: HttpClient,
+    assetId: String,
+    recipient: TransactionRecipient,
+): Pair<List<Output>, BigDecimal> {
     val memberHash = buildHashMembers(listOf(botClient.safeUser.userId))
     val outputs = listUnspentOutputs(botClient, memberHash, 1, assetId)
     if (outputs.isEmpty()) {
