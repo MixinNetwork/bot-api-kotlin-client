@@ -30,30 +30,9 @@ dependencies {
     runtimeOnly 'com.github.mixinnetwork.jjwt:jjwt-impl:2b1c61aa2f'
     runtimeOnly 'com.github.mixinnetwork.jjwt:jjwt-orgjson:2b1c61aa2f'
     implementation "org.whispersystems:curve25519-java:$curve25519Version"
-    ktlint "com.pinterest:ktlint:$ktlintVersion"
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
-}
-
-task ktlint(type: JavaExec, group: "verification") {
-    description = "Check Kotlin code style."
-    classpath = configurations.ktlint
-    main = "com.pinterest.ktlint.Main"
-    args "src/**/*.kt"
-    // to generate report in checkstyle format prepend following args:
-    // "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/ktlint.xml"
-    // to add a baseline to check against prepend following args:
-    // "--baseline=ktlint-baseline.xml"
-    // see https://github.com/pinterest/ktlint#usage for more
-}
-check.dependsOn ktlint
-
-task ktlintFormat(type: JavaExec, group: "formatting") {
-    description = "Fix Kotlin code style deviations."
-    classpath = configurations.ktlint
-    main = "com.pinterest.ktlint.Main"
-    args "-F", "src/**/*.kt"
 }
 
 sourceCompatibility = 1.8
