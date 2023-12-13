@@ -1,21 +1,19 @@
-@file:Suppress("unused")
+@file:Suppress("ktlint", "unused")
 
 package one.mixin.bot.blaze
 
 import com.google.gson.Gson
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
-import okhttp3.* //ktlint-disable
+import okhttp3.*
 import okio.ByteString
 import one.mixin.bot.Constants
-import one.mixin.bot.SessionToken
 import one.mixin.bot.blaze.msg.Buttons
 import one.mixin.bot.blaze.msg.Cards
-import one.mixin.bot.extension.base64Encode
-import one.mixin.bot.util.* //ktlint-disable
-import java.util.* //ktlint-disable
+import one.mixin.bot.util.*
+import one.mixin.bot.vo.safe.SafeUser
+import java.util.*
 
 class BlazeClient private constructor(
-    private val clientToken: SessionToken,
+    private val safeUser: SafeUser,
     private val cnServer: Boolean = false,
     private val blazeHandler: BlazeHandler,
     private val parseData: Boolean = false,
@@ -32,10 +30,8 @@ class BlazeClient private constructor(
     private var connectCount = 0
     private var reconnectInterval = 5000
 
-    private var userSessionToken: SessionToken? = null
-
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(userSessionToken, clientToken, true, debug, cnServer, autoSwitch)
+        createHttpClient(safeUser, true, debug, cnServer, autoSwitch)
     }
 
     private var webSocket: WebSocket? = null
@@ -75,7 +71,7 @@ class BlazeClient private constructor(
     }
 
     class Builder {
-        private lateinit var clientToken: SessionToken
+        private lateinit var safeUser: SafeUser
         private var cnServer: Boolean = false
         private var debug: Boolean = false
         private var parseData: Boolean = false
@@ -83,14 +79,14 @@ class BlazeClient private constructor(
         private var blazeHandler: BlazeHandler = DefaultBlazeHandler()
         private var autoSwitch: Boolean = false
 
-        fun configEdDSA(userId: String, sessionId: String, privateKey: EdDSAPrivateKey): Builder {
-            clientToken = SessionToken.EdDSA(userId, sessionId, privateKey.seed.base64Encode())
-            return this
-        }
-
-        fun configRSA(userId: String, sessionId: String, privateKey: String): Builder {
-            val key = getRSAPrivateKeyFromString(privateKey)
-            clientToken = SessionToken.RSA(userId, sessionId, key)
+        fun configSafeUser(
+            userId: String,
+            sessionId: String,
+            sessionPrivateKey: ByteArray,
+            serverPublicKey: ByteArray? = null,
+            spendPrivateKey: ByteArray? = null,
+        ): Builder {
+            safeUser = SafeUser(userId, sessionId, sessionPrivateKey.sliceArray(0..31), serverPublicKey, spendPrivateKey)
             return this
         }
 
@@ -125,7 +121,7 @@ class BlazeClient private constructor(
         }
 
         fun build(): BlazeClient {
-            return BlazeClient(clientToken, cnServer, blazeHandler, parseData, autoAck, autoSwitch)
+            return BlazeClient(safeUser, cnServer, blazeHandler, parseData, autoAck, autoSwitch)
         }
     }
 

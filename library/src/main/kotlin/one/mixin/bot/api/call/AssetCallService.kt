@@ -17,38 +17,45 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface AssetCallService {
-
     @GET("assets")
     fun assetsCall(): Call<MixinResponse<List<Asset>>>
 
     @GET("network/ticker")
     fun tickerCall(
         @Query("asset") assetId: String,
-        @Query("offset") offset: String? = null
+        @Query("offset") offset: String? = null,
     ): Call<MixinResponse<Ticker>>
 
     @GET("assets/{id}")
-    fun getAssetCall(@Path("id") id: String): Call<MixinResponse<Asset>>
+    fun getAssetCall(
+        @Path("id") id: String,
+    ): Call<MixinResponse<Asset>>
 
     @GET("external/transactions")
     fun pendingDepositsCall(
         @Query("asset") asset: String,
         @Query("destination") key: String? = null,
-        @Query("tag") tag: String? = null
+        @Query("tag") tag: String? = null,
     ): Call<MixinResponse<List<PendingDeposit>>>
 
     @GET("network/assets/search/{query}")
-    fun queryAssetsCall(@Path("query") query: String): Call<MixinResponse<List<Asset>>>
+    fun queryAssetsCall(
+        @Path("query") query: String,
+    ): Call<MixinResponse<List<Asset>>>
 
     @GET("network/assets/top")
     fun topAssetsCall(): Call<MixinResponse<List<TopAsset>>>
 
-    @GET("fiats")
+    @GET("external/fiats")
     fun getFiatsCall(): Call<MixinResponse<List<Fiat>>>
 
     @GET("assets/{id}/fee")
-    fun assetsFeeCall(@Path("id") id: String): Call<MixinResponse<AssetFee>>
+    fun assetsFeeCall(
+        @Path("id") id: String,
+    ): Call<MixinResponse<AssetFee>>
 
     @POST("transactions")
-    fun transactionsCall(@Body request: TransactionRequest): Call<MixinResponse<TransactionResponse>>
+    fun transactionsCall(
+        @Body request: TransactionRequest,
+    ): Call<MixinResponse<TransactionResponse>>
 }

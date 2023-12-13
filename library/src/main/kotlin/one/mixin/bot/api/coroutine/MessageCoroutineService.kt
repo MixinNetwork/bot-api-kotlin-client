@@ -7,5 +7,7 @@ import retrofit2.http.POST
 
 interface MessageCoroutineService {
     @POST("messages")
-    suspend fun postMessage(@Body messageRequests: List<MessageRequest>): MixinResponse<Unit>
+    suspend fun postMessage(
+        @Body messageRequests: List<MessageRequest>,
+    ): MixinResponse<Unit>
 }

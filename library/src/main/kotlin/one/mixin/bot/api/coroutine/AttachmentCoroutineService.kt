@@ -7,10 +7,11 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AttachmentCoroutineService {
-
     @POST("attachments")
     suspend fun requestAttachment(): MixinResponse<AttachmentResponse>
 
     @GET("attachments/{id}")
-    suspend fun getAttachment(@Path("id") id: String): MixinResponse<AttachmentResponse>
+    suspend fun getAttachment(
+        @Path("id") id: String,
+    ): MixinResponse<AttachmentResponse>
 }

@@ -44,7 +44,7 @@ Add the dependency
 fun main() = runBlocking {
     val key = getEdDSAPrivateKeyFromString(Config.privateKey)
     val pinToken = decryASEKey(Config.pinTokenPem, key) ?: return@runBlocking
-    val client = HttpClient.Builder().configEdDSA(Config.userId, Config.sessionId, key).build()
+    val botClient = HttpClient.Builder().useCNServer().configSafeUser(Config.userId, Config.sessionId, key.privateKey).enableDebug().build()
 
     val sessionKey = generateEd25519KeyPair()
     val publicKey = sessionKey.public as EdDSAPublicKey
@@ -67,9 +67,9 @@ fun main() = runBlocking {
 ```kotlin
 fun main(): Unit = runBlocking {
     val job = launch {
-        val key = getEdDSAPrivateKeyFromString(Config.privateKey)
+        val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
         val blazeClient = BlazeClient.Builder()
-            .configEdDSA(Config.userId, Config.sessionId, key)
+            .configSafeUser(Config.userId, Config.sessionId, keyPair.privateKey)
             .enableDebug()
             .enableParseData()
             .enableAutoAck()

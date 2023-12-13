@@ -17,5 +17,5 @@ class TransferRequest(
     val memo: String? = null,
     // only for validate payment
     @SerializedName("address_id")
-    val addressId: String? = null
+    val addressId: String? = null,
 )

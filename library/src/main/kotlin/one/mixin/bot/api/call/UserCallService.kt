@@ -20,24 +20,33 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UserCallService {
-
     @POST("users")
-    fun createUsersCall(@Body request: AccountRequest): Call<MixinResponse<User>>
+    fun createUsersCall(
+        @Body request: AccountRequest,
+    ): Call<MixinResponse<User>>
 
     @POST("pin/update")
-    fun createPinCall(@Body request: PinRequest): Call<MixinResponse<User>>
+    fun createPinCall(
+        @Body request: PinRequest,
+    ): Call<MixinResponse<User>>
 
     @POST("pin/verify")
-    fun pinVerifyCall(@Body request: PinRequest): Call<MixinResponse<User>>
+    fun pinVerifyCall(
+        @Body request: PinRequest,
+    ): Call<MixinResponse<User>>
 
     @POST("pin/update")
-    fun updatePinCall(@Body request: PinRequest): Call<MixinResponse<Account>>
+    fun updatePinCall(
+        @Body request: PinRequest,
+    ): Call<MixinResponse<Account>>
 
-    @GET("me")
+    @GET("safe/me")
     fun getMeCall(): Call<MixinResponse<Account>>
 
     @POST("multisigs/requests")
-    fun requestsMultisigsCall(@Body request: MultisigsRequest): Call<MixinResponse<MultisigsResponse>>
+    fun requestsMultisigsCall(
+        @Body request: MultisigsRequest,
+    ): Call<MixinResponse<MultisigsResponse>>
 
     @GET("multisigs/outputs")
     fun multisigsOutputsCall(
@@ -50,30 +59,34 @@ interface UserCallService {
     ): Call<MixinResponse<List<OutputResponse>>>
 
     @POST("multisigs/{id}/cancel")
-    fun cancelMultisigsCall(@Path("id") id: String): Call<MixinResponse<Void>>
+    fun cancelMultisigsCall(
+        @Path("id") id: String,
+    ): Call<MixinResponse<Void>>
 
     @POST("multisigs/{id}/sign")
     fun signMultisigsCall(
         @Path("id") id: String,
-        @Body pinRequest: PinRequest
+        @Body pinRequest: PinRequest,
     ): Call<MixinResponse<Void>>
 
     @POST("multisigs/{id}/unlock")
     fun unlockMultisigsCall(
         @Path("id") id: String,
-        @Body pinRequest: PinRequest
+        @Body pinRequest: PinRequest,
     ): Call<MixinResponse<Void>>
 
     @POST("outputs")
     fun readGhostKeysCall(
-        @Body ghostKeyRequest: GhostKeyRequest
+        @Body ghostKeyRequest: GhostKeyRequest,
     ): Call<MixinResponse<GhostKey>>
 
     @POST("external/proxy")
     fun mixinMainnetRPCCall(
-        @Body rpcRequest: RpcRequest
+        @Body rpcRequest: RpcRequest,
     ): Call<JsonObject>
 
     @GET("search/{query}")
-    fun searchCall(@Path("query") query: String): Call<MixinResponse<User>>
+    fun searchCall(
+        @Path("query") query: String,
+    ): Call<MixinResponse<User>>
 }

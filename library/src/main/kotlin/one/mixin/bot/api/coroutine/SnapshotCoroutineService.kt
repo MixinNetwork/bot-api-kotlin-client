@@ -13,31 +13,38 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface SnapshotCoroutineService {
-
     @POST("withdrawals")
-    suspend fun withdrawals(@Body request: WithdrawalRequest): MixinResponse<Snapshot>
+    suspend fun withdrawals(
+        @Body request: WithdrawalRequest,
+    ): MixinResponse<Snapshot>
 
     @GET("snapshots/{id}")
-    suspend fun getSnapshotById(@Path("id") id: String): MixinResponse<Snapshot>
+    suspend fun getSnapshotById(
+        @Path("id") id: String,
+    ): MixinResponse<Snapshot>
 
     @GET("/snapshots/trace/{id}")
-    suspend fun getTrace(@Path("id") traceId: String): MixinResponse<Snapshot>
+    suspend fun getTrace(
+        @Path("id") traceId: String,
+    ): MixinResponse<Snapshot>
 
     @POST("transfers")
-    suspend fun transfer(@Body request: TransferRequest): MixinResponse<Snapshot>
+    suspend fun transfer(
+        @Body request: TransferRequest,
+    ): MixinResponse<Snapshot>
 
     @GET("assets/{id}/snapshots")
     suspend fun getSnapshotsByAssetId(
         @Path("id") id: String,
         @Query("offset") offset: String? = null,
-        @Query("limit") limit: Int = SnapshotService.LIMIT
+        @Query("limit") limit: Int = SnapshotService.LIMIT,
     ): MixinResponse<List<Snapshot>>
 
     @GET("snapshots")
     suspend fun getAllSnapshots(
         @Query("offset") offset: String? = null,
         @Query("limit") limit: Int = SnapshotService.LIMIT,
-        @Query("opponent") opponent: String? = null
+        @Query("opponent") opponent: String? = null,
     ): MixinResponse<List<Snapshot>>
 
     @GET("snapshots")
@@ -47,17 +54,19 @@ interface SnapshotCoroutineService {
         @Query("limit") limit: Int = SnapshotService.LIMIT,
         @Query("opponent") opponent: String? = null,
         @Query("destination") destination: String? = null,
-        @Query("tag") tag: String? = null
+        @Query("tag") tag: String? = null,
     ): MixinResponse<List<Snapshot>>
 
     @GET("/network/snapshots/{id}")
-    suspend fun networkSnapshot(@Path("id") snapshotId: String): MixinResponse<NetworkSnapshot>
+    suspend fun networkSnapshot(
+        @Path("id") snapshotId: String,
+    ): MixinResponse<NetworkSnapshot>
 
     @GET("/network/snapshots")
     suspend fun networkSnapshots(
         @Query("asset") assetId: String,
         @Query("offset") offset: String? = null,
         @Query("limit") limit: Int = SnapshotService.LIMIT,
-        @Query("order") order: String? = null
+        @Query("order") order: String? = null,
     ): MixinResponse<List<NetworkSnapshot>>
 }

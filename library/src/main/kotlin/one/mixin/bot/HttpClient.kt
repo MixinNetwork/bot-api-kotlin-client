@@ -1,16 +1,16 @@
+@file:Suppress("ktlint")
+
 package one.mixin.bot
 
 import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import okhttp3.OkHttpClient
 import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
-import one.mixin.bot.api.* //ktlint-disable
-import one.mixin.bot.extension.base64Encode
+import one.mixin.bot.api.*
 import one.mixin.bot.util.createHttpClient
-import one.mixin.bot.util.getRSAPrivateKeyFromString
 import one.mixin.bot.vo.RpcRequest
+import one.mixin.bot.vo.safe.SafeUser
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -19,7 +19,7 @@ import java.security.Security
 
 @Suppress("unused")
 class HttpClient private constructor(
-    private val clientToken: SessionToken,
+    val safeUser: SafeUser,
     cnServer: Boolean = false,
     debug: Boolean = false,
     autoSwitch: Boolean = false
@@ -28,14 +28,8 @@ class HttpClient private constructor(
         Security.addProvider(BouncyCastleProvider())
     }
 
-    private var userSessionToken: SessionToken? = null
-
-    fun setUserToken(userSessionToken: SessionToken?) {
-        this.userSessionToken = userSessionToken
-    }
-
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(userSessionToken, clientToken, false, debug, cnServer, autoSwitch)
+        createHttpClient(safeUser, false, debug, cnServer, autoSwitch)
     }
 
     private val retrofit: Retrofit by lazy {
@@ -81,6 +75,10 @@ class HttpClient private constructor(
         retrofit.create(AttachmentService::class.java)
     }
 
+    val utxoService: UtxoService by lazy {
+        retrofit.create(UtxoService::class.java)
+    }
+
     val externalService: ExternalService by lazy {
         object : ExternalService {
             override fun getUtxoCall(hash: String, index: Int): Call<JsonObject> {
@@ -100,28 +98,19 @@ class HttpClient private constructor(
     }
 
     class Builder {
-        private lateinit var clientToken: SessionToken
+        private lateinit var safeUser: SafeUser
         private var cnServer: Boolean = false
         private var debug: Boolean = false
         private var autoSwitch: Boolean = false
 
-        fun configEdDSA(
+        fun configSafeUser(
             userId: String,
             sessionId: String,
-            privateKey: EdDSAPrivateKey
+            sessionPrivateKey: ByteArray,
+            serverPublicKey: ByteArray? = null,
+            spendPrivateKey: ByteArray? = null,
         ): Builder {
-            clientToken = SessionToken.EdDSA(userId, sessionId, privateKey.seed.base64Encode())
-            return this
-        }
-
-        fun configRSA(
-            userId: String,
-            sessionId: String,
-            privateKey: String
-        ): Builder {
-            val key = getRSAPrivateKeyFromString(privateKey)
-            clientToken =
-                SessionToken.RSA(userId, sessionId, key)
+            safeUser = SafeUser(userId, sessionId, sessionPrivateKey.sliceArray(0..31), serverPublicKey, spendPrivateKey)
             return this
         }
 
@@ -141,7 +130,7 @@ class HttpClient private constructor(
         }
 
         fun build(): HttpClient {
-            return HttpClient(clientToken, cnServer, debug, autoSwitch)
+            return HttpClient(safeUser, cnServer, debug, autoSwitch)
         }
     }
 }

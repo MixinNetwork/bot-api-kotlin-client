@@ -44,38 +44,23 @@ dependencies {
 # Usage
 ```kotlin 
 fun main() = runBlocking {
-    val client = HttpClient(userId, sessionId, privateKey, true)
-    val response = client.userService.getMe()
-    println(response.data?.avatarUrl)
+    val key = getEdDSAPrivateKeyFromString(Config.privateKey)
+    val pinToken = decryASEKey(Config.pinTokenPem, key) ?: return@runBlocking
+    val botClient = HttpClient.Builder().useCNServer().configSafeUser(Config.userId, Config.sessionId, key.privateKey).enableDebug().build()
+
+    val sessionKey = generateEd25519KeyPair()
+    val publicKey = sessionKey.public as EdDSAPublicKey
+    val sessionSecret = publicKey.abyte.base64Encode()
 
     // create user 将用户注册到 Mixin 网络
-    val sessionKey = generateRSAKeyPair()
-    val sessionSecret = Base64.encodeBytes(sessionKey.public.encoded)
-    val userResponse = client.userService.createUsers(
-        AccountRequest(
-            "User${Random().nextInt(100)}",
-            sessionSecret
+    val user = createUser(client, sessionSecret)
+    user ?: return@runBlocking
+    client.setUserToken(
+        SessionToken.EdDSA(
+            user.userId, user.sessionId,
+            (sessionKey.private as EdDSAPrivateKey).seed.base64Encode()
         )
     )
-    println("${userResponse.data?.fullName} ${userResponse.data?.userId}")
-    val user = userResponse.data ?: return@runBlocking
-    client.setUserToken(TokenInfo(user.userId, user.sessionId, sessionKey.private))
-    // decrypt pin token
-    val userAesKey: String =
-        rsaDecrypt(sessionKey.private, user.sessionId, user.pinToken)
-    val pinResponse = client.userService.createPin(
-        PinRequest(
-            encryptPin(
-                SecretPinIterator(),
-                userAesKey,
-                "131416"
-            )!!
-        )
-    )
-    println(pinResponse.isSuccess)
-
-    val assetResponse = client.assetService.assets()
-    println(assetResponse.data)
 }
 ```
 
@@ -83,9 +68,9 @@ fun main() = runBlocking {
 ```kotlin
 fun main(): Unit = runBlocking {
     val job = launch {
-        val key = getEdDSAPrivateKeyFromString(Config.privateKey)
+        val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
         val blazeClient = BlazeClient.Builder()
-            .configEdDSA(Config.userId, Config.sessionId, key)
+            .configSafeUser(Config.userId, Config.sessionId, keyPair.privateKey)
             .enableDebug()
             .enableParseData()
             .enableAutoAck()

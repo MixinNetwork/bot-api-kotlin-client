@@ -7,25 +7,32 @@ import one.mixin.bot.blaze.BlazeClient
 import one.mixin.bot.blaze.BlazeHandler
 import one.mixin.bot.blaze.BlazeMsg
 import one.mixin.bot.blaze.sendTextMsg
-import one.mixin.bot.util.getEdDSAPrivateKeyFromString
+import one.mixin.bot.extension.base64Decode
+import one.mixin.bot.util.newKeyPairFromPrivateKey
 
-fun main(): Unit = runBlocking {
-    val job = launch {
-        val key = getEdDSAPrivateKeyFromString(Config.privateKey)
-        val blazeClient = BlazeClient.Builder()
-            .configEdDSA(Config.userId, Config.sessionId, key)
-            .enableDebug()
-            .enableParseData()
-            .enableAutoAck()
-            .blazeHandler(MyBlazeHandler())
-            .build()
-        blazeClient.start()
+fun main(): Unit =
+    runBlocking {
+        val job =
+            launch {
+                val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
+                val blazeClient =
+                    BlazeClient.Builder()
+                        .configSafeUser(Config.userId, Config.sessionId, keyPair.privateKey)
+                        .enableDebug()
+                        .enableParseData()
+                        .enableAutoAck()
+                        .blazeHandler(MyBlazeHandler())
+                        .build()
+                blazeClient.start()
+            }
+        job.join()
     }
-    job.join()
-}
 
 private class MyBlazeHandler : BlazeHandler {
-    override fun onMessage(webSocket: WebSocket, blazeMsg: BlazeMsg): Boolean {
+    override fun onMessage(
+        webSocket: WebSocket,
+        blazeMsg: BlazeMsg,
+    ): Boolean {
         println(blazeMsg)
         blazeMsg.data?.let { data ->
             sendTextMsg(webSocket, data.conversionId, data.userId, "read")

@@ -19,24 +19,33 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UserCoroutineService {
-
     @POST("users")
-    suspend fun createUsers(@Body request: AccountRequest): MixinResponse<User>
+    suspend fun createUsers(
+        @Body request: AccountRequest,
+    ): MixinResponse<User>
 
     @POST("pin/update")
-    suspend fun createPin(@Body request: PinRequest): MixinResponse<User>
+    suspend fun createPin(
+        @Body request: PinRequest,
+    ): MixinResponse<User>
 
     @POST("pin/verify")
-    suspend fun pinVerify(@Body request: PinRequest): MixinResponse<User>
+    suspend fun pinVerify(
+        @Body request: PinRequest,
+    ): MixinResponse<User>
 
     @POST("pin/update")
-    suspend fun updatePin(@Body request: PinRequest): MixinResponse<Account>
+    suspend fun updatePin(
+        @Body request: PinRequest,
+    ): MixinResponse<Account>
 
-    @GET("me")
+    @GET("safe/me")
     suspend fun getMe(): MixinResponse<Account>
 
     @POST("multisigs/requests")
-    suspend fun requestsMultisigs(@Body request: MultisigsRequest): MixinResponse<MultisigsResponse>
+    suspend fun requestsMultisigs(
+        @Body request: MultisigsRequest,
+    ): MixinResponse<MultisigsResponse>
 
     @GET("multisigs/outputs")
     suspend fun multisigsOutputs(
@@ -49,22 +58,34 @@ interface UserCoroutineService {
     ): MixinResponse<List<OutputResponse>>
 
     @POST("multisigs/{id}/cancel")
-    suspend fun cancelMultisigs(@Path("id") id: String): MixinResponse<Void>
+    suspend fun cancelMultisigs(
+        @Path("id") id: String,
+    ): MixinResponse<Void>
 
     @POST("multisigs/{id}/sign")
-    suspend fun signMultisigs(@Path("id") id: String, @Body pinRequest: PinRequest): MixinResponse<Void>
+    suspend fun signMultisigs(
+        @Path("id") id: String,
+        @Body pinRequest: PinRequest,
+    ): MixinResponse<Void>
 
     @POST("multisigs/{id}/unlock")
-    suspend fun unlockMultisigs(@Path("id") id: String, @Body pinRequest: PinRequest): MixinResponse<Void>
+    suspend fun unlockMultisigs(
+        @Path("id") id: String,
+        @Body pinRequest: PinRequest,
+    ): MixinResponse<Void>
 
     @POST("outputs")
-    suspend fun readGhostKeys(@Body ghostKeyRequest: GhostKeyRequest): MixinResponse<GhostKey>
+    suspend fun readGhostKeys(
+        @Body ghostKeyRequest: GhostKeyRequest,
+    ): MixinResponse<GhostKey>
 
     @POST("external/proxy")
     suspend fun mixinMainnetRPC(
-        @Body rpcRequest: RpcRequest
+        @Body rpcRequest: RpcRequest,
     ): JsonObject
 
     @GET("search/{query}")
-    suspend fun search(@Path("query") query: String): MixinResponse<User>
+    suspend fun search(
+        @Path("query") query: String,
+    ): MixinResponse<User>
 }
