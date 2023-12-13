@@ -23,12 +23,13 @@ import one.mixin.bot.vo.Account
 import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.safe.MixAddress
 import one.mixin.bot.vo.safe.TransactionRecipient
+import one.mixin.bot.vo.safe.toMixAddress
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.UUID
 
 fun main() = runBlocking {
-    val botClient = HttpClient.Builder().useCNServer().configEdDSA(
+    val botClient = HttpClient.Builder().useCNServer().configSafeUser(
         Config.userId,
         Config.sessionId,
         Config.privateKey.base64UrlDecode(),
@@ -38,14 +39,16 @@ fun main() = runBlocking {
 
     // updateFromLegacyPin(botClient)
 
-    val user = createTipPin(botClient) ?: return@runBlocking
+    // val user = createTipPin(botClient) ?: return@runBlocking
 
     val currentRelativePath: Path = Paths.get("")
     val s: String = currentRelativePath.toAbsolutePath().toString()
     println("Current absolute path is: $s")
     System.load("${s}/library/libs/darwin/amd64/libgojni.so")
 
-    kernelTransaction(botClient)
+    // transactionToOne(botClient)
+
+    transactionToMultiple(botClient)
 }
 
 private suspend fun updateFromLegacyPin(botClient: HttpClient) {
@@ -54,7 +57,7 @@ private suspend fun updateFromLegacyPin(botClient: HttpClient) {
     val sessionSecret = sessionKey.publicKey.base64Encode()
     val user = createUser(botClient, sessionSecret) ?: return
 
-    val userClient = HttpClient.Builder().useCNServer().configEdDSA(user.userId, user.sessionId, sessionKey.privateKey).enableDebug().build()
+    val userClient = HttpClient.Builder().useCNServer().configSafeUser(user.userId, user.sessionId, sessionKey.privateKey).enableDebug().build()
 
     // decrypt pin token
     val userPrivateKey = sessionKey.privateKey
@@ -78,7 +81,7 @@ private suspend fun createTipPin(botClient: HttpClient): Account? {
     val sessionSecret = sessionKey.publicKey.base64Encode()
     val user = createUser(botClient, sessionSecret) ?: return null
 
-    val userClient = HttpClient.Builder().useCNServer().configEdDSA(user.userId, user.sessionId, sessionKey.privateKey).enableDebug().build()
+    val userClient = HttpClient.Builder().useCNServer().configSafeUser(user.userId, user.sessionId, sessionKey.privateKey).enableDebug().build()
 
     // decrypt pin token
     val userPrivateKey = sessionKey.privateKey
@@ -100,12 +103,30 @@ private suspend fun createTipPin(botClient: HttpClient): Account? {
     return registerSafe(userClient, user.userId, keyPair.privateKey.toHex(), keyPair.privateKey.toHex(), userPrivateKey.base64UrlEncode(), user.pinToken)
 }
 
-fun kernelTransaction(botClient: HttpClient) {
+fun transactionToOne(botClient: HttpClient) {
     val asset = assetIdToAsset("965e5c6e-434c-3fa9-b780-c50f43cd955c")  // cnb
     val mixAddress = MixAddress.newUuidMixAddress(listOf("d3bee23a-81d4-462e-902a-22dae9ef89ff"), 1)
         ?: throw SafeException("newUuidMixAddress got null mixAddress")
     val transactionRecipient = TransactionRecipient(mixAddress, "0.013")
     val trace = UUID.randomUUID().toString()
     println("trace: $trace")
-    sendTransaction(botClient, asset, transactionRecipient, trace, "")
+    val tx = sendTransaction(botClient, asset, transactionRecipient, trace, "")
+    println(tx)
+
+    try {
+        sendTransaction(botClient, asset, transactionRecipient, trace, "")
+    } catch (e: SafeException) {
+        println("use same id should throw exception ${e.stackTraceToString()}")
+    }
+}
+
+fun transactionToMultiple(botClient: HttpClient) {
+    val asset = "965e5c6e-434c-3fa9-b780-c50f43cd955c"  // cnb
+    val mixAddress = "MIXDLSoouhdcvedoiSzNHNRR4FNqVNwwgHUXkFoApTsz35fBHSNGyZEqGCzWuwDYrrWDwCXiaNcPec4C5cW8tCiE7BUHvs6A9YZ4B6FiFAEYY5Nd1etLA7aE7".toMixAddress()
+        ?: throw SafeException("toMixAddress got null mixAddress")
+    val transactionRecipient = TransactionRecipient(mixAddress, "0.012")
+    val trace = UUID.randomUUID().toString()
+    println("trace: $trace")
+    val tx = sendTransaction(botClient, asset, transactionRecipient, trace, "")
+    println(tx)
 }

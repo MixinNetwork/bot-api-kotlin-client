@@ -15,7 +15,7 @@ fun main() = runBlocking {
     val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
     val pinToken = decryptPinToken(Config.pinTokenPem.base64Decode(), keyPair.privateKey)
     val client =
-        HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, keyPair.privateKey).build()
+        HttpClient.Builder().useCNServer().configSafeUser(Config.userId, Config.sessionId, keyPair.privateKey).build()
 
     // create alice keys
     val aliceSessionKey = generateEd25519KeyPair()
@@ -26,7 +26,7 @@ fun main() = runBlocking {
     alice ?: return@runBlocking
     println("alice: $alice")
     val aliceClient =
-        HttpClient.Builder().useCNServer().configEdDSA(alice.userId, alice.sessionId, aliceSessionKey.privateKey).build()
+        HttpClient.Builder().useCNServer().configSafeUser(alice.userId, alice.sessionId, aliceSessionKey.privateKey).build()
     // decrypt pin token
     val aliceAesKey = calculateAgreement(alice.pinToken.base64Decode(), privateKeyToCurve25519(aliceSessionKey.privateKey))
     // create alice's pin
@@ -41,7 +41,7 @@ fun main() = runBlocking {
     bob ?: return@runBlocking
     println("bob: $bob")
     val bobClient =
-        HttpClient.Builder().useCNServer().configEdDSA(bob.userId, bob.sessionId, bobSessionKey.privateKey).build()
+        HttpClient.Builder().useCNServer().configSafeUser(bob.userId, bob.sessionId, bobSessionKey.privateKey).build()
     // decrypt pin token
     val bobAesKey = calculateAgreement(bob.pinToken.base64Decode(), privateKeyToCurve25519(bobSessionKey.privateKey))
     // create bob's pin

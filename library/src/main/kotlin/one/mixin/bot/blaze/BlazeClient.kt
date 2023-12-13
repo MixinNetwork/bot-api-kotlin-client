@@ -79,7 +79,7 @@ class BlazeClient private constructor(
         private var blazeHandler: BlazeHandler = DefaultBlazeHandler()
         private var autoSwitch: Boolean = false
 
-        fun configEdDSA(
+        fun configSafeUser(
             userId: String,
             sessionId: String,
             sessionPrivateKey: ByteArray,

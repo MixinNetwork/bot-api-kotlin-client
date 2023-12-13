@@ -29,7 +29,7 @@ public class Sample {
     public static void main(String[] args) {
         EdKeyPair key = CryptoUtilKt.newKeyPairFromPrivateKey(Base64ExtensionKt.base64Decode(privateKey));
         byte[] pinToken = decryptPinToken(Base64ExtensionKt.base64Decode(pinTokenPem), key.getPrivateKey());
-        HttpClient client = new HttpClient.Builder().configEdDSA(userId, sessionId, key.getPrivateKey(), null, null).enableDebug().enableAutoSwitch().build();
+        HttpClient client = new HttpClient.Builder().configSafeUser(userId, sessionId, key.getPrivateKey(), null, null).enableDebug().enableAutoSwitch().build();
         try {
             utxo(client);
             EdKeyPair sessionKey = generateEd25519KeyPair();
@@ -55,7 +55,7 @@ public class Sample {
             getFee(client);
 
 
-            HttpClient userClient = new HttpClient.Builder().configEdDSA(user.getUserId(), user.getSessionId(), sessionKey.getPrivateKey(), null, null).enableDebug().enableAutoSwitch().build();
+            HttpClient userClient = new HttpClient.Builder().configSafeUser(user.getUserId(), user.getSessionId(), sessionKey.getPrivateKey(), null, null).enableDebug().enableAutoSwitch().build();
             // create user's pin
             createPin(userClient, userAesKey);
 

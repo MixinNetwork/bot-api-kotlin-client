@@ -12,10 +12,19 @@ import one.mixin.bot.vo.safe.Output
 import one.mixin.bot.vo.safe.SignResult
 import one.mixin.bot.vo.safe.TransactionRecipient
 import one.mixin.bot.vo.safe.TransactionRequest
+import one.mixin.bot.vo.safe.TransactionResponse
 import one.mixin.bot.vo.safe.UtxoWrapper
 import java.math.BigDecimal
 
-fun sendTransaction(botClient: HttpClient, assetId: String, recipient: TransactionRecipient, traceId: String, memo: String?) {
+fun sendTransaction(botClient: HttpClient, assetId: String, recipient: TransactionRecipient, traceId: String, memo: String?): List<TransactionResponse> {
+    // verify trace id may have been signed already
+    val txIdResp = botClient.utxoService.getTransactionsByIdCall(traceId).execute().body()
+        ?: throw SafeException("get safe/transactions/{id} got null response")
+    if (txIdResp.error?.code != 404) {
+        throw SafeException("get safe/transactions/{id} data: ${txIdResp.data}, error: ${txIdResp.error}")
+    }
+
+    // check assetId is kernel assetId
     val asset = if (assetId.isUUID()) {
         assetIdToAsset(assetId)
     } else assetId
@@ -26,12 +35,13 @@ fun sendTransaction(botClient: HttpClient, assetId: String, recipient: Transacti
     // change to the sender
     if (changeAmount > BigDecimal.ZERO) {
         val ma = MixAddress.newUuidMixAddress(listOf(botClient.safeUser.userId), 1)
-            ?: throw SafeException("newUuidMixAddress go null mixAddress")
+            ?: throw SafeException("newUuidMixAddress got null mixAddress")
         val tr = TransactionRecipient(ma, changeAmount.toString())
+        // TODO
     }
 
     // request ghost key
-    val ghostKeyReq = buildGhostKeyRequest(recipient.mixAddress.uuidMembers, listOf(botClient.safeUser.userId), traceId)
+    val ghostKeyReq = buildGhostKeyRequest(recipient.mixAddress.uuidMembers.sorted(), listOf(botClient.safeUser.userId), traceId)
     val ghostKeyResp = botClient.utxoService.ghostKeyCall(ghostKeyReq).execute().body()
     if (ghostKeyResp == null || !ghostKeyResp.isSuccess()) {
         throw SafeException("request ghostKey ${ghostKeyResp?.error}")
@@ -44,7 +54,6 @@ fun sendTransaction(botClient: HttpClient, assetId: String, recipient: Transacti
     val receiverMask = ghostKeys.first().mask
     val changeKeys = ghostKeys.last().keys.joinToString(",")
     val changeMask = ghostKeys.last().mask
-
     val tx = Kernel.buildTx(asset, recipient.amount, recipient.mixAddress.threshold.toInt(), receiverKeys, receiverMask, utxoWrapper.input, changeKeys, changeMask, memo, "")
     var txResp = botClient.utxoService.transactionRequestCall(listOf(TransactionRequest(tx, traceId))).execute().body()
     if (txResp == null || !txResp.isSuccess()) {
@@ -63,7 +72,7 @@ fun sendTransaction(botClient: HttpClient, assetId: String, recipient: Transacti
     if (txResp == null || !txResp.isSuccess()) {
         throw SafeException("safe/transactions ${txResp?.error}")
     }
-
+    return txResp.data as List<TransactionResponse>
 }
 
 fun requestUnspentOutputsForRecipients(botClient: HttpClient, assetId: String, recipient: TransactionRecipient): Pair<List<Output>, BigDecimal> {

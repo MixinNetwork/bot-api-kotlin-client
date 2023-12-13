@@ -20,7 +20,7 @@ class BlazeSample {
     EdKeyPair key = CryptoUtilKt.newKeyPairFromPrivateKey(Base64ExtensionKt.base64Decode(privateKey));
     BlazeClient blazeClient =
         new BlazeClient.Builder()
-            .configEdDSA(userId, sessionId, key.getPrivateKey(), null, null)
+            .configSafeUser(userId, sessionId, key.getPrivateKey(), null, null)
             .enableDebug()
             .enableParseData()
             .enableAutoAck()

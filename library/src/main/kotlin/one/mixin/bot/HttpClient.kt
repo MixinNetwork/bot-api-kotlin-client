@@ -101,7 +101,7 @@ class HttpClient private constructor(
         private var debug: Boolean = false
         private var autoSwitch: Boolean = false
 
-        fun configEdDSA(
+        fun configSafeUser(
             userId: String,
             sessionId: String,
             sessionPrivateKey: ByteArray,

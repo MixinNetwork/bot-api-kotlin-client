@@ -42,14 +42,14 @@ const val DEFAULT_AMOUNT = "0.01"
 fun main() = runBlocking {
     val key = newKeyPairFromPrivateKey(Config.privateKey.base64UrlDecode())
     val pinToken = decryptPinToken(Config.pinTokenPem.base64UrlDecode(), key.privateKey)
-    val botClient = HttpClient.Builder().useCNServer().configEdDSA(Config.userId, Config.sessionId, key.privateKey).enableDebug().build()
+    val botClient = HttpClient.Builder().useCNServer().configSafeUser(Config.userId, Config.sessionId, key.privateKey).enableDebug().build()
 
     // create user
     val sessionKey = generateEd25519KeyPair()
     val sessionSecret = sessionKey.publicKey.base64Encode()
     val user = createUser(botClient, sessionSecret)
     user ?: return@runBlocking
-    val userClient = HttpClient.Builder().useCNServer().configEdDSA(user.userId, user.sessionId, sessionKey.privateKey).enableDebug().build()
+    val userClient = HttpClient.Builder().useCNServer().configSafeUser(user.userId, user.sessionId, sessionKey.privateKey).enableDebug().build()
     userClient.userService.getMe()
 
     // decrypt pin token
