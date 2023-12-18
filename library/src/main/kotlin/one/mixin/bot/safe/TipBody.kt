@@ -23,8 +23,10 @@ object TipBody {
     private const val TIPProvisioningCreate = "TIP:PROVISIONING:UPDATE:"
     private const val TIPBodyForSequencerRegister = "SEQUENCER:REGISTER:"
 
+    @JvmStatic
     fun forVerify(timestamp: Long): ByteArray = String.format("%s%032d", TIPVerify, timestamp).toByteArray()
 
+    @JvmStatic
     fun forRawTransactionCreate(
         assetId: String,
         opponentKey: String,
@@ -40,6 +42,7 @@ object TipBody {
         return (TIPRawTransactionCreate + body).hashToBody()
     }
 
+    @JvmStatic
     fun forWithdrawalCreate(
         addressId: String,
         amount: String,
@@ -49,6 +52,7 @@ object TipBody {
     ): ByteArray =
         (TIPWithdrawalCreate + addressId + amount.stripAmountZero() + (fee?.stripAmountZero() ?: "") + traceId + (memo ?: "")).hashToBody()
 
+    @JvmStatic
     fun forTransfer(
         assetId: String,
         counterUserId: String,
@@ -59,16 +63,19 @@ object TipBody {
         return (TIPTransferCreate + assetId + counterUserId + amount.stripAmountZero() + (traceId ?: "") + (memo ?: "")).hashToBody()
     }
 
+    @JvmStatic
     fun forPhoneNumberUpdate(
         verificationId: String,
         code: String,
     ): ByteArray = (TIPPhoneNumberUpdate + verificationId + code).hashToBody()
 
+    @JvmStatic
     fun forEmergencyContactCreate(
         verificationId: String,
         code: String,
     ): ByteArray = (TIPEmergencyContactCreate + verificationId + code).hashToBody()
 
+    @JvmStatic
     fun forAddressAdd(
         assetId: String,
         publicKey: String?,
@@ -76,29 +83,40 @@ object TipBody {
         name: String?,
     ): ByteArray = (TIPAddressAdd + assetId + (publicKey ?: "") + (keyTag ?: "") + (name ?: "")).hashToBody()
 
+    @JvmStatic
     fun forAddressRemove(addressId: String): ByteArray = (TIPAddressRemove + addressId).hashToBody()
 
+    @JvmStatic
     fun forUserDeactivate(phoneVerificationId: String): ByteArray = (TIPUserDeactivate + phoneVerificationId).hashToBody()
 
+    @JvmStatic
     fun forEmergencyContactRead(): ByteArray = (TIPEmergencyContactRead + "0").hashToBody()
 
+    @JvmStatic
     fun forEmergencyContactRemove(): ByteArray = (TIPEmergencyContactRemove + "0").hashToBody()
 
+    @JvmStatic
     fun forMultisigRequestSign(requestId: String): ByteArray = (TIPMultisigRequestSign + requestId).hashToBody()
 
+    @JvmStatic
     fun forMultisigRequestUnlock(requestId: String): ByteArray = (TIPMultisigRequestUnlock + requestId).hashToBody()
 
+    @JvmStatic
     fun forCollectibleRequestSign(requestId: String): ByteArray = (TIPCollectibleRequestSign + requestId).hashToBody()
 
+    @JvmStatic
     fun forCollectibleRequestUnlock(requestId: String): ByteArray = (TIPCollectibleRequestUnlock + requestId).hashToBody()
 
+    @JvmStatic
     fun forOAuthApprove(authorizationId: String): ByteArray = (TIPOAuthApprove + authorizationId).hashToBody()
 
+    @JvmStatic
     fun forProvisioningCreate(
         id: String,
         secret: String,
     ): ByteArray = (TIPProvisioningCreate + id + secret).hashToBody()
 
+    @JvmStatic
     fun forSequencerRegister(
         userId: String,
         publicKey: String,

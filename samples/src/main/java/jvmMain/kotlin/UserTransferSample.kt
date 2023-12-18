@@ -11,6 +11,10 @@ import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.newKeyPairFromPrivateKey
 import one.mixin.bot.util.privateKeyToCurve25519
 
+@Deprecated(
+    message = "Deprecated sample for Mixin legacy network",
+    replaceWith = ReplaceWith("@{link SafeSample}", "jvmMain.kotlin.SafeSample"),
+)
 fun main() =
     runBlocking {
         val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())

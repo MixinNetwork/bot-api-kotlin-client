@@ -8,6 +8,7 @@ import one.mixin.bot.api.MixinResponse;
 import one.mixin.bot.extension.Base64ExtensionKt;
 import one.mixin.bot.extension.ByteArrayExtensionKt;
 import one.mixin.bot.extension.StringExtensionKt;
+import one.mixin.bot.extension.TimeExtensionKt;
 import one.mixin.bot.safe.*;
 import one.mixin.bot.util.ByteArrayUtilKt;
 import one.mixin.bot.util.CryptoUtilKt;
@@ -27,9 +28,11 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static jvmMain.java.Sample.*;
+import static one.mixin.bot.SessionKt.encryptPin;
+import static one.mixin.bot.SessionKt.encryptTipPin;
 
 public class SafeSample {
-    public static void main(String[] args) throws SafeException, IOException, TipException {
+    public static void main(String[] args) throws Exception {
         HttpClient botClient = new HttpClient.Builder().useCNServer().configSafeUser(
                 Config.userId,
                 Config.sessionId,
@@ -53,7 +56,7 @@ public class SafeSample {
 //        transactionToMultiple(botClient);
     }
 
-    private static void updateFromLegacyPin(HttpClient botClient) throws IOException, TipException {
+    private static void updateFromLegacyPin(HttpClient botClient) throws Exception {
         // create user
         EdKeyPair sessionKey = CryptoUtilKt.generateEd25519KeyPair();
         String sessionSecret = Base64ExtensionKt.base64Encode(sessionKey.getPublicKey());
@@ -72,13 +75,42 @@ public class SafeSample {
         byte[] userPrivateKey = sessionKey.getPrivateKey();
         byte[] userAesKey = CryptoUtilKt.decryptPinToken(Base64ExtensionKt.base64Decode(user.getPinToken()), userPrivateKey);
 
-        // create user's pin
-        createPin(userClient, userAesKey);
+        // create user pin
+        MixinResponse<User> response = userClient.getUserService().createPinCall(
+                new PinRequest(encryptPin(userAesKey, userPin), null, null, null, null)
+        ).execute().body();
+        assert response != null;
+        if (response.isSuccess()) {
+            System.out.println("Create pin success " + response.getData());
+        } else {
+            throw new Exception("Create pin failure " + response.getError());
+        }
+        // verify usr pin
+        response = userClient.getUserService().pinVerifyCall(
+                new PinRequest(encryptPin(userAesKey, userPin), null, null, null, null)
+        ).execute().body();
+        assert response != null;
+        if (response.isSuccess()) {
+            System.out.println("Verify pin success");
+        } else {
+            throw new Exception("Verify pin failure " + response.getError());
+        }
 
         // update tip pin
         byte[] tipSeed = CryptoUtilKt.generateRandomBytes(32);
         EdKeyPair keyPair = CryptoUtilKt.newKeyPairFromSeed(tipSeed);
         TipKt.updateTipPin(userClient, ByteArrayExtensionKt.toHex(keyPair.getPublicKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken(), userPin);
+        // verify tip pin
+        long timestamp = TimeExtensionKt.nowInUtcNano();
+        response = userClient.getUserService().pinVerifyCall(
+                new PinRequest(encryptTipPin(userAesKey, TipBody.forVerify(timestamp), keyPair.getPrivateKey()), null, null, null, timestamp)
+        ).execute().body();
+        assert response != null;
+        if (response.isSuccess()) {
+            System.out.println("Verify tip pin success");
+        } else {
+            throw new Exception("Verify tip pin failure " + response.getError());
+        }
 
         // register safe
         TipKt.registerSafe(userClient, user.getUserId(), ByteArrayExtensionKt.toHex(keyPair.getPrivateKey()), ByteArrayExtensionKt.toHex(keyPair.getPrivateKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken());
@@ -108,8 +140,8 @@ public class SafeSample {
         EdKeyPair keyPair = CryptoUtilKt.newKeyPairFromSeed(tipSeed);
         MixinResponse<User> response = userClient.getUserService().createPinCall(
                 new PinRequest(
-                        SessionKt.encryptPin(userAesKey, Bytes.concat(keyPair.getPublicKey(), ByteArrayUtilKt.toBeByteArray(1L))),
-                        null, null, null
+                        encryptPin(userAesKey, Bytes.concat(keyPair.getPublicKey(), ByteArrayUtilKt.toBeByteArray(1L))),
+                        null, null, null, null
         )).execute().body();
         assert response != null;
         if (response.isSuccess()) {
