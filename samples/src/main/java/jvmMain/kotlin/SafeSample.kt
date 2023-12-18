@@ -39,7 +39,7 @@ fun main() =
                 Config.pin.hexStringToByteArray(),
             ).build()
 
-        // updateFromLegacyPin(botClient)
+        updateFromLegacyPin(botClient)
 
         // val user = createTipPin(botClient) ?: return@runBlocking
 
@@ -50,7 +50,7 @@ fun main() =
 
         // transactionToOne(botClient)
 
-        transactionToMultiple(botClient)
+        // transactionToMultiple(botClient)
     }
 
 private suspend fun updateFromLegacyPin(botClient: HttpClient) {

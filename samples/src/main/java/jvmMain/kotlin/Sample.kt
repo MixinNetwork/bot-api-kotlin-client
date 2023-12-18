@@ -39,6 +39,10 @@ const val DEFAULT_PIN = "131416"
 const val DEFAULT_TIP_PIN = "5011c07b101e07b74667398d57a40e9001aa8f6c13fe0836a07a1b5f7cf71e4e"
 const val DEFAULT_AMOUNT = "0.01"
 
+@Deprecated(
+    message = "Deprecated sample for Mixin legacy network",
+    replaceWith = ReplaceWith("@{link SafeSample}", "jvmMain.kotlin.SafeSample")
+)
 fun main() =
     runBlocking {
         val key = newKeyPairFromPrivateKey(Config.privateKey.base64UrlDecode())

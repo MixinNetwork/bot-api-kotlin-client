@@ -14,8 +14,11 @@ import one.mixin.bot.vo.safe.TransactionRecipient
 import one.mixin.bot.vo.safe.TransactionRequest
 import one.mixin.bot.vo.safe.TransactionResponse
 import one.mixin.bot.vo.safe.UtxoWrapper
+import java.io.IOException
 import java.math.BigDecimal
+import kotlin.jvm.Throws
 
+@Throws(SafeException::class, IOException::class)
 fun sendTransaction(
     botClient: HttpClient,
     assetId: String,

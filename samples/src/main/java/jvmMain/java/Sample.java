@@ -18,6 +18,7 @@ import static one.mixin.bot.extension.Base64ExtensionKt.base64Encode;
 import static one.mixin.bot.util.Base64UtilKt.base64Decode;
 import static one.mixin.bot.util.CryptoUtilKt.*;
 
+@Deprecated
 @SuppressWarnings("SameParameterValue")
 public class Sample {
 
@@ -133,7 +134,7 @@ public class Sample {
         }
     }
 
-    private static User createUser(HttpClient client, String sessionSecret) throws IOException {
+    static User createUser(HttpClient client, String sessionSecret) throws IOException {
 
         AccountRequest accountRequest = new AccountRequest(
                 new Random().nextInt(10) + "User",
@@ -165,7 +166,7 @@ public class Sample {
         }
     }
 
-    private static void createPin(HttpClient client, byte[] userAesKey) throws IOException {
+    static void createPin(HttpClient client, byte[] userAesKey) throws IOException {
         MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin)), null, null, null)).execute().body();
         assert pinResponse != null;
         if (pinResponse.isSuccess()) {
