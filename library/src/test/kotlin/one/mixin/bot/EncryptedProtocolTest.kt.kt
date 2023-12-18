@@ -2,12 +2,12 @@ package one.mixin.bot
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.toByteArray
 import one.mixin.bot.util.EncryptedProtocol
 import one.mixin.bot.util.aesDecrypt
 import one.mixin.bot.util.aesEncrypt
-import one.mixin.bot.util.base64Decode
 import one.mixin.bot.util.calculateAgreement
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.generateRandomBytes
@@ -51,8 +51,8 @@ class EncryptedProtocolTest {
     fun testImage() {
         val mockAttachmentMessagePayload =
             AttachmentMessagePayload(
-                key = base64Decode("2IFv82k/nPZJlQFYRCD7SgWNtDK+Bi5vo0VXhk4A9DAp/RE5r+Shfgn+xEuQiyn8Hjf+Ox9356geoceH926BJQ=="),
-                digest = base64Decode("z9YuqavioY+hYLB1slFaRzSc9ggBlp+nUOZGHwS8LaU="),
+                key = "2IFv82k/nPZJlQFYRCD7SgWNtDK+Bi5vo0VXhk4A9DAp/RE5r+Shfgn+xEuQiyn8Hjf+Ox9356geoceH926BJQ==".base64Decode(),
+                digest = "z9YuqavioY+hYLB1slFaRzSc9ggBlp+nUOZGHwS8LaU=".base64Decode(),
                 attachmentId = "5a3574ca-cc17-470d-88dc-845613d471b4",
                 mimeType = "image/jpeg",
                 height = 949,
