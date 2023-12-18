@@ -1,8 +1,8 @@
 package one.mixin.bot.vo
 
 import com.google.gson.annotations.SerializedName
+import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.util.ConversationUtil.Companion.generateConversationId
-import one.mixin.bot.util.base64Encode
 
 data class MessageRequest(
     @SerializedName("conversation_id")
@@ -33,7 +33,7 @@ fun generateTextMessageRequest(
     recipientId,
     messageId,
     "PLAIN_TEXT",
-    requireNotNull(base64Encode(text.toByteArray())),
+    requireNotNull(text.toByteArray().base64Encode()),
     representativeId,
     quoteMessageId,
 )

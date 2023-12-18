@@ -16,9 +16,10 @@ import one.mixin.bot.util.toBeByteArray
 import one.mixin.bot.vo.Account
 import one.mixin.bot.vo.PinRequest
 import one.mixin.bot.vo.RegisterRequest
+import java.io.IOException
 import kotlin.jvm.Throws
 
-@Throws(TipException::class)
+@Throws(TipException::class, IOException::class)
 fun updateTipPin(
     client: HttpClient,
     tipPubHex: String,
@@ -41,7 +42,7 @@ fun updateTipPin(
     return resp.data as Account
 }
 
-@Throws(TipException::class)
+@Throws(TipException::class, IOException::class)
 fun registerSafe(
     client: HttpClient,
     userId: String,

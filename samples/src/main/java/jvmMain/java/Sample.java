@@ -14,8 +14,8 @@ import java.util.*;
 
 import static jvmMain.java.Config.*;
 import static one.mixin.bot.SessionKt.encryptPin;
+import static one.mixin.bot.extension.Base64ExtensionKt.base64Decode;
 import static one.mixin.bot.extension.Base64ExtensionKt.base64Encode;
-import static one.mixin.bot.util.Base64UtilKt.base64Decode;
 import static one.mixin.bot.util.CryptoUtilKt.*;
 
 @Deprecated

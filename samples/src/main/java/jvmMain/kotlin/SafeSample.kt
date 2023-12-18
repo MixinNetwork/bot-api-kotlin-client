@@ -37,12 +37,13 @@ fun main() =
                 Config.privateKey.base64UrlDecode(),
                 Config.pinTokenPem.base64UrlDecode(),
                 Config.pin.hexStringToByteArray(),
-            ).build()
+            ).enableDebug().build()
 
         updateFromLegacyPin(botClient)
 
         // val user = createTipPin(botClient) ?: return@runBlocking
 
+        // use Transaction.kt or MixAddress.kt should load libgojni.so first
         val currentRelativePath: Path = Paths.get("")
         val s: String = currentRelativePath.toAbsolutePath().toString()
         println("Current absolute path is: $s")

@@ -8,6 +8,7 @@ import okio.ByteString
 import one.mixin.bot.Constants
 import one.mixin.bot.blaze.msg.Buttons
 import one.mixin.bot.blaze.msg.Cards
+import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.util.*
 import one.mixin.bot.vo.safe.SafeUser
 import java.util.*
@@ -167,7 +168,7 @@ fun sendMsg(webSocket: WebSocket, action: Action, msgParam: MsgParam?): Boolean 
         return false
     }
     if (msgParam?.data != null) {
-        msgParam.data = base64Encode(msgParam.data!!.toByteArray())
+        msgParam.data = msgParam.data!!.toByteArray().base64Encode()
     }
     val blazeMsg = BlazeMsg(UUID.randomUUID().toString(), action.toString(), msgParam)
     return webSocket.send(encode(blazeMsg))

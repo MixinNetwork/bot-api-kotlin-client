@@ -10,7 +10,6 @@ import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.extension.base64UrlDecode
 import one.mixin.bot.extension.hexStringToByteArray
-import one.mixin.bot.util.base64Encode
 import one.mixin.bot.util.decryptPinToken
 import one.mixin.bot.util.generateEd25519KeyPair
 import one.mixin.bot.util.newKeyPairFromPrivateKey
@@ -41,7 +40,7 @@ const val DEFAULT_AMOUNT = "0.01"
 
 @Deprecated(
     message = "Deprecated sample for Mixin legacy network",
-    replaceWith = ReplaceWith("@{link SafeSample}", "jvmMain.kotlin.SafeSample")
+    replaceWith = ReplaceWith("@{link SafeSample}", "jvmMain.kotlin.SafeSample"),
 )
 fun main() =
     runBlocking {
@@ -416,7 +415,7 @@ internal suspend fun createConversationAndSendMessage(
             recipientId = UUID.randomUUID().toString(),
             messageId = UUID.randomUUID().toString(),
             category = "PLAIN_TEXT",
-            data = requireNotNull(base64Encode("hello from bot".toByteArray())),
+            data = requireNotNull("hello from bot".toByteArray().base64Encode()),
         )
     println("messageRequest: $messageRequest")
     val messageResponse = client.messageService.postMessage(listOf(messageRequest))

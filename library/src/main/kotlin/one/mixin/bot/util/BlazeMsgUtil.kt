@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import one.mixin.bot.blaze.BlazeMsg
+import one.mixin.bot.extension.base64Decode
 
 fun encode(blazeMsg: BlazeMsg): ByteString {
     val data = Gson().toJson(blazeMsg)
@@ -27,7 +28,7 @@ fun decodeAs(
     val blazeMsg = Gson().fromJson(data, BlazeMsg::class.java)
     if (decodeData) {
         if (blazeMsg?.data != null && blazeMsg.data?.data != null) {
-            blazeMsg.data!!.data = base64Decode(blazeMsg.data!!.data)?.toByteString()?.utf8()!!
+            blazeMsg.data!!.data = (blazeMsg.data!!.data).base64Decode().toByteString().utf8()
         }
     }
 

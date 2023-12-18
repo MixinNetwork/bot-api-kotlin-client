@@ -6,6 +6,7 @@ import one.mixin.bot.HttpClient;
 import one.mixin.bot.SessionKt;
 import one.mixin.bot.api.MixinResponse;
 import one.mixin.bot.extension.Base64ExtensionKt;
+import one.mixin.bot.extension.ByteArrayExtensionKt;
 import one.mixin.bot.extension.StringExtensionKt;
 import one.mixin.bot.safe.*;
 import one.mixin.bot.util.ByteArrayUtilKt;
@@ -34,19 +35,20 @@ public class SafeSample {
                 Config.sessionId,
                 Base64ExtensionKt.base64UrlDecode(Config.privateKey),
                 Base64ExtensionKt.base64UrlDecode(Config.pinTokenPem),
-                StringExtensionKt.hexStringToByteArray(Config.pin)
-            ).build();
+                ByteArrayExtensionKt.hexStringToByteArray(Config.pin)
+            ).enableDebug().build();
 
          updateFromLegacyPin(botClient);
 
 //         Account user = createTipPin(botClient);
 
+        // use Transaction.kt or MixAddress.kt should load libgojni.so first
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
         System.out.println("Current absolute path is: " + s);
         System.load(s + "/library/libs/darwin/amd64/libgojni.so");
 
-//         transactionToOne(botClient);
+//        transactionToOne(botClient);
 
 //        transactionToMultiple(botClient);
     }
@@ -76,10 +78,10 @@ public class SafeSample {
         // update tip pin
         byte[] tipSeed = CryptoUtilKt.generateRandomBytes(32);
         EdKeyPair keyPair = CryptoUtilKt.newKeyPairFromSeed(tipSeed);
-        TipKt.updateTipPin(userClient, StringExtensionKt.toHex(keyPair.getPublicKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken(), userPin);
+        TipKt.updateTipPin(userClient, ByteArrayExtensionKt.toHex(keyPair.getPublicKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken(), userPin);
 
         // register safe
-        TipKt.registerSafe(userClient, user.getUserId(), StringExtensionKt.toHex(keyPair.getPrivateKey()), StringExtensionKt.toHex(keyPair.getPrivateKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken());
+        TipKt.registerSafe(userClient, user.getUserId(), ByteArrayExtensionKt.toHex(keyPair.getPrivateKey()), ByteArrayExtensionKt.toHex(keyPair.getPrivateKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken());
     }
 
     private static Account createTipPin(HttpClient botClient) throws IOException, TipException {
@@ -117,7 +119,7 @@ public class SafeSample {
         }
 
         // register safe
-        return TipKt.registerSafe(userClient, user.getUserId(), StringExtensionKt.toHex(keyPair.getPrivateKey()), StringExtensionKt.toHex(keyPair.getPrivateKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken());
+        return TipKt.registerSafe(userClient, user.getUserId(), ByteArrayExtensionKt.toHex(keyPair.getPrivateKey()), ByteArrayExtensionKt.toHex(keyPair.getPrivateKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken());
     }
 
     private static void transactionToOne(HttpClient botClient) throws SafeException, IOException {
