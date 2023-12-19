@@ -24,7 +24,7 @@ dependencies {
     api "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${coroutineAdapterVersion}"
-    implementation "com.github.komputing.khash:keccak-jvm:${keccakVersion}"
+    implementation "com.ionspin.kotlin:bignum:${bignumVersion}"
     implementation "com.github.mixinnetwork:tink-eddsa:0.0.13"
     implementation "com.github.mixinnetwork.jjwt:jjwt-api:2b1c61aa2f"
     runtimeOnly 'com.github.mixinnetwork.jjwt:jjwt-impl:2b1c61aa2f'

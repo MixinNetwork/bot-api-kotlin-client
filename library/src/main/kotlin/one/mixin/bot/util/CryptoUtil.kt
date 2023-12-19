@@ -6,12 +6,12 @@ import okio.ByteString.Companion.toByteString
 import one.mixin.bot.extension.base64Decode
 import one.mixin.bot.extension.base64Encode
 import one.mixin.bot.safe.EdKeyPair
+import one.mixin.bot.util.keccak.KeccakParameter
+import one.mixin.bot.util.keccak.extensions.digestKeccak
 import one.mixin.eddsa.Ed25519Sign
 import one.mixin.eddsa.Field25519
 import one.mixin.eddsa.KeyPair.Companion.newKeyPair
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.komputing.khash.keccak.KeccakParameter
-import org.komputing.khash.keccak.extensions.digestKeccak
 import org.whispersystems.curve25519.Curve25519
 import java.security.KeyFactory
 import java.security.KeyPair
