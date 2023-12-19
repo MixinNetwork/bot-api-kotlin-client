@@ -17,7 +17,15 @@ class JNITest {
         val arch = System.getProperty("os.arch")
         println("os: $os, arch: $arch")
 
-        System.load("$s/libs/darwin/amd64/libgojni.so")
+        val platform =
+            when {
+                OS.isLinux() -> "linux"
+                OS.isMacOSX() -> "darwin"
+                OS.isWindows() -> "windows"
+                else -> throw IllegalArgumentException("not supported os $os")
+            }
+
+        System.load("$s/libs/$platform/amd64/libgojni.so")
 
         val assetId = "5b9d576914e71e2362f89bb867eb69084931eb958f9a3622d776b861602275f4"
         val amount = "1"

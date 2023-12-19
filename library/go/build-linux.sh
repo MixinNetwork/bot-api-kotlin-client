@@ -9,5 +9,4 @@
 # export CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC=x86_64-linux-musl-gcc CXX=x86_64-linux-musl-g++ 
 # export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-11.0.2.jdk/Contents/Home
 
-GOMOBILE=gomobile
-$GOMOBILE bind -target=linux/amd64 -x -v -o build -tags=openssl mixin/kernel
+gomobile bind -target=linux/amd64 -x -v -o build -tags=openssl mixin/kernel
