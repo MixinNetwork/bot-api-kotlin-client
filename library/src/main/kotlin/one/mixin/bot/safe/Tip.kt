@@ -28,12 +28,13 @@ fun updateTipPin(
     legacyPin: String,
 ): Account {
     val pinToken = decryptPinToken(pinTokenBase64.base64Decode(), sessionKeyBase64.base64UrlDecode())
-    val encryptedLegacyPin = encryptPin(pinToken, legacyPin.toByteArray())
+    val now = System.currentTimeMillis() * 1_000_000
+    val encryptedLegacyPin = encryptPin(pinToken, legacyPin.toByteArray(), now)
     val tipPub = tipPubHex.hexStringToByteArray()
     if (tipPub.size != 32) {
         throw TipException("Invalid tip pub size ${tipPub.size}")
     }
-    val newEncryptedPin = encryptPin(pinToken, tipPub + 1L.toBeByteArray())
+    val newEncryptedPin = encryptPin(pinToken, tipPub + 1L.toBeByteArray(), now + 1)
     val pinRequest = PinRequest(newEncryptedPin, encryptedLegacyPin)
     val resp = client.userService.updatePinCall(pinRequest).execute().body()
     if (resp == null || !resp.isSuccess()) {
