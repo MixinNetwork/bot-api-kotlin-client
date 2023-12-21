@@ -3,7 +3,6 @@ package jvmMain.java;
 import kotlin.ExceptionsKt;
 import kotlin.collections.CollectionsKt;
 import one.mixin.bot.HttpClient;
-import one.mixin.bot.SessionKt;
 import one.mixin.bot.api.MixinResponse;
 import one.mixin.bot.extension.Base64ExtensionKt;
 import one.mixin.bot.extension.ByteArrayExtensionKt;
@@ -77,7 +76,7 @@ public class SafeSample {
 
         // create user pin
         MixinResponse<User> response = userClient.getUserService().createPinCall(
-                new PinRequest(encryptPin(userAesKey, userPin), null, null, null, null)
+                new PinRequest(encryptPin(userAesKey, userPin), null, null)
         ).execute().body();
         assert response != null;
         if (response.isSuccess()) {
@@ -87,7 +86,7 @@ public class SafeSample {
         }
         // verify usr pin
         response = userClient.getUserService().pinVerifyCall(
-                new PinRequest(encryptPin(userAesKey, userPin), null, null, null, null)
+                new PinRequest(encryptPin(userAesKey, userPin), null, null)
         ).execute().body();
         assert response != null;
         if (response.isSuccess()) {
@@ -103,7 +102,7 @@ public class SafeSample {
         // verify tip pin
         long timestamp = TimeExtensionKt.nowInUtcNano();
         response = userClient.getUserService().pinVerifyCall(
-                new PinRequest(encryptTipPin(userAesKey, TipBody.forVerify(timestamp), keyPair.getPrivateKey()), null, null, null, timestamp)
+                new PinRequest(encryptTipPin(userAesKey, TipBody.forVerify(timestamp), keyPair.getPrivateKey()), null, timestamp)
         ).execute().body();
         assert response != null;
         if (response.isSuccess()) {
@@ -141,7 +140,7 @@ public class SafeSample {
         MixinResponse<User> response = userClient.getUserService().createPinCall(
                 new PinRequest(
                         encryptPin(userAesKey, Bytes.concat(keyPair.getPublicKey(), ByteArrayUtilKt.toBeByteArray(1L))),
-                        null, null, null, null
+                        null, null
         )).execute().body();
         assert response != null;
         if (response.isSuccess()) {

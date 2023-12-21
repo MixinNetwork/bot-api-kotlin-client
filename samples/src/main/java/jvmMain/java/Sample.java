@@ -126,7 +126,7 @@ public class Sample {
     }
 
     private static void pinVerifyCall(HttpClient client,byte[] userAesKey,String pin) throws IOException{
-        MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin)), null, null, null, null)).execute().body();
+        MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin)), null, null)).execute().body();
         if (pinResponse.isSuccess()) {
             System.out.printf("Pin verifyCall success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
         } else {
@@ -167,7 +167,7 @@ public class Sample {
     }
 
     static void createPin(HttpClient client, byte[] userAesKey) throws IOException {
-        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin)), null, null, null, null)).execute().body();
+        MixinResponse<User> pinResponse = client.getUserService().createPinCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, Sample.userPin)), null, null)).execute().body();
         assert pinResponse != null;
         if (pinResponse.isSuccess()) {
             System.out.printf("Create pin success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
