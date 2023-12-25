@@ -5,6 +5,6 @@
 #go install github.com/tougee/jvm/cmd/gobind
 
 # should export JAVA_HOME if not set
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-11.0.2.jdk/Contents/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
 
 gomobile bind -target=darwin/amd64 -x -v -o build -tags=openssl mixin/kernel
