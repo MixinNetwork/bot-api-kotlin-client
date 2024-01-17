@@ -19,10 +19,3 @@ enum class Token(val assetId: String) {
 
     TRX("25dabac5-056a-48ff-b9f9-f67395dc407c"),
 }
-
-fun <T> MixinResponse<T>.requiredData(): T {
-    if (isSuccess()) {
-        return data!!
-    }
-    throw RuntimeException(error!!.toString())
-}

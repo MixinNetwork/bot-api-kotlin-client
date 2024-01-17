@@ -2,17 +2,18 @@ package jvmMain.kotlin.safe
 
 import jvmMain.kotlin.Token
 import jvmMain.kotlin.botClient
-import one.mixin.bot.safe.sendTransactionToUser
+import one.mixin.bot.safe.withdrawalToAddressBlocking
 import java.util.UUID
 
 fun main() {
     val traceId = UUID.randomUUID().toString()
-    val transactions = sendTransactionToUser(
+    val transactions = withdrawalToAddressBlocking(
         botClient = botClient,
-        receivers = listOf("cfb018b0-eaf7-40ec-9e07-28a5158f1269"),
-        assetId = Token.CNB.assetId,
+        assetId = Token.TRON_USDT.assetId,
         amount = "0.003",
         memo = "test-memo-from-kotlin",
+        destination = "TAXE98CMomoA28MtNpfxUutCBq2i4bDbRv",
+        tag = null,
         traceId = traceId,
     )
     for (tx in transactions) {

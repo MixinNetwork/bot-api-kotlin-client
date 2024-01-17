@@ -79,6 +79,10 @@ class HttpClient private constructor(
         retrofit.create(UtxoService::class.java)
     }
 
+    val tokenService: TokenService by lazy {
+        retrofit.create(TokenService::class.java)
+    }
+
     val externalService: ExternalService by lazy {
         object : ExternalService {
             override fun getUtxoCall(hash: String, index: Int): Call<JsonObject> {
