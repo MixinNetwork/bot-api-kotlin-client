@@ -1,7 +1,5 @@
 package one.mixin.bot.vo.safe
 
-import kernel.Address
-import kernel.Kernel
 import one.mixin.bot.extension.isUUID
 import one.mixin.bot.util.UUIDUtils
 import one.mixin.bot.util.decodeBase58
@@ -9,6 +7,7 @@ import one.mixin.bot.util.encodeToBase58String
 import one.mixin.bot.util.sha3Sum256
 
 const val MixAddressPrefix = "MIX"
+const val MainAddressPrefix = "XIN"
 private const val MixAddressVersion = 0x2.toByte()
 
 data class MixAddress(
@@ -16,7 +15,7 @@ data class MixAddress(
     val threshold: Byte,
 ) {
     val uuidMembers = mutableListOf<String>()
-    val xinMembers = mutableListOf<Address>()
+    val xinMembers = mutableListOf<String>()
 
     companion object {
         fun newUuidMixAddress(
@@ -34,16 +33,9 @@ data class MixAddress(
         fun newMainnetMixAddress(
             members: List<String>,
             threshold: Int,
-        ): MixAddress? {
+        ): MixAddress {
             return MixAddress(MixAddressVersion, threshold.toByte()).apply {
-                for (m in members) {
-                    try {
-                        xinMembers.add(Kernel.newMainAddressFromString(m))
-                    } catch (e: Exception) {
-                        println("newMainAddressFromString with $m meet $e")
-                        return null
-                    }
-                }
+                xinMembers.addAll(members)
             }
         }
     }
@@ -52,7 +44,7 @@ data class MixAddress(
         return if (uuidMembers.size > 0) {
             uuidMembers
         } else {
-            xinMembers.map { it.string() }
+            xinMembers
         }
     }
 
@@ -74,7 +66,7 @@ data class MixAddress(
             }
             payload += len.toByte()
             for (x in xinMembers) {
-                payload += (x.publicSpendKey() + x.publicViewkey())
+                payload += x.mainnetAddressToPublic()
             }
         }
         val data = MixAddressPrefix.toByteArray() + payload
@@ -84,16 +76,40 @@ data class MixAddress(
     }
 }
 
+
+// [return] ByteArray, size 64. [0,32) is publicSpendKey, [32,64) is publicViewKey
+fun String.mainnetAddressToPublic(): ByteArray {
+    if (!startsWith(MainAddressPrefix)) {
+        throw Exception("invalid address network")
+    }
+    val data = substring(MainAddressPrefix.length).decodeBase58()
+    if (data.size != 68) {
+        throw Exception("invalid address format")
+    }
+    val payload = data.sliceArray(0 until 64)
+    val checksum = (MainAddressPrefix.toByteArray() + payload).sha3Sum256()
+    if (!checksum.sliceArray(0..3).contentEquals(data.sliceArray(64 until 68))) {
+        throw Exception("invalid address checksum")
+    }
+    return payload
+}
+
+fun ByteArray.publicToMainnetAddress(): String {
+    val checksum = (MainAddressPrefix.toByteArray() + this).sha3Sum256()
+
+    val data = this + checksum.sliceArray(0..3)
+    return MainAddressPrefix + data.encodeToBase58String()
+}
+
 fun String.toMixAddress(): MixAddress? {
     if (!this.startsWith(MixAddressPrefix)) return null
 
-    val data =
-        try {
-            this.removePrefix(MixAddressPrefix).decodeBase58()
-        } catch (e: Exception) {
-            println("decodeBase58 with $this meet $e")
-            return null
-        }
+    val data = try {
+        this.removePrefix(MixAddressPrefix).decodeBase58()
+    } catch (e: Exception) {
+        println("decodeBase58 with $this meet $e")
+        return null
+    }
     if (data.size < 3 + 16 + 4) return null
 
     val payload = data.sliceArray(0..data.size - 5)
@@ -116,14 +132,14 @@ fun String.toMixAddress(): MixAddress? {
                 mixAddress.uuidMembers.add(id)
             }
         }
+
         64 * total -> {
             for (i in 0..<total) {
-                val xinAddress = Address()
-                xinAddress.setPublicSpendKey(mb.sliceArray(i * 64..<i * 64 + 32))
-                xinAddress.setPublicViewKey(mb.sliceArray(i * 64 + 32..<i * 64 + 64))
-                mixAddress.xinMembers.add(xinAddress)
+                val pub = mb.sliceArray(i * 64..<i * 64 + 64)
+                mixAddress.xinMembers.add(pub.publicToMainnetAddress())
             }
         }
+
         else -> {
             return null
         }

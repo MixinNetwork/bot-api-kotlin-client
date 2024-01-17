@@ -1,27 +1,19 @@
 package one.mixin.bot.safe
 
-import kernel.Kernel
 import kotlinx.coroutines.runBlocking
 import one.mixin.bot.Constants
 import one.mixin.bot.HttpClient
 import one.mixin.bot.api.MixinResponse
-import one.mixin.bot.extension.assetIdToAsset
 import one.mixin.bot.extension.hexStringToByteArray
-import one.mixin.bot.extension.isUUID
 import one.mixin.bot.extension.toHex
 import one.mixin.bot.safe.tx.Transaction
 import one.mixin.bot.util.blake3
 import one.mixin.bot.util.sha3Sum256
 import one.mixin.bot.util.uniqueObjectId
 import one.mixin.bot.vo.GhostKeyRequest
-import one.mixin.bot.vo.buildGhostKeyRequest
-import one.mixin.bot.vo.safe.MixAddress
 import one.mixin.bot.vo.safe.Output
-import one.mixin.bot.vo.safe.SignResult
-import one.mixin.bot.vo.safe.TransactionRecipient
 import one.mixin.bot.vo.safe.TransactionRequest
 import one.mixin.bot.vo.safe.TransactionResponse
-import one.mixin.bot.vo.safe.UtxoWrapper
 import java.io.IOException
 import java.math.BigDecimal
 import java.util.UUID
@@ -130,6 +122,7 @@ suspend fun withdrawalToAddress(
     memo: String? = null,
     traceId: String = UUID.randomUUID().toString(),
 ): List<TransactionResponse> {
+    verifyTxId(botClient, traceId)
     val token = botClient.tokenService.getAssetById(assetId).requiredData()
     val chain = if (token.assetId == token.chainId) {
         token
@@ -313,87 +306,6 @@ private suspend fun HttpClient.withdrawalTransaction(
     val signedRaw = tx.sign(verifiedTx.views, utxos, spendKey.toHex())
 
     utxoService.transactions(listOf(TransactionRequest(signedRaw, traceId))).requiredData()
-}
-
-
-@Throws(SafeException::class, IOException::class)
-@Deprecated("use sendTransaction instead")
-fun sendTransaction(
-    botClient: HttpClient,
-    assetId: String,
-    recipient: TransactionRecipient,
-    traceId: String,
-    memo: String?,
-): List<TransactionResponse> { // verify trace id may have been signed already
-    val txIdResp = botClient.utxoService.getTransactionsByIdCall(traceId).execute().body()
-        ?: throw SafeException("get safe/transactions/{id} got null response")
-    if (txIdResp.error?.code != 404) {
-        throw SafeException("get safe/transactions/{id} data: ${txIdResp.data}, error: ${txIdResp.error}")
-    }
-
-    // check assetId is kernel assetId
-    val asset = if (assetId.isUUID()) {
-        assetIdToAsset(assetId)
-    } else {
-        assetId
-    }
-
-    // get unspent outputs for asset and may throw insufficient outputs error
-    val (utxos, changeAmount) = requestUnspentOutputsForRecipients(botClient, assetId, recipient.amount)
-
-    // change to the sender
-    if (changeAmount > BigDecimal.ZERO) {
-        val ma = MixAddress.newUuidMixAddress(listOf(botClient.safeUser.userId), 1)
-            ?: throw SafeException("newUuidMixAddress got null mixAddress")
-        val tr = TransactionRecipient(ma, changeAmount.toString()) // TODO
-    }
-
-    // request ghost key
-    val ghostKeyReq =
-        buildGhostKeyRequest(recipient.mixAddress.uuidMembers.sorted(), listOf(botClient.safeUser.userId), traceId)
-    val ghostKeyResp = botClient.utxoService.ghostKeyCall(ghostKeyReq).execute().body()
-    if (ghostKeyResp == null || !ghostKeyResp.isSuccess()) {
-        throw SafeException("request ghostKey ${ghostKeyResp?.error}")
-    }
-    val ghostKeys = ghostKeyResp.data ?: throw SafeException("ghost key response data null")
-
-    // build the unsigned raw transaction
-    val utxoWrapper = UtxoWrapper(utxos)
-    val receiverKeys = ghostKeys.first().keys.joinToString(",")
-    val receiverMask = ghostKeys.first().mask
-    val changeKeys = ghostKeys.last().keys.joinToString(",")
-    val changeMask = ghostKeys.last().mask
-    val tx = Kernel.buildTx(
-        asset,
-        recipient.amount,
-        recipient.mixAddress.threshold.toInt(),
-        receiverKeys,
-        receiverMask,
-        utxoWrapper.input,
-        changeKeys,
-        changeMask,
-        memo,
-        ""
-    )
-    var txResp = botClient.utxoService.transactionRequestCall(listOf(TransactionRequest(tx, traceId))).execute().body()
-    if (txResp == null || !txResp.isSuccess()) {
-        throw SafeException("request transaction ${txResp?.error}")
-    }
-    val txData = txResp.data ?: throw SafeException("request transaction response data null")
-
-    // sign transaction
-    val spendKey = botClient.safeUser.spendPrivateKey ?: throw SafeException("spend key is null")
-    val views = txData.first().views.joinToString(",")
-    val keys = utxoWrapper.formatKeys
-    val sign = Kernel.signTx(tx, keys, views, spendKey.toHex(), false)
-    val signResult = SignResult(sign.raw, sign.change)
-
-    txResp =
-        botClient.utxoService.transactionsCall(listOf(TransactionRequest(signResult.raw, traceId))).execute().body()
-    if (txResp == null || !txResp.isSuccess()) {
-        throw SafeException("safe/transactions ${txResp?.error}")
-    }
-    return txResp.data as List<TransactionResponse>
 }
 
 private fun requestUnspentOutputsForRecipients(
