@@ -31,7 +31,7 @@ private suspend fun updateFromLegacyPin(botClient: HttpClient) { // create user
    val sessionSecret = sessionKey.publicKey.base64Encode()
    val user = createUser(botClient, sessionSecret) ?: return
 
-   val userClient = HttpClient.Builder().useCNServer().configSafeUser(
+   val userClient = HttpClient.Builder().configSafeUser(
        user.userId,
        user.sessionId,
        sessionKey.privateKey,
@@ -97,7 +97,7 @@ private suspend fun createTipPin(botClient: HttpClient): Account? { // create us
    val sessionSecret = sessionKey.publicKey.base64Encode()
    val user = createUser(botClient, sessionSecret) ?: return null
 
-   val userClient = HttpClient.Builder().useCNServer().configSafeUser(
+   val userClient = HttpClient.Builder().configSafeUser(
        user.userId,
        user.sessionId,
        sessionKey.privateKey,
