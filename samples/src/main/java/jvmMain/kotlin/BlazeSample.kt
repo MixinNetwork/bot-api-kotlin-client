@@ -8,25 +8,20 @@ import one.mixin.bot.blaze.BlazeHandler
 import one.mixin.bot.blaze.BlazeMsg
 import one.mixin.bot.blaze.sendTextMsg
 import one.mixin.bot.extension.base64Decode
+import one.mixin.bot.extension.hexStringToByteArray
 import one.mixin.bot.util.newKeyPairFromPrivateKey
+import one.mixin.bot.util.newKeyPairFromSeed
 
-fun main(): Unit =
-    runBlocking {
-        val job =
-            launch {
-                val keyPair = newKeyPairFromPrivateKey(Config.privateKey.base64Decode())
-                val blazeClient =
-                    BlazeClient.Builder()
-                        .configSafeUser(Config.userId, Config.sessionId, keyPair.privateKey)
-                        .enableDebug()
-                        .enableParseData()
-                        .enableAutoAck()
-                        .blazeHandler(MyBlazeHandler())
-                        .build()
-                blazeClient.start()
-            }
-        job.join()
+fun main(): Unit = runBlocking {
+    val job = launch {
+        val keyPair = newKeyPairFromSeed(Config.BOT_SESSION_PRIVATE_KEY.hexStringToByteArray())
+        val blazeClient =
+            BlazeClient.Builder().configSafeUser(Config.BOT_USER_ID, Config.BOT_SESSION_ID, keyPair.privateKey)
+                .enableDebug().enableParseData().enableAutoAck().blazeHandler(MyBlazeHandler()).build()
+        blazeClient.start()
     }
+    job.join()
+}
 
 private class MyBlazeHandler : BlazeHandler {
     override fun onMessage(

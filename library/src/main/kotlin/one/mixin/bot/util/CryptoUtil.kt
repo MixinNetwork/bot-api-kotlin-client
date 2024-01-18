@@ -11,6 +11,7 @@ import one.mixin.bot.util.keccak.extensions.digestKeccak
 import one.mixin.eddsa.Ed25519Sign
 import one.mixin.eddsa.Field25519
 import one.mixin.eddsa.KeyPair.Companion.newKeyPair
+import org.bouncycastle.crypto.digests.Blake3Digest
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.whispersystems.curve25519.Curve25519
 import java.security.KeyFactory
@@ -104,12 +105,25 @@ fun ByteArray.sha256(): ByteArray {
     return md.digest(this)
 }
 
+fun ByteArray.sha512(): ByteArray {
+    val md = MessageDigest.getInstance("SHA-512")
+    return md.digest(this)
+}
+
 fun String.sha3Sum256(): ByteArray {
     return digestKeccak(KeccakParameter.SHA3_256)
 }
 
 fun ByteArray.sha3Sum256(): ByteArray {
     return digestKeccak(KeccakParameter.SHA3_256)
+}
+
+fun ByteArray.blake3(): ByteArray {
+    val md = Blake3Digest(32)
+    md.update(this, 0, this.size)
+    val out = ByteArray(md.digestSize)
+    md.doFinal(out, 0)
+    return out
 }
 
 fun decryptPinToken(
@@ -210,9 +224,8 @@ private fun stripRsaPrivateKeyHeaders(privatePem: String): String {
     val strippedKey = StringBuilder()
     val lines = privatePem.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     lines.filter { line ->
-        !line.contains("BEGIN RSA PRIVATE KEY") &&
-            !line.contains("END RSA PRIVATE KEY") && line.trim { it <= ' ' }.isNotEmpty()
-    }
-        .forEach { line -> strippedKey.append(line.trim { it <= ' ' }) }
+        !line.contains("BEGIN RSA PRIVATE KEY") && !line.contains("END RSA PRIVATE KEY") && line.trim { it <= ' ' }
+            .isNotEmpty()
+    }.forEach { line -> strippedKey.append(line.trim { it <= ' ' }) }
     return strippedKey.toString().trim { it <= ' ' }
 }
