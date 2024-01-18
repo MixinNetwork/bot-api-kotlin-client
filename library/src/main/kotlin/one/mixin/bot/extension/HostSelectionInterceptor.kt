@@ -3,31 +3,8 @@ package one.mixin.bot.extension
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
-import okhttp3.Request
-import one.mixin.bot.Constants
 import one.mixin.bot.Constants.API.URL
 import java.io.IOException
-import java.net.ConnectException
-import java.net.NoRouteToHostException
-import java.net.ProtocolException
-import java.net.SocketException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
-import javax.net.ssl.SSLHandshakeException
-import javax.net.ssl.SSLPeerUnverifiedException
-
-fun Throwable.isNeedSwitch(): Boolean {
-    return (
-        this is SocketTimeoutException ||
-            this is UnknownHostException ||
-            this is ConnectException ||
-            this is ProtocolException ||
-            this is NoRouteToHostException ||
-            this is SocketException ||
-            this is SSLPeerUnverifiedException ||
-            this is SSLHandshakeException
-    )
-}
 
 class HostSelectionInterceptor private constructor() : Interceptor {
     @Volatile
@@ -36,16 +13,6 @@ class HostSelectionInterceptor private constructor() : Interceptor {
     private fun setHost(url: String) {
         CURRENT_URL = url
         this.host = url.toHttpUrlOrNull()
-    }
-
-    fun switch(request: Request) {
-        val currentUrl = "${request.url.scheme}://${request.url.host}/"
-        if (currentUrl != host.toString()) return
-        if (currentUrl == URL) {
-            setHost(Constants.API.CN_URL)
-        } else {
-            setHost(URL)
-        }
     }
 
     @Throws(IOException::class)

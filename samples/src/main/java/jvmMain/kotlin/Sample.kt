@@ -25,7 +25,7 @@ fun main() = runBlocking {
     val sessionSecret = sessionKey.publicKey.base64Encode()
     val user = createUser(botClient, sessionSecret)
     user ?: return@runBlocking
-    val userClient = HttpClient.Builder().useCNServer().configSafeUser(
+    val userClient = HttpClient.Builder().configSafeUser(
         user.userId,
         user.sessionId,
         sessionKey.privateKey,

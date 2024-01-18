@@ -15,12 +15,10 @@ import java.util.*
 
 class BlazeClient private constructor(
     private val safeUser: SafeUser,
-    private val cnServer: Boolean = false,
     private val blazeHandler: BlazeHandler,
     private val parseData: Boolean = false,
     private val autoAck: Boolean = false,
     debug: Boolean = false,
-    autoSwitch: Boolean = false,
 ) : WebSocketListener() {
     companion object {
         private const val MAX_RECONNECT_COUNT = 10
@@ -32,7 +30,7 @@ class BlazeClient private constructor(
     private var reconnectInterval = 5000
 
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(safeUser, true, debug, cnServer, autoSwitch)
+        createHttpClient(safeUser, true, debug)
     }
 
     private var webSocket: WebSocket? = null
@@ -47,11 +45,7 @@ class BlazeClient private constructor(
         }
 
         val request = Request.Builder().url(
-            if (cnServer) {
-                Constants.API.CN_WS_URL
-            } else {
-                Constants.API.WS_URL
-            }
+            Constants.API.WS_URL
         ).build()
         webSocket = okHttpClient.newWebSocket(request, this)
     }
@@ -78,7 +72,6 @@ class BlazeClient private constructor(
         private var parseData: Boolean = false
         private var autoAck: Boolean = false
         private var blazeHandler: BlazeHandler = DefaultBlazeHandler()
-        private var autoSwitch: Boolean = false
 
         fun configSafeUser(
             userId: String,
@@ -116,13 +109,8 @@ class BlazeClient private constructor(
             return this
         }
 
-        fun enableAutoSwitch(): Builder {
-            autoSwitch = true
-            return this
-        }
-
         fun build(): BlazeClient {
-            return BlazeClient(safeUser, cnServer, blazeHandler, parseData, autoAck, autoSwitch)
+            return BlazeClient(safeUser, blazeHandler, parseData, autoAck)
         }
     }
 

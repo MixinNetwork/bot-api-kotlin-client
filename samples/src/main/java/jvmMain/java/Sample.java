@@ -1,6 +1,5 @@
 package jvmMain.java;
 
-import kotlin.text.HexExtensionsKt;
 import one.mixin.bot.HttpClient;
 import one.mixin.bot.api.MixinResponse;
 import one.mixin.bot.extension.ByteArrayExtensionKt;
@@ -28,7 +27,7 @@ public class Sample {
 
     public static void main(String[] args) {
         HttpClient client = new HttpClient.Builder().configSafeUser(BOT_USER_ID, BOT_SESSION_ID,
-                ByteArrayExtensionKt.hexStringToByteArray(BOT_SESSION_PRIVATE_KEY), null, null).enableDebug().enableAutoSwitch().build();
+                ByteArrayExtensionKt.hexStringToByteArray(BOT_SESSION_PRIVATE_KEY), null, null).enableDebug().build();
         try {
             EdKeyPair sessionKey = generateEd25519KeyPair();
             String sessionSecret = base64Encode(sessionKey.getPublicKey());
@@ -42,7 +41,7 @@ public class Sample {
             byte[] userAesKey = calculateAgreement(Objects.requireNonNull(base64Decode(user.getPinToken())), privateKeyToCurve25519(sessionKey.getPrivateKey()));
 
 
-            HttpClient userClient = new HttpClient.Builder().configSafeUser(user.getUserId(), user.getSessionId(), sessionKey.getPrivateKey(), null, null).enableDebug().enableAutoSwitch().build();
+            HttpClient userClient = new HttpClient.Builder().configSafeUser(user.getUserId(), user.getSessionId(), sessionKey.getPrivateKey(), null, null).enableDebug().build();
             // create user's pin
             createPin(userClient, userAesKey);
 

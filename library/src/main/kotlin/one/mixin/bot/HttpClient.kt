@@ -1,11 +1,8 @@
-@file:Suppress("ktlint")
-
 package one.mixin.bot
 
 import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
-import one.mixin.bot.Constants.API.CN_URL
 import one.mixin.bot.Constants.API.URL
 import one.mixin.bot.api.*
 import one.mixin.bot.util.createHttpClient
@@ -20,27 +17,19 @@ import java.security.Security
 @Suppress("unused")
 class HttpClient private constructor(
     val safeUser: SafeUser,
-    cnServer: Boolean = false,
     debug: Boolean = false,
-    autoSwitch: Boolean = false
 ) {
     init {
         Security.addProvider(BouncyCastleProvider())
     }
 
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(safeUser, false, debug, cnServer, autoSwitch)
+        createHttpClient(safeUser, false, debug)
     }
 
     private val retrofit: Retrofit by lazy {
         val builder = Retrofit.Builder()
-            .baseUrl(
-                if (cnServer) {
-                    CN_URL
-                } else {
-                    URL
-                }
-            )
+            .baseUrl(URL)
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
@@ -103,9 +92,7 @@ class HttpClient private constructor(
 
     class Builder {
         private lateinit var safeUser: SafeUser
-        private var cnServer: Boolean = false
         private var debug: Boolean = false
-        private var autoSwitch: Boolean = false
 
         fun configSafeUser(
             userId: String,
@@ -118,23 +105,13 @@ class HttpClient private constructor(
             return this
         }
 
-        fun useCNServer(): Builder {
-            cnServer = true
-            return this
-        }
-
         fun enableDebug(): Builder {
             debug = true
             return this
         }
 
-        fun enableAutoSwitch(): Builder {
-            autoSwitch = true
-            return this
-        }
-
         fun build(): HttpClient {
-            return HttpClient(safeUser, cnServer, debug, autoSwitch)
+            return HttpClient(safeUser, debug)
         }
     }
 }

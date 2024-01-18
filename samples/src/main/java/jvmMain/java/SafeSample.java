@@ -26,10 +26,7 @@ import static one.mixin.bot.SessionKt.encryptTipPin;
 public class SafeSample {
     public static void main(String[] args) throws Exception {
         HttpClient botClient = Common.botClient;
-
         updateFromLegacyPin(botClient);
-
-//         Account user = createTipPin(botClient);
     }
 
     private static void updateFromLegacyPin(HttpClient botClient) throws Exception {
@@ -39,7 +36,7 @@ public class SafeSample {
         User user = createUser(botClient, sessionSecret);
         assert user != null;
 
-        HttpClient userClient = new HttpClient.Builder().useCNServer().enableDebug().configSafeUser(
+        HttpClient userClient = new HttpClient.Builder().enableDebug().configSafeUser(
                 user.getUserId(),
                 user.getSessionId(),
                 sessionKey.getPrivateKey(),
@@ -99,7 +96,7 @@ public class SafeSample {
         User user = createUser(botClient, sessionSecret);
         assert user != null;
 
-        HttpClient userClient = new HttpClient.Builder().useCNServer().enableDebug().configSafeUser(
+        HttpClient userClient = new HttpClient.Builder().enableDebug().configSafeUser(
                 user.getUserId(),
                 user.getSessionId(),
                 sessionKey.getPrivateKey(),

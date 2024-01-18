@@ -9,7 +9,6 @@ import one.mixin.bot.Constants
 import one.mixin.bot.api.exception.ClientErrorException
 import one.mixin.bot.api.exception.ServerErrorException
 import one.mixin.bot.extension.HostSelectionInterceptor
-import one.mixin.bot.extension.isNeedSwitch
 import one.mixin.bot.signToken
 import one.mixin.bot.vo.safe.SafeUser
 import java.util.*
@@ -19,8 +18,6 @@ fun createHttpClient(
     safeUser: SafeUser,
     websocket: Boolean,
     debug: Boolean,
-    cnServer: Boolean,
-    autoSwitch: Boolean,
 ): OkHttpClient {
     val builder = OkHttpClient.Builder()
     if (debug) {
@@ -37,21 +34,13 @@ fun createHttpClient(
     if (websocket) {
         builder.addInterceptor(
             HostSelectionInterceptor.get(
-                if (cnServer) {
-                    Constants.API.CN_WS_URL
-                } else {
-                    Constants.API.WS_URL
-                },
+                Constants.API.WS_URL
             ),
         )
     } else {
         builder.addInterceptor(
             HostSelectionInterceptor.get(
-                if (cnServer) {
-                    Constants.API.CN_URL
-                } else {
-                    Constants.API.URL
-                },
+                Constants.API.URL,
             ),
         )
     }
@@ -80,17 +69,7 @@ fun createHttpClient(
                 try {
                     chain.proceed(request)
                 } catch (e: Exception) {
-                    throw e.apply {
-                        if (autoSwitch && e.isNeedSwitch()) {
-                            HostSelectionInterceptor.get().switch(request)
-                        } else {
-                            if (e.message?.contains("502") == true) {
-                                throw ServerErrorException(502)
-                            } else {
-                                throw e
-                            }
-                        }
-                    }
+                    throw e
                 }
 
             if (!response.isSuccessful) {
