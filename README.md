@@ -91,21 +91,5 @@ private class MyBlazeHandler : BlazeHandler {
 }
 ```
 
-## About PIN 
-A 6-digit PIN is required when a user is trying to transfer assets, the code functions pretty much like a private key, not retrievable if lost.
-
-```kotlin
-fun encryptPin(key: String, pin: String, iterator: Long = System.currentTimeMillis() * 1_000_000): String {
-    val pinByte = pin.toByteArray() + (System.currentTimeMillis() / 1000).toLeByteArray() + iterator.toLeByteArray()
-    return aesEncrypt(key.base64Decode(), pinByte).base64Encode()
-}
-```
-
-- The parameter iterator must be incremental and greater than 0. It is generally recommended to use the current system millis time, or you can choose a number by yourself, and increment it with each call.
-- The encrypted PIN can only be used once, and it needs to be generated twice when changing the password and cannot be reused.
-- There is a time lock for PIN errors. If you have failed 5 times a day, do not try again, even the PIN is correct after 5 times, an error will be returned. Repeating more times will cause a longer lock time. It is recommended that users write down the tried PIN and try again the next day.
-- Once a PIN is lost, it can never be retrieved. It is recommended that the developer let each user enter it regularly to help memorize it. During the initial setting, make sure to let the user enter it more than 3 times and remind the user that it cannot be retrieved if lost
-- For asset security, it is recommended to remind users not to set PINs that are too simple or common combinations, such as 123456, 111222.
-
 # Licence
 [WTFPL](http://www.wtfpl.net/txt/copying/)
