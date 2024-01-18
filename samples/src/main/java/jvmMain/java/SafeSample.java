@@ -16,8 +16,6 @@ import one.mixin.bot.vo.PinRequest;
 import one.mixin.bot.vo.User;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 
 import static jvmMain.java.Sample.createUser;
@@ -32,16 +30,6 @@ public class SafeSample {
         updateFromLegacyPin(botClient);
 
 //         Account user = createTipPin(botClient);
-
-        // use Transaction.kt or MixAddress.kt should load libgojni.so first
-        Path currentRelativePath = Paths.get("");
-        String s = currentRelativePath.toAbsolutePath().toString();
-        System.out.println("Current absolute path is: " + s);
-        System.load(s + "/library/libs/darwin/amd64/libgojni.so");
-
-//        transactionToOne(botClient);
-
-//        transactionToMultiple(botClient);
     }
 
     private static void updateFromLegacyPin(HttpClient botClient) throws Exception {
@@ -141,6 +129,4 @@ public class SafeSample {
         // register safe
         return TipKt.registerSafe(userClient, user.getUserId(), ByteArrayExtensionKt.toHex(keyPair.getPrivateKey()), ByteArrayExtensionKt.toHex(keyPair.getPrivateKey()), Base64ExtensionKt.base64UrlEncode(userPrivateKey), user.getPinToken());
     }
-
-
 }
