@@ -11,7 +11,7 @@ fun main() {
         botClient = botClient,
         receivers = listOf("cfb018b0-eaf7-40ec-9e07-28a5158f1269"),
         assetId = Token.CNB.assetId,
-        amount = "0.003",
+        amount = "0.000000003",
         memo = "test-memo-from-kotlin",
         traceId = traceId,
     )
