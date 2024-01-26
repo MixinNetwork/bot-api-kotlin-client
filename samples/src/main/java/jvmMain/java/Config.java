@@ -1,8 +1,9 @@
 package jvmMain.java;
 
-final class Config {
-    final static String BOT_USER_ID = "";
-    final static String BOT_SESSION_ID = "";
-    final static String BOT_SESSION_PRIVATE_KEY = "";
-    final static String BOT_SPEND_KEY = "";
+public final class Config {
+    public final static String BOT_USER_ID = "";
+    public final static String BOT_SESSION_ID = "";
+    public final static String BOT_SESSION_PRIVATE_KEY = "";
+    public final static String BOT_SPEND_KEY = "";
+    public final static String BOT_SERVER_PUBLIC_KEY = "";
 }

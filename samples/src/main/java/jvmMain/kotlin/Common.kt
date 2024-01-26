@@ -9,6 +9,7 @@ val botClient = HttpClient.Builder().configSafeUser(
     sessionId = Config.BOT_SESSION_ID,
     sessionPrivateKey = Config.BOT_SESSION_PRIVATE_KEY.hexStringToByteArray(),
     spendPrivateKey = Config.BOT_SPEND_KEY.hexStringToByteArray(),
+    serverPublicKey = Config.BOT_SERVER_PUBLIC_KEY.hexStringToByteArray(),
 ).enableDebug().build()
 
 
