@@ -101,7 +101,7 @@ private fun edwardsToMontgomeryX(y: LongArray): LongArray {
 fun String.sha256(): ByteArray = toByteArray().sha256()
 
 fun ByteArray.sha256(): ByteArray {
-    val md = MessageDigest.getInstance("SHA256")
+    val md = MessageDigest.getInstance("SHA-256")
     return md.digest(this)
 }
 
