@@ -16,7 +16,8 @@ import java.security.Security
 
 @Suppress("unused")
 class HttpClient private constructor(
-    val safeUser: SafeUser,
+    val safeUser: SafeUser?,
+    private val accessToken: String? = null,
     debug: Boolean = false,
 ) {
     init {
@@ -24,15 +25,12 @@ class HttpClient private constructor(
     }
 
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(safeUser, false, debug)
+        createHttpClient(safeUser, accessToken, false, debug)
     }
 
     private val retrofit: Retrofit by lazy {
-        val builder = Retrofit.Builder()
-            .baseUrl(URL)
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
+        val builder = Retrofit.Builder().baseUrl(URL).addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .addConverterFactory(GsonConverterFactory.create()).client(okHttpClient)
         builder.build()
     }
 
@@ -91,8 +89,9 @@ class HttpClient private constructor(
     }
 
     class Builder {
-        private lateinit var safeUser: SafeUser
+        private var safeUser: SafeUser? = null
         private var debug: Boolean = false
+        private var accessToken: String? = null
 
         fun configSafeUser(
             userId: String,
@@ -101,7 +100,13 @@ class HttpClient private constructor(
             serverPublicKey: ByteArray? = null,
             spendPrivateKey: ByteArray? = null,
         ): Builder {
-            safeUser = SafeUser(userId, sessionId, sessionPrivateKey.sliceArray(0..31), serverPublicKey, spendPrivateKey)
+            safeUser =
+                SafeUser(userId, sessionId, sessionPrivateKey.sliceArray(0..31), serverPublicKey, spendPrivateKey)
+            return this
+        }
+
+        fun configAccessToken(accessToken: String): Builder {
+            this.accessToken = accessToken
             return this
         }
 
@@ -111,7 +116,10 @@ class HttpClient private constructor(
         }
 
         fun build(): HttpClient {
-            return HttpClient(safeUser, debug)
+            require(!(safeUser == null && accessToken == null)) { "safeUser and accessToken can't be null at the same time" }
+            return HttpClient(safeUser, accessToken, debug)
         }
     }
+
+
 }

@@ -30,7 +30,7 @@ class BlazeClient private constructor(
     private var reconnectInterval = 5000
 
     private val okHttpClient: OkHttpClient by lazy {
-        createHttpClient(safeUser, true, debug)
+        createHttpClient(safeUser, null, true, debug)
     }
 
     private var webSocket: WebSocket? = null
@@ -80,7 +80,8 @@ class BlazeClient private constructor(
             serverPublicKey: ByteArray? = null,
             spendPrivateKey: ByteArray? = null,
         ): Builder {
-            safeUser = SafeUser(userId, sessionId, sessionPrivateKey.sliceArray(0..31), serverPublicKey, spendPrivateKey)
+            safeUser =
+                SafeUser(userId, sessionId, sessionPrivateKey.sliceArray(0..31), serverPublicKey, spendPrivateKey)
             return this
         }
 
@@ -124,8 +125,7 @@ class BlazeClient private constructor(
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-        try {
-            // 消息通的时，重置连接次数
+        try { // 消息通的时，重置连接次数
             connectCount = 0
 
             val blazeMsg = decodeAs(bytes, parseData)
@@ -163,17 +163,26 @@ fun sendMsg(webSocket: WebSocket, action: Action, msgParam: MsgParam?): Boolean 
 }
 
 fun sendTextMsg(webSocket: WebSocket, conversationId: String, recipientId: String, text: String): Boolean {
-    val msgParam = MsgParam(UUID.randomUUID().toString(), Category.PLAIN_TEXT.toString(), conversationId, recipientId, text)
+    val msgParam =
+        MsgParam(UUID.randomUUID().toString(), Category.PLAIN_TEXT.toString(), conversationId, recipientId, text)
     return sendMsg(webSocket, Action.CREATE_MESSAGE, msgParam)
 }
 
 fun sendCardMsg(webSocket: WebSocket, conversationId: String, recipientId: String, cards: Cards): Boolean {
-    val msgParam = MsgParam(UUID.randomUUID().toString(), Category.APP_CARD.toString(), conversationId, recipientId, Gson().toJson(cards))
+    val msgParam = MsgParam(
+        UUID.randomUUID().toString(), Category.APP_CARD.toString(), conversationId, recipientId, Gson().toJson(cards)
+    )
     return sendMsg(webSocket, Action.CREATE_MESSAGE, msgParam)
 }
 
 fun sendButtonsMsg(webSocket: WebSocket, conversationId: String, recipientId: String, buttons: List<Buttons>): Boolean {
-    val msgParam = MsgParam(UUID.randomUUID().toString(), Category.APP_BUTTON_GROUP.toString(), conversationId, recipientId, Gson().toJson(buttons))
+    val msgParam = MsgParam(
+        UUID.randomUUID().toString(),
+        Category.APP_BUTTON_GROUP.toString(),
+        conversationId,
+        recipientId,
+        Gson().toJson(buttons)
+    )
     return sendMsg(webSocket, Action.CREATE_MESSAGE, msgParam)
 }
 

@@ -19,7 +19,7 @@ import retrofit2.http.Query
 interface UtxoCallService {
     @GET("safe/outputs")
     fun getOutputsCall(
-        @Query("members") members: String,
+        @Query("members") members: String?,
         @Query("threshold") threshold: Int,
         @Query("offset") offset: Long? = null,
         @Query("limit") limit: Int = 500,

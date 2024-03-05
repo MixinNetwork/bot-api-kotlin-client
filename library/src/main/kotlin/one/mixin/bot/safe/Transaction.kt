@@ -36,6 +36,7 @@ fun sendTransactionToUser(
     memo: String?,
     traceId: String,
 ): List<TransactionResponse> {
+    requireNotNull(botClient.safeUser) { "safe user is null" }
     verifyTxId(botClient, traceId) // check assetId is kernel assetId
 
     // get unspent outputs for asset and may throw insufficient outputs error
@@ -122,6 +123,7 @@ suspend fun withdrawalToAddress(
     memo: String? = null,
     traceId: String = UUID.randomUUID().toString(),
 ): List<TransactionResponse> {
+    requireNotNull(botClient.safeUser) { "safe user is null" }
     verifyTxId(botClient, traceId)
     val token = botClient.tokenService.getAssetById(assetId).requiredData()
     val chain = if (token.assetId == token.chainId) {
@@ -245,7 +247,7 @@ private suspend fun HttpClient.withdrawalTransaction(
     val withdrawalData = requestResponse.first { it.requestId == traceId }
     val feeData = requestResponse.first { it.requestId == feeTraceId }
 
-    val spendKey = safeUser.spendPrivateKey ?: throw SafeException("spend key is null")
+    val spendKey = safeUser?.spendPrivateKey ?: throw SafeException("spend key is null")
 
     val signedWithdrawalRaw = withdrawalTx.sign(withdrawalData.views, utxos, spendKey.toHex())
     val signedFeeRaw = feeTx.sign(feeData.views, feeUtxos, spendKey.toHex())
@@ -302,7 +304,7 @@ private suspend fun HttpClient.withdrawalTransaction(
         utxoService.transactionRequest(listOf(TransactionRequest(tx.encodeToString(), traceId))).requiredData()
             .firstOrNull() ?: throw SafeException("request transaction response data null")
 
-    val spendKey = safeUser.spendPrivateKey ?: throw SafeException("spend key is null")
+    val spendKey = safeUser?.spendPrivateKey ?: throw SafeException("spend key is null")
     val signedRaw = tx.sign(verifiedTx.views, utxos, spendKey.toHex())
 
     utxoService.transactions(listOf(TransactionRequest(signedRaw, traceId))).requiredData()
@@ -313,6 +315,7 @@ private fun requestUnspentOutputsForRecipients(
     assetId: String,
     amount: String,
 ): Pair<List<Output>, BigDecimal> {
+    requireNotNull(botClient.safeUser) { "safe user is null" }
     val memberHash = buildHashMembers(listOf(botClient.safeUser.userId))
     val outputs = listUnspentOutputs(botClient, memberHash, 1, assetId)
     if (outputs.isEmpty()) {
@@ -333,6 +336,9 @@ private fun requestUnspentOutputsForRecipients(
 }
 
 fun buildHashMembers(ids: List<String>): String {
+    if (ids.isEmpty()) {
+        return ""
+    }
     return ids.sortedBy { it }.joinToString("").sha3Sum256().joinToString("") { "%02x".format(it) }
 }
 
