@@ -15,10 +15,13 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 fun createHttpClient(
-    safeUser: SafeUser,
+    safeUser: SafeUser?,
+    accessToken: String?,
     websocket: Boolean,
     debug: Boolean,
 ): OkHttpClient {
+    require(!(safeUser == null && accessToken == null)) { "safeUser and accessToken can't be null at the same time" }
+
     val builder = OkHttpClient.Builder()
     if (debug) {
         val logging = HttpLoggingInterceptor()
@@ -52,25 +55,24 @@ fun createHttpClient(
             if (websocket) {
                 requestBuilder.addHeader("Sec-WebSocket-Protocol", "MixinBot-Blaze-1")
             }
-            requestBuilder.addHeader("User-Agent", Constants.UA).addHeader("Accept-Language", Locale.getDefault().language).addHeader(
-                "Authorization",
-                "Bearer " +
-                    signToken(
-                        safeUser.userId,
+            requestBuilder.addHeader("User-Agent", Constants.UA)
+                .addHeader("Accept-Language", Locale.getDefault().language).addHeader(
+                    "Authorization",
+                    "Bearer " + (accessToken ?: signToken(
+                        safeUser!!.userId,
                         safeUser.sessionId,
                         chain.request(),
                         EdDSAPrivateKey(safeUser.sessionPrivateKey.toByteString()),
-                    ),
-            )
+                    )),
+                )
 
             val request = requestBuilder.build()
 
-            val response =
-                try {
-                    chain.proceed(request)
-                } catch (e: Exception) {
-                    throw e
-                }
+            val response = try {
+                chain.proceed(request)
+            } catch (e: Exception) {
+                throw e
+            }
 
             if (!response.isSuccessful) {
                 val code = response.code
