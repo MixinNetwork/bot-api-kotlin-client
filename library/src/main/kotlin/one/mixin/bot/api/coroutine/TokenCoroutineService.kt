@@ -50,6 +50,13 @@ interface TokenCoroutineService {
     ): MixinResponse<List<SafeSnapshot>>
 
     @GET("safe/snapshots")
+    suspend fun getSnapshotsByAppId(
+        @Query("app") id: String,
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: Int = LIMIT,
+    ): MixinResponse<List<SafeSnapshot>>
+
+    @GET("safe/snapshots")
     suspend fun getAllSnapshots(
         @Query("offset") offset: String? = null,
         @Query("limit") limit: Int = LIMIT,
