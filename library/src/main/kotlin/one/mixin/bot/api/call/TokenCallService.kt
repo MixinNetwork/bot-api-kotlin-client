@@ -50,6 +50,13 @@ interface TokenCallService {
     ): Call<MixinResponse<List<SafeSnapshot>>>
 
     @GET("safe/snapshots")
+    fun getSnapshotsByAppIdCall(
+        @Query("app") id: String,
+        @Query("offset") offset: String? = null,
+        @Query("limit") limit: Int = LIMIT,
+    ): Call<MixinResponse<List<SafeSnapshot>>>
+
+    @GET("safe/snapshots")
     fun getAllSnapshotsCall(
         @Query("offset") offset: String? = null,
         @Query("limit") limit: Int = LIMIT,
