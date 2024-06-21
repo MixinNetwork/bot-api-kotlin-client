@@ -26,6 +26,13 @@ interface UtxoCoroutineService {
         @Query("asset") asset: String? = null,
     ): MixinResponse<List<Output>>
 
+    @GET("safe/outputs")
+    suspend fun getOutputsByAppId(
+        @Query("app") id: String,
+        @Query("offset") offset: Long? = null,
+        @Query("limit") limit: Int = 500,
+    ): MixinResponse<List<Output>>
+
     @POST("safe/deposit/entries")
     suspend fun createDeposit(
         @Body depositEntryRequest: DepositEntryRequest,

@@ -27,6 +27,13 @@ interface UtxoCallService {
         @Query("asset") asset: String? = null,
     ): Call<MixinResponse<List<Output>>>
 
+    @GET("safe/outputs")
+    suspend fun getOutputsByAppIdCall(
+        @Query("app") id: String,
+        @Query("offset") offset: Long? = null,
+        @Query("limit") limit: Int = 500,
+    ): MixinResponse<List<Output>>
+
     @POST("safe/deposit/entries")
     fun createDepositCall(
         @Body depositEntryRequest: DepositEntryRequest,
