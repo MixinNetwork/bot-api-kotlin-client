@@ -10,6 +10,7 @@ import one.mixin.bot.vo.MultisigsRequest
 import one.mixin.bot.vo.MultisigsResponse
 import one.mixin.bot.vo.OutputResponse
 import one.mixin.bot.vo.PinRequest
+import one.mixin.bot.vo.Quota
 import one.mixin.bot.vo.RpcRequest
 import one.mixin.bot.vo.User
 import retrofit2.http.Body
@@ -88,4 +89,9 @@ interface UserCoroutineService {
     suspend fun search(
         @Path("query") query: String,
     ): MixinResponse<User>
+
+    @GET("apps/{id}/quotas")
+    suspend fun quotas(
+        @Path("id") id: String,
+    ): MixinResponse<List<Quota>>
 }
