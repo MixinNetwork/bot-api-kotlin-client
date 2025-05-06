@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import one.mixin.bot.api.MixinResponse
 import one.mixin.bot.vo.Account
 import one.mixin.bot.vo.AccountRequest
+import one.mixin.bot.vo.Billing
 import one.mixin.bot.vo.GhostKey
 import one.mixin.bot.vo.GhostKeyRequest
 import one.mixin.bot.vo.MultisigsRequest
@@ -94,4 +95,9 @@ interface UserCoroutineService {
     suspend fun quotas(
         @Path("id") id: String,
     ): MixinResponse<List<Quota>>
+
+    @GET("safe/apps/{id}/billing")
+    suspend fun billing(
+        @Path("id") id: String,
+    ): MixinResponse<Billing>
 }
