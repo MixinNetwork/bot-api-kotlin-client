@@ -4,6 +4,9 @@
 # Description
 本项目是基于[Kotlin](https://kotlinlang.org/)的[Mixin Network](https://mixin.one/) bot sdk
 
+# 环境要求
+- JDK 21 及以上
+
 
 ## gradle
 将其添加 JitPack repository 到根build.gradle中：
@@ -18,7 +21,7 @@ allprojects {
 添加库
 ```
 dependencies {
-    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.7'
+    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v1.4.2'
 }
 ```
 
@@ -37,7 +40,7 @@ dependencies {
 <dependency>
     <groupId>com.github.MixinNetwork</groupId>
     <artifactId>bot-api-kotlin-client</artifactId>
-    <version>v0.5.7</version>
+    <version>v1.4.2</version>
 </dependency>
 ```
 

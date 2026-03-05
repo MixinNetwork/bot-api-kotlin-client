@@ -1,20 +1,37 @@
 package jvmMain.java;
 
+import static jvmMain.java.Config.BOT_SESSION_ID;
+import static jvmMain.java.Config.BOT_SESSION_PRIVATE_KEY;
+import static jvmMain.java.Config.BOT_USER_ID;
+import static one.mixin.bot.SessionKt.encryptPin;
+import static one.mixin.bot.extension.Base64ExtensionKt.base64Decode;
+import static one.mixin.bot.extension.Base64ExtensionKt.base64Encode;
+import static one.mixin.bot.util.CryptoUtilKt.calculateAgreement;
+import static one.mixin.bot.util.CryptoUtilKt.generateEd25519KeyPair;
+import static one.mixin.bot.util.CryptoUtilKt.privateKeyToCurve25519;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.UUID;
+
 import one.mixin.bot.HttpClient;
 import one.mixin.bot.api.MixinResponse;
 import one.mixin.bot.extension.ByteArrayExtensionKt;
 import one.mixin.bot.safe.EdKeyPair;
 import one.mixin.bot.util.ConversationUtil;
-import one.mixin.bot.vo.*;
-
-import java.io.IOException;
-import java.util.*;
-
-import static jvmMain.java.Config.*;
-import static one.mixin.bot.SessionKt.encryptPin;
-import static one.mixin.bot.extension.Base64ExtensionKt.base64Decode;
-import static one.mixin.bot.extension.Base64ExtensionKt.base64Encode;
-import static one.mixin.bot.util.CryptoUtilKt.*;
+import one.mixin.bot.vo.AccountRequest;
+import one.mixin.bot.vo.ConversationRequest;
+import one.mixin.bot.vo.ConversationResponse;
+import one.mixin.bot.vo.MessageRequest;
+import one.mixin.bot.vo.ParticipantRequest;
+import one.mixin.bot.vo.PinRequest;
+import one.mixin.bot.vo.User;
 
 @Deprecated
 @SuppressWarnings("SameParameterValue")
@@ -62,6 +79,7 @@ public class Sample {
 
     private static void pinVerifyCall(HttpClient client, byte[] userAesKey, String pin) throws IOException {
         MixinResponse<User> pinResponse = client.getUserService().pinVerifyCall(new PinRequest(Objects.requireNonNull(encryptPin(userAesKey, pin)), null, null)).execute().body();
+        assert pinResponse != null;
         if (pinResponse.isSuccess()) {
             System.out.printf("Pin verifyCall success %s%n", Objects.requireNonNull(pinResponse.getData()).getUserId());
         } else {
@@ -119,13 +137,13 @@ public class Sample {
                 recipientId, UUID.randomUUID().toString(), "PLAIN_TEXT",
                 Base64.getEncoder().encodeToString(text.getBytes()), null, null
         ));
-//        MixinResponse messageResponse = client.getMessageService().postMessageCall(messageRequests).execute().body();
-//        assert messageResponse != null;
-//        if (messageResponse.isSuccess()) {
-//            System.out.println("Send success");
-//        } else {
-//            System.out.println("Send failure");
-//        }
+        MixinResponse<@NotNull Void> messageResponse = client.getMessageService().postMessageCall(messageRequests).execute().body();
+        assert messageResponse != null;
+        if (messageResponse.isSuccess()) {
+            System.out.println("Send success");
+        } else {
+            System.out.println("Send failure");
+        }
     }
 
 

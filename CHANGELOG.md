@@ -1,3 +1,7 @@
+### v1.4.2
+- Bump Java/Kotlin compile target to 21
+- Update README dependency examples to v1.4.2
+
 ### v0.5.7
 - Support address fee asset
 

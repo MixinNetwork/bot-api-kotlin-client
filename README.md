@@ -1,6 +1,9 @@
 # bot-api-kotlin-client
 The [Mixin Network](https://mixin.one/) based wallet allows for the rapid construction of decentralized wallets, decentralized on-chain exchanges, and other products.
 
+# Requirements
+- JDK 21+
+
 # Installation
 
 ## gradle
@@ -16,7 +19,7 @@ allprojects {
 Add the dependency
 ```
 dependencies {
-    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v1.0.0'
+    implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v1.4.2'
 }
 ```
 
@@ -35,7 +38,7 @@ Add the dependency
 <dependency>
     <groupId>com.github.MixinNetwork</groupId>
     <artifactId>bot-api-kotlin-client</artifactId>
-    <version>v1.0.0</version>
+    <version>v1.4.2</version>
 </dependency>
 ```
 

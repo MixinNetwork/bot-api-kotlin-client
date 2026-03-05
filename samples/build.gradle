@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'application'
     id 'kotlin'
@@ -5,18 +7,32 @@ plugins {
     id 'java'
 }
 
+kotlin {
+    jvmToolchain(21)
+}
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 configurations {
     ktlint
 }
 
+application {
+    mainClass = 'EncryptedProtocolSmapleKt'
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "21"
+    }
+}
+
 dependencies {
     implementation project(":library")
-    // implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v0.5.5'
+    // implementation 'com.github.MixinNetwork:bot-api-kotlin-client:v1.4.2'
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"

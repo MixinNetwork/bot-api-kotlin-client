@@ -19,7 +19,7 @@ import java.util.Random
 import java.util.UUID
 
 const val DEFAULT_PIN = "131416"
-fun main() = runBlocking {
+fun main(): Unit = runBlocking {
     // create user
     val sessionKey = generateEd25519KeyPair()
     val sessionSecret = sessionKey.publicKey.base64Encode()

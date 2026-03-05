@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'java-library'
     id 'kotlin'
@@ -5,9 +7,13 @@ plugins {
     id 'java'
 }
 
+kotlin {
+    jvmToolchain(21)
+}
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 configurations {
@@ -35,13 +41,18 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
 }
 
-sourceCompatibility = 1.8
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "21"
+    }
+}
+
 publishing {
     publications {
         customLibrary(MavenPublication) {
             groupId = 'com.github.MixinNetwork'
             artifactId = 'bot-api-kotlin-client'
-            version = 'v0.5.7'
+            version = 'v1.4.2'
 
             from components.java
 
