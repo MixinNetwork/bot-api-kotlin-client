@@ -21,8 +21,8 @@ data class SafeSnapshot(
     val transactionHash: String,
     @SerializedName("created_at")
     val createdAt: String,
-    @SerializedName("trace_id")
-    val traceId: String?,
+    @SerializedName("request_id")
+    val requestId: String?,
     @SerializedName("confirmations")
     val confirmations: Int?,
     @SerializedName("opening_balance")
