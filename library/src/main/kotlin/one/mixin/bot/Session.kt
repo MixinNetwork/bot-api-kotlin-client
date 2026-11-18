@@ -22,8 +22,8 @@ fun signToken(
     body: String?,
     key: Key,
 ): String {
-    val expire = System.currentTimeMillis() / 1000 + 1800
     val iat = System.currentTimeMillis() / 1000
+    val expire = iat + 300
 
     var content = "${method}$path"
     body?.let {
